@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueI18n from 'vue-i18n'
-import Cookies from 'js-cookie'
 import elementEnLocale from 'element-ui/lib/locale/lang/en' // element-ui lang
 import elementZhLocale from 'element-ui/lib/locale/lang/zh-CN'// element-ui lang
 import elementEsLocale from 'element-ui/lib/locale/lang/es'// element-ui lang
@@ -30,8 +29,9 @@ const messages = {
     ...elementJaLocale
   }
 }
+
 export function getLanguage() {
-  const chooseLanguage = Cookies.get('language')
+  /* const chooseLanguage = Cookies.get('language')
   if (chooseLanguage) return chooseLanguage
 
   // if has not choose language
@@ -41,9 +41,11 @@ export function getLanguage() {
     if (language.indexOf(locale) > -1) {
       return locale
     }
-  }
-  return 'en'
+  }*/
+  return 'zh'
 }
+
+// noinspection JSCheckFunctionSignatures
 const i18n = new VueI18n({
   // set locale
   // options: en | zh | es

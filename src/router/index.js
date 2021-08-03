@@ -130,6 +130,72 @@ export const constantRoutes = [
  */
 export const asyncRoutes = [
   {
+    path: '/system',
+    component: Layout,
+    name: 'System',
+    meta: {
+      title: '系统管理',
+      icon: 'lock',
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'user',
+        component: () => import('@/views/system/user'),
+        name: 'User',
+        meta: { title: '用户管理', noCache: true }
+      },
+      {
+        path: 'role',
+        component: () => import('@/views/charts/line'),
+        name: 'Role',
+        meta: { title: '角色管理', noCache: true }
+      },
+      {
+        path: 'authority',
+        component: () => import('@/views/charts/line'),
+        name: 'Authority',
+        meta: { title: '权限管理', noCache: true }
+      },
+      {
+        path: 'dict',
+        component: () => import('@/views/charts/line'),
+        name: 'Dict',
+        meta: { title: '字典管理', noCache: true }
+      },
+      {
+        path: 'menu',
+        component: () => import('@/views/charts/line'),
+        name: 'Menu',
+        meta: { title: '菜单管理', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/monitor',
+    component: Layout,
+    name: 'Monitor',
+    meta: {
+      title: '系统监控',
+      icon: 'lock',
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'accessLog',
+        component: () => import('@/views/charts/line'),
+        name: 'AccessLog',
+        meta: { title: '访问日志', noCache: true }
+      },
+      {
+        path: 'role',
+        component: () => import('@/views/charts/line'),
+        name: 'Role',
+        meta: { title: '服务监控', noCache: true }
+      }
+    ]
+  },
+  {
     path: '/permission',
     component: Layout,
     redirect: '/permission/page',

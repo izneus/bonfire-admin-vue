@@ -8,17 +8,23 @@ export function login(data) {
   })
 }
 
-export function getInfo(token) {
+export function getCaptcha() {
   return request({
-    url: '/vue-element-admin/user/info',
-    method: 'get',
-    params: { token }
+    url: '/v1/captcha',
+    method: 'get'
+  })
+}
+
+export function getInfo() {
+  return request({
+    url: '/v1/user/info',
+    method: 'get'
   })
 }
 
 export function logout() {
   return request({
-    url: '/vue-element-admin/user/logout',
+    url: '/v1/logout',
     method: 'post'
   })
 }
