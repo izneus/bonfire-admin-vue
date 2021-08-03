@@ -16,11 +16,10 @@ export default class Dict {
       Vue.set(this.dict.label, n, {})
       Vue.set(this.dict, n, [])
       ps.push(listDictDetails(n).then(resp => {
-        console.log('dict resp: %o', resp.data)
         this.dict[n].splice(0, 0, ...resp.data.details)
         resp.data.details.forEach(d => {
-          Vue.set(this.dict.dict[n], d.value, d)
-          Vue.set(this.dict.label[n], d.value, d.label)
+          Vue.set(this.dict.dict[n], d.dictValue, d)
+          Vue.set(this.dict.label[n], d.dictValue, d.dictLabel)
         })
       }))
     })
