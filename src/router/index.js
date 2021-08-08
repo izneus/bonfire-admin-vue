@@ -83,7 +83,7 @@ export const constantRoutes = [
       }
     ]
   },
-  {
+  /*  {
     path: '/documentation',
     component: Layout,
     children: [
@@ -108,6 +108,7 @@ export const constantRoutes = [
       }
     ]
   },
+  */
   {
     path: '/profile',
     component: Layout,
@@ -171,6 +172,7 @@ export const asyncRoutes = [
       }
     ]
   },
+  /*
   {
     path: '/monitor',
     component: Layout,
@@ -186,13 +188,13 @@ export const asyncRoutes = [
         component: () => import('@/views/charts/line'),
         name: 'AccessLog',
         meta: { title: '访问日志', noCache: true }
-      },
-      {
+      }
+      /!* {
         path: 'role',
         component: () => import('@/views/charts/line'),
         name: 'Role',
         meta: { title: '服务监控', noCache: true }
-      }
+      }*!/
     ]
   },
   {
@@ -250,7 +252,7 @@ export const asyncRoutes = [
     ]
   },
 
-  /** when your routing map is too long, you can split it into small modules **/
+  /!** when your routing map is too long, you can split it into small modules **!/
   componentsRouter,
   chartsRouter,
   nestedRouter,
@@ -461,6 +463,7 @@ export const asyncRoutes = [
       }
     ]
   },
+*/
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
