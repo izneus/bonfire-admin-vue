@@ -33,7 +33,7 @@ html {
 }
 
 .no-padding {
-  padding: 0px !important;
+  padding: 0 !important;
 }
 
 .padding-content {
@@ -121,7 +121,7 @@ aside {
 
 //main-container全局样式
 .app-container {
-  padding: 20px;
+  padding: 10px;
 }
 
 .components-container {
@@ -188,4 +188,24 @@ aside {
 
 .multiselect--active {
   z-index: 1000 !important;
+}
+
+.content-main {
+  background-color: #ffffff;
+}
+
+.search-bar {
+  padding: 20px 20px 0 20px;
+}
+
+.search-bar .el-form-item {
+  margin-bottom: 0;
+}
+
+.result-table {
+  padding: 0 20px 20px 20px;
+}
+
+.result-table-header {
+  background-color: #EBEEF5 !important;
 }

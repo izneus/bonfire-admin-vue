@@ -144,31 +144,31 @@ export const asyncRoutes = [
         path: 'user',
         component: () => import('@/views/system/user'),
         name: 'User',
-        meta: { title: '用户管理', noCache: true }
+        meta: { title: '用户管理'}
       },
       {
         path: 'role',
         component: () => import('@/views/charts/line'),
         name: 'Role',
-        meta: { title: '角色管理', noCache: true }
+        meta: { title: '角色管理'}
       },
       {
         path: 'authority',
         component: () => import('@/views/charts/line'),
         name: 'Authority',
-        meta: { title: '权限管理', noCache: true }
+        meta: { title: '权限管理' }
       },
       {
         path: 'dict',
         component: () => import('@/views/charts/line'),
         name: 'Dict',
-        meta: { title: '字典管理', noCache: true }
+        meta: { title: '字典管理' }
       },
       {
         path: 'menu',
         component: () => import('@/views/charts/line'),
         name: 'Menu',
-        meta: { title: '菜单管理', noCache: true }
+        meta: { title: '菜单管理' }
       }
     ]
   },
