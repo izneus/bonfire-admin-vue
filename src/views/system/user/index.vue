@@ -68,57 +68,59 @@
           </el-table-column>
         </el-table>
       </div>
-      <el-dialog
-        title="新建用户"
-        width="800px"
-        :visible.sync="createVisible"
-        :model="user"
-      >
-        <el-form ref="userForm" label-width="auto" size="medium" label-position="top" :model="user">
-          <el-row :gutter="30">
-            <el-col :span="12">
-              <el-form-item label="用户名" prop="username">
-                <el-input v-model="user.username" placeholder="输入用户名" suffix-icon="el-icon-date" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="昵称" prop="nickname">
-                <el-input v-model="user.nickname" placeholder="输入昵称" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="姓名" prop="fullname">
-                <el-input v-model="user.fullname" placeholder="输入姓名" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="电子邮件" prop="email">
-                <el-input v-model="user.email" placeholder="输入电子邮件地址" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="手机号码" prop="mobile">
-                <el-input v-model="user.mobile" placeholder="输入手机号码" suffix-icon="el-icon-phone-outline" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="用户状态" prop="status">
-                <el-input v-model="user.status" placeholder="选择用户状态" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="24">
-              <el-form-item label="备注" prop="remark">
-                <el-input v-model="user.remark" type="textarea" :rows="3" placeholder="输入备注" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-checkbox v-model="createNext" style="float: left;height: 36px;line-height: 36px;">继续新建下一条</el-checkbox>
-          <el-button size="medium" @click="createVisible = false">取消</el-button>
-          <el-button size="medium" type="primary" style="width: 100px" @click="createVisible = false">确定</el-button>
-        </span>
-      </el-dialog>
+      <div class="dialog-wrapper">
+        <el-dialog
+          title="新建用户"
+          width="800px"
+          :visible.sync="createVisible"
+          :model="user"
+        >
+          <el-form ref="userForm" label-width="auto" size="medium" label-position="top" :model="user">
+            <el-row :gutter="30">
+              <el-col :span="12">
+                <el-form-item label="用户名" prop="username">
+                  <el-input v-model="user.username" placeholder="输入用户名" suffix-icon="el-icon-date" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="昵称" prop="nickname">
+                  <el-input v-model="user.nickname" placeholder="输入昵称" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="姓名" prop="fullname">
+                  <el-input v-model="user.fullname" placeholder="输入姓名" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="电子邮件" prop="email">
+                  <el-input v-model="user.email" placeholder="输入电子邮件地址" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="手机号码" prop="mobile">
+                  <el-input v-model="user.mobile" placeholder="输入手机号码" suffix-icon="el-icon-phone-outline" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="用户状态" prop="status">
+                  <el-input v-model="user.status" placeholder="选择用户状态" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="备注" prop="remark">
+                  <el-input v-model="user.remark" type="textarea" :rows="3" placeholder="输入备注" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-checkbox v-model="createNext" style="float: left;height: 36px;line-height: 36px;">继续新建下一条</el-checkbox>
+            <el-button size="medium" @click="createVisible = false">取消</el-button>
+            <el-button size="medium" type="primary" style="width: 100px" @click="createVisible = false">确定</el-button>
+          </span>
+        </el-dialog>
+      </div>
     </div>
   </div>
 </template>

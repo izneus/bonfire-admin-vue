@@ -24,55 +24,75 @@
 
 .el-input__inner {
   font-size: 14px;
+
+  &:hover {
+    border-color: #1890ff;
+  }
 }
 
-.el-dialog__header {
-  border-bottom: 1px solid #DCDFE6;
-  height: 50px;
-  padding: 0 30px 0 30px;
-}
+.el-dialog__wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-.el-dialog__title {
-  line-height: 50px;
-  font-size: 16px;
-}
+  .el-dialog {
+    max-height: 85vh;
+    margin-top: 0 !important;
+    display: flex;
+    flex-direction: column;
 
-.el-dialog__headerbtn {
-  line-height: 16px;
-  padding: 7px 7px;
-  top: 10px;
-  border-radius: 3px;
-}
+    .el-dialog__header {
+      border-bottom: 1px solid #DCDFE6;
+      height: 50px;
+      padding: 0 30px 0 30px;
 
-.el-dialog__headerbtn:hover {
-  background-color: #ecf5ff;
-}
+      .el-dialog__title {
+        line-height: 50px;
+        font-size: 16px;
+      }
 
-.el-dialog__body {
-  padding: 20px 30px 30px 30px;
-}
+      .el-dialog__headerbtn {
+        line-height: 16px;
+        padding: 7px 7px;
+        top: 10px;
+        border-radius: 3px;
 
-.el-dialog__body .el-form-item__label {
-  height: 22px;
-  line-height: 22px;
-  padding: 0 0;
-  margin-bottom: 8px;
-}
+        &:hover {
+          background-color: #ecf5ff;
+        }
+      }
+    }
 
-.el-dialog__footer {
-  padding: 12px 30px 12px 30px;
-  border-top: 1px solid #DCDFE6;
-}
+    .el-dialog__body {
+      padding: 20px 30px 30px 30px;
+      overflow: auto;
 
-.el-dialog__body .el-form-item {
-  margin-bottom: 16px;
+      .el-form-item__label {
+        height: 22px;
+        line-height: 22px;
+        padding: 0 0;
+        margin-bottom: 8px;
+      }
+
+      .el-form-item {
+        margin-bottom: 16px;
+      }
+
+      .el-input__suffix-inner {
+        .el-input__icon {
+          font-size: 16px;
+        }
+      }
+    }
+
+    .el-dialog__footer {
+      padding: 12px 30px 12px 30px;
+      border-top: 1px solid #DCDFE6;
+    }
+  }
 }
 
 .el-select:hover .el-input__inner {
-  border-color: #1890ff;
-}
-
-.el-input__inner:hover {
   border-color: #1890ff;
 }
 
@@ -80,9 +100,6 @@
   border-color: #1890ff;
 }
 
-.el-dialog__body .el-input__suffix-inner .el-input__icon {
-  font-size: 16px;
-}
 
 // ----------------------------------------------------
 
@@ -103,7 +120,7 @@
 
 .cell {
   .el-tag {
-    margin-right: 0px;
+    margin-right: 0;
   }
 }
 
@@ -127,7 +144,7 @@
     text-align: center;
 
     .el-tag {
-      margin-right: 0px;
+      margin-right: 0;
     }
   }
 }
