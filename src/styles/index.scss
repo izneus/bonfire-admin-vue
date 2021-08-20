@@ -190,12 +190,13 @@ aside {
   z-index: 1000 !important;
 }
 
+// --------下面是自定义样式-----------
 .content-main {
   background-color: #ffffff;
 }
 
 .search-bar {
-  padding: 20px 20px 0 20px;
+  padding: 20px 20px 5px 20px;
 }
 
 .search-bar .el-form-item {

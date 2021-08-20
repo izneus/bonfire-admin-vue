@@ -29,9 +29,18 @@ export function getInfo() {
   })
 }
 
-export function listUsers(params){
+export function listUsers(data) {
   return request({
-    url: '/v1/users',
-    params
+    url: '/v1/user/list',
+    method: 'post',
+    data
+  })
+}
+
+export function createUser(data) {
+  return request({
+    url: '/v1/user/create',
+    method: 'post',
+    data
   })
 }
