@@ -44,3 +44,11 @@ export function createUser(data) {
     data
   })
 }
+
+export function deleteUsers(data) {
+  return request({
+    url: '/v1/user/deleteBatch',
+    method: 'post',
+    data
+  })
+}

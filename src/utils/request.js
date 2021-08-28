@@ -73,6 +73,16 @@ service.interceptors.response.use(
     }*/
   },
   error => {
+    if (!Object.prototype.hasOwnProperty.call(error.response, 'data')) {
+      console.log('err' + error) // for debug
+      Message({
+        message: '无消息体返回，服务不可达',
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
+    }
+
     const res = error.response.data
     // 符合ApiError的错误返回
     if (Object.prototype.hasOwnProperty.call(res, 'message')) {

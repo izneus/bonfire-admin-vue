@@ -7,7 +7,7 @@
   line-height: 32px;
 }
 
-.el-button--primary:hover {
+.el-button--primary:hover:not(.el-button-group button) {
   background-color: #1890ff;
   border-color: #1890ff;
   box-shadow: 0 2px 5px 1px rgb(24 144 255 / 60%);
@@ -100,6 +100,13 @@
   border-color: #1890ff;
 }
 
+.el-pagination {
+  padding: 0 20px 20px 20px;
+}
+
+.el-pagination__total {
+  float: left;
+}
 
 // ----------------------------------------------------
 

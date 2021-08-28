@@ -191,22 +191,57 @@ aside {
 }
 
 // --------下面是自定义样式-----------
-.content-main {
-  background-color: #ffffff;
+.main-container {
+  background-color: #DCDFE6;
 }
 
-.search-bar {
-  padding: 20px 20px 5px 20px;
+.content-main {
+  background-color: #ffffff;
 
-  .el-form-item {
-    margin-bottom: 0;
+  .search-bar {
+    padding: 20px 20px 5px 20px;
+
+    .el-form-item {
+      margin-bottom: 0;
+    }
+  }
+
+  .tool-bar {
+    padding: 5px 20px 5px 20px;
+  }
+
+  .result-table {
+    padding: 0 20px 20px 20px;
+  }
+
+  .result-table-header {
+    background-color: red !important;
+  }
+
+}
+
+.msg-danger {
+  color: #fff;
+  background-color: #f56c6c !important;
+  border-color: #f56c6c !important;
+
+  &:hover {
+    background-color: #f56c6c !important;
+    border-color: #f56c6c !important;
+    box-shadow: 0 2px 5px 1px rgb(245 108 108 / 60%) !important;
   }
 }
 
-.result-table {
-  padding: 0 20px 20px 20px;
+.msg-cancel {
+  border: none;
 }
 
-.result-table-header {
-  background-color: #EBEEF5 !important;
+.line-button-danger:hover,
+.line-button-danger:focus {
+  //background-color: #f56c6c !important;
+  border-color: #f56c6c !important;
+  color: #f56c6c !important;
 }
+
+
+
