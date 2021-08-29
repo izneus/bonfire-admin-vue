@@ -53,22 +53,23 @@
                 plain
                 icon="el-icon-delete"
                 class="line-button-danger"
+                :disabled="selectedUser.length < 1"
                 @click="confirmDeleteUsers"
               >
                 批量删除
               </el-button>
               <el-button
                 size="small"
-                icon="el-icon-plus"
                 plain
               >
+                <svg-icon icon-class="import" />
                 导入
               </el-button>
               <el-button
                 size="small"
-                icon="el-icon-plus"
                 plain
               >
+                <svg-icon icon-class="export" />
                 导出
               </el-button>
             </el-button-group>
@@ -103,16 +104,15 @@
       <div class="foot-bar" style="text-align: right;">
         <el-pagination
           background
-          :current-page="currentPage4"
-          :page-sizes="[100, 200, 300, 400]"
-          :page-size="100"
+          :current-page="query.pageNum"
+          :page-sizes="[10, 20, 30, 50]"
+          :page-size="query.pageSize"
           layout="total, sizes, prev, pager, next, jumper"
-          :total="400"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+          :total="totalSize"
+          @size-change="changePageSize"
+          @current-change="changePageNum"
         />
       </div>
-
       <div class="dialog-wrapper">
         <el-dialog
           title="新建用户"
@@ -238,6 +238,7 @@ export default {
         ]
       },
       tableData: null,
+      totalSize: 0,
       selectedUser: [],
       createVisible: false,
       createNext: false,
@@ -257,6 +258,7 @@ export default {
       this.tableLoading = true
       listUsers(this.query).then(res => {
         this.tableData = res.data.rows
+        this.totalSize = res.data.totalSize
       }).finally(() => {
         this.tableLoading = false
       })
@@ -332,6 +334,14 @@ export default {
     },
     handleUserChange(val) {
       this.selectedUser = val
+    },
+    changePageNum(val) {
+      this.query.pageNum = val
+      this.handleQuery()
+    },
+    changePageSize(val) {
+      this.query.pageSize = val
+      this.handleQuery()
     }
   }
 }

@@ -201,7 +201,7 @@ export default {
 
 <style lang="scss" scoped>
 .tags-view-container {
-  height: 34px;
+  height: 26px;
   width: 100%;
   background: #fff;
   border-bottom: 1px solid #DCDFE6;
@@ -213,24 +213,30 @@ export default {
       cursor: pointer;
       height: 26px;
       line-height: 26px;
-      border: 1px solid #d8dce5;
+      //border: 1px solid #d8dce5;
+      border: none;
+      border-bottom: solid 1px #DCDFE6;
       color: #495060;
       background: #fff;
-      padding: 0 8px;
+      //padding: 0 8px;
+      padding: 0 20px;
       font-size: 12px;
-      margin-left: 5px;
-      margin-top: 4px;
-      &:first-of-type {
+      margin: 0 0;
+      //margin-left: 5px;
+      //margin-top: 4px;
+      /*&:first-of-type {
         margin-left: 15px;
       }
       &:last-of-type {
         margin-right: 15px;
-      }
+      }*/
       &.active {
-        background-color: #42b983;
+        background-color: #1890ff;
         color: #fff;
-        border-color: #42b983;
-        &::before {
+        //border-color: #1890ff;
+        //padding-bottom: 3px;
+        border-bottom: solid 1px #DCDFE6;
+        /*&::before {
           content: '';
           background: #fff;
           display: inline-block;
@@ -239,7 +245,7 @@ export default {
           border-radius: 50%;
           position: relative;
           margin-right: 2px;
-        }
+        }*/
       }
     }
   }
@@ -282,7 +288,8 @@ export default {
       &:before {
         transform: scale(.6);
         display: inline-block;
-        vertical-align: -3px;
+        vertical-align: -4px;
+        font-size: 16px;
       }
       &:hover {
         background-color: #b4bccc;
