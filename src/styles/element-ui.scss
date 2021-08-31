@@ -64,7 +64,7 @@
     }
 
     .el-dialog__body {
-      padding: 20px 30px 30px 30px;
+      padding: 20px 30px 14px 30px;
       overflow: auto;
 
       .el-form-item__label {
@@ -98,10 +98,6 @@
 
 .el-textarea__inner:hover {
   border-color: #1890ff;
-}
-
-.el-pagination {
-  padding: 0 20px 20px 20px;
 }
 
 .el-pagination__total {

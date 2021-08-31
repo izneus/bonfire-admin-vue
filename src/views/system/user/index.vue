@@ -5,8 +5,8 @@
         <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
           <el-row :gutter="24">
             <el-col :span="6">
-              <el-form-item label="用 户 名:" prop="username">
-                <el-input v-model="query.username" placeholder="输入用户名" />
+              <el-form-item label="用户名称:" prop="username">
+                <el-input v-model="query.username" placeholder="输入用户名称" />
               </el-form-item>
             </el-col>
             <el-col :span="6">
@@ -26,28 +26,39 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="6">
+            <el-col :span="12">
               <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
               <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
+              <el-button size="small" type="text" style="padding-left: 0;" @click="changeFoldSearch">
+                展开查询
+                <i v-show="!foldSearch" class="el-icon-arrow-down" />
+                <i v-show="foldSearch" class="el-icon-arrow-up" />
+              </el-button>
             </el-col>
-            <el-col :span="6" />
+          </el-row>
+          <el-row v-show="foldSearch" :gutter="24">
+            <el-col :span="6">
+              <el-form-item label="测试选项:">
+                <el-input placeholder="输入测试选项" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="6">
+              <el-form-item label="测试选项:">
+                <el-input placeholder="输入测试选项" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="测试选项:">
+                <el-input placeholder="输入测试选项" />
+              </el-form-item>
+            </el-col>
           </el-row>
         </el-form>
       </div>
       <div class="tool-bar">
         <el-row :gutter="24">
           <el-col :span="12">
-            <el-button
-              size="small"
-              type="primary"
-              icon="el-icon-plus"
-              @click="createVisible = true"
-            >
-              新增用户
-            </el-button>
-          </el-col>
-          <el-col :span="12">
-            <el-button-group style="vertical-align: top; margin-left: 20px;float: right;">
+            <el-button-group>
               <el-button
                 size="small"
                 plain
@@ -57,6 +68,13 @@
                 @click="confirmDeleteUsers"
               >
                 批量删除
+              </el-button>
+              <el-button
+                size="small"
+                icon="el-icon-download"
+                plain
+              >
+                导入模板下载
               </el-button>
               <el-button
                 size="small"
@@ -72,7 +90,24 @@
                 <svg-icon icon-class="export" />
                 导出
               </el-button>
+              <el-button
+                size="small"
+                plain
+                :disabled="selectedUser.length < 1"
+              >
+                批量重置密码
+              </el-button>
             </el-button-group>
+          </el-col>
+          <el-col :span="12" style="text-align: right;">
+            <el-button
+              size="small"
+              type="primary"
+              icon="el-icon-plus"
+              @click="createVisible = true"
+            >
+              新增用户
+            </el-button>
           </el-col>
         </el-row>
       </div>
@@ -82,6 +117,8 @@
           :data="tableData"
           style="width: 100%"
           show-overflow-tooltip="true"
+          header-row-class-name="result-table-header"
+          header-cell-class-name="result-table-header-cell"
           @selection-change="handleUserChange"
         >
           <el-empty slot="empty" />
@@ -92,8 +129,12 @@
           <el-table-column prop="email" label="邮件" show-overflow-tooltip />
           <el-table-column prop="mobile" label="手机" show-overflow-tooltip />
           <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-          <el-table-column prop="status" label="状态" show-overflow-tooltip />
-          <el-table-column fixed="right" label="操作" width="100">
+          <el-table-column prop="status" label="状态" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <el-tag size="small">{{ dict.label.user_status[scope.row.status] }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column fixed="right" label="操作">
             <template slot-scope="scope">
               <el-button type="text" @click="getDetail(scope.row)">查看</el-button>
               <el-button type="text">编辑</el-button>
@@ -237,20 +278,30 @@ export default {
           { type: 'email', message: '请输入正确的电子邮件地址', trigger: 'blur' }
         ]
       },
+      // 主表格数据
       tableData: null,
       totalSize: 0,
+      // 选中用户表的行
       selectedUser: [],
+      // 一些涉及是否的状态
       createVisible: false,
       createNext: false,
       createLoading: false,
       tableLoading: false,
-      deleteBatchLoading: false
+      deleteBatchLoading: false,
+      foldSearch: false,
+      // 对话框类型，复用新增和编辑
+      dialogType: 'add'
     }
   },
   created() {
     // 进入页面第一次查询，为了演示无数据状态暂时注释，
     // 实际业务页面为了用户体验，进页面都要请求一次数据
     // this.handleQuery()
+    // 得到完整数据
+    // console.log(this.dict)
+    // 打印简化后的label数据
+    // console.log(this.dict.label.user_status)
   },
   methods: {
     handleQuery() {
@@ -342,6 +393,9 @@ export default {
     changePageSize(val) {
       this.query.pageSize = val
       this.handleQuery()
+    },
+    changeFoldSearch() {
+      this.foldSearch = !this.foldSearch
     }
   }
 }

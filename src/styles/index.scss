@@ -198,9 +198,13 @@ aside {
 
 .content-main {
   background-color: #ffffff;
+  padding: 20px 20px;
 
   .search-bar {
-    padding: 20px 20px 5px 20px;
+
+    .el-row {
+      padding-bottom: 10px;
+    }
 
     .el-form-item {
       margin-bottom: 0;
@@ -208,15 +212,24 @@ aside {
   }
 
   .tool-bar {
-    padding: 5px 20px 5px 20px;
+    .el-row {
+      padding: 0 0 10px 0;
+    }
   }
 
   .result-table {
-    padding: 0 20px 20px 20px;
-  }
+    padding: 0 0 20px 0;
 
-  .result-table-header {
-    background-color: red !important;
+    .result-table-header {
+      background-color: red !important;
+    }
+
+    .result-table-header-cell {
+      color: rgba(0, 0, 0, .85);
+      font-weight: 500;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
   }
 
 }
@@ -237,8 +250,8 @@ aside {
   border: none;
 }
 
-.line-button-danger:hover,
-.line-button-danger:focus {
+.line-button-danger:hover:not(.is-disabled),
+.line-button-danger:focus:not(.is-disabled) {
   //background-color: #f56c6c !important;
   border-color: #f56c6c !important;
   color: #f56c6c !important;

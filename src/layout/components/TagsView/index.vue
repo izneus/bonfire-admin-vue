@@ -276,6 +276,11 @@ export default {
 <style lang="scss">
 //reset element css of el-icon-close
 .tags-view-wrapper {
+  .el-scrollbar__wrap {
+    overflow: hidden;
+    margin-bottom: 0!important;
+  }
+
   .tags-view-item {
     .el-icon-close {
       width: 16px;
