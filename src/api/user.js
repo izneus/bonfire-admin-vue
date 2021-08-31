@@ -52,3 +52,11 @@ export function deleteUsers(data) {
     data
   })
 }
+
+export function resetPasswordBatch(data) {
+  return request({
+    url: '/v1/user/resetPasswordBatch',
+    method: 'post',
+    data
+  })
+}

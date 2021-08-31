@@ -64,6 +64,7 @@
                 plain
                 icon="el-icon-delete"
                 class="line-button-danger"
+                :loading="deleteBatchLoading"
                 :disabled="selectedUser.length < 1"
                 @click="confirmDeleteUsers"
               >
@@ -94,6 +95,8 @@
                 size="small"
                 plain
                 :disabled="selectedUser.length < 1"
+                :loading="resetPassBatchLoading"
+                @click="confirmResetPassBatch"
               >
                 批量重置密码
               </el-button>
@@ -240,7 +243,7 @@
 </template>
 
 <script>
-import { createUser, deleteUsers, listUsers } from '@/api/user'
+import { createUser, deleteUsers, listUsers, resetPasswordBatch } from '@/api/user'
 
 export default {
   name: 'User',
@@ -289,6 +292,7 @@ export default {
       createLoading: false,
       tableLoading: false,
       deleteBatchLoading: false,
+      resetPassBatchLoading: false,
       foldSearch: false,
       // 对话框类型，复用新增和编辑
       dialogType: 'add'
@@ -381,6 +385,34 @@ export default {
       }).finally(() => {
         // 关闭按钮loading
         this.deleteBatchLoading = false
+      })
+    },
+    confirmResetPassBatch() {
+      this.$confirm('此操作将重置密码为默认密码, 是否继续?', '确认重置', {
+        confirmButtonText: '确认重置',
+        confirmButtonClass: 'msg-danger',
+        cancelButtonText: '取消',
+        cancelButtonClass: 'msg-cancel',
+        type: 'warning'
+      }).then(() => {
+        this.resetPassBatch()
+      })
+    },
+    resetPassBatch() {
+      // 开启按钮loading
+      this.resetPassBatchLoading = true
+      // 获得表格的选中行
+      const ids = this.selectedUser.map(user => user.id)
+      resetPasswordBatch({ ids }).then(res => {
+        // 成功请求弹出提示
+        this.$message({
+          showClose: true,
+          message: '批量重置密码成功',
+          type: 'success'
+        })
+      }).finally(() => {
+        // 关闭按钮loading
+        this.resetPassBatchLoading = false
       })
     },
     handleUserChange(val) {
