@@ -45,6 +45,22 @@ export function createUser(data) {
   })
 }
 
+export function getUser(data) {
+  return request({
+    url: '/v1/user/get',
+    method: 'post',
+    data
+  })
+}
+
+export function updateUser(data) {
+  return request({
+    url: '/v1/user/update',
+    method: 'post',
+    data
+  })
+}
+
 export function deleteUsers(data) {
   return request({
     url: '/v1/user/deleteBatch',
@@ -60,3 +76,12 @@ export function resetPasswordBatch(data) {
     data
   })
 }
+
+export function exportUsers(data) {
+  return request({
+    url: '/v1/user/export',
+    method: 'post',
+    data
+  })
+}
+

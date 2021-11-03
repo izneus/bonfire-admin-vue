@@ -148,7 +148,7 @@ export const asyncRoutes = [
       },
       {
         path: 'role',
-        component: () => import('@/views/charts/line'),
+        component: () => import('@/views/system/role'),
         name: 'Role',
         meta: { title: '角色管理'}
       },

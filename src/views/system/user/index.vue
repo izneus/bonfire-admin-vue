@@ -87,6 +87,8 @@
               <el-button
                 size="small"
                 plain
+                :loading="exportLoading"
+                @click="handleExportUsers"
               >
                 <svg-icon icon-class="export" />
                 导出
@@ -134,13 +136,15 @@
           <el-table-column prop="remark" label="备注" show-overflow-tooltip />
           <el-table-column prop="status" label="状态" show-overflow-tooltip>
             <template slot-scope="scope">
-              <el-tag size="small">{{ dict.label.user_status[scope.row.status] }}</el-tag>
+              <el-tag v-if="scope.row.status === '0'" size="small" type="success">
+                {{ dict.label.user_status[scope.row.status] }}
+              </el-tag>
+              <el-tag v-else size="small" type="danger">{{ dict.label.user_status[scope.row.status] }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column fixed="right" label="操作">
             <template slot-scope="scope">
-              <el-button type="text" @click="getDetail(scope.row)">查看</el-button>
-              <el-button type="text">编辑</el-button>
+              <el-button type="text" @click="editUser(scope.row.id)">编辑</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -233,8 +237,90 @@
               size="medium"
               type="primary"
               :loading="createLoading"
-              @click="createUser"
+              @click="handleCreateUser"
             >创建用户</el-button>
+          </span>
+        </el-dialog>
+      </div>
+      <div class="dialog-wrapper">
+        <el-dialog
+          title="编辑用户"
+          width="800px"
+          :close-on-click-modal="false"
+          :visible.sync="editVisible"
+          @close="resetForm('editUserForm')"
+        >
+          <el-form
+            ref="editUserForm"
+            label-width="auto"
+            size="medium"
+            label-position="top"
+            :model="user"
+            :rules="userRules"
+          >
+            <el-row :gutter="30">
+              <el-col :span="12">
+                <el-form-item label="用户名" prop="username">
+                  <el-input
+                    v-model="user.username"
+                    placeholder="输入用户名"
+                    suffix-icon="el-icon-user"
+                    readonly="true"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="用户状态" prop="status">
+                  <el-select
+                    v-model="user.status"
+                    clearable
+                    placeholder="选择用户状态"
+                    style="width: 100%"
+                  >
+                    <el-option
+                      v-for="item in dict.user_status"
+                      :key="item.dictValue"
+                      :label="item.dictLabel"
+                      :value="item.dictValue"
+                    />
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="昵称" prop="nickname">
+                  <el-input v-model="user.nickname" placeholder="输入昵称" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="姓名" prop="fullname">
+                  <el-input v-model="user.fullname" placeholder="输入姓名" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="手机号码" prop="mobile">
+                  <el-input v-model="user.mobile" placeholder="输入手机号码" suffix-icon="el-icon-phone-outline" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="电子邮件" prop="email">
+                  <el-input v-model="user.email" placeholder="输入电子邮件地址" suffix-icon="el-icon-message" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label="备注" prop="remark">
+                  <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button size="medium" plain @click="editVisible = false">取消</el-button>
+            <el-button
+              size="medium"
+              type="primary"
+              :loading="createLoading"
+              @click="handleUpdateUser"
+            >编辑用户</el-button>
           </span>
         </el-dialog>
       </div>
@@ -243,7 +329,7 @@
 </template>
 
 <script>
-import { createUser, deleteUsers, listUsers, resetPasswordBatch } from '@/api/user'
+import { createUser, deleteUsers, exportUsers, getUser, listUsers, resetPasswordBatch, updateUser } from '@/api/user'
 
 export default {
   name: 'User',
@@ -260,6 +346,7 @@ export default {
       },
       // 新建用户的数据
       user: {
+        id: null,
         username: null,
         nickname: null,
         fullname: null,
@@ -294,8 +381,11 @@ export default {
       deleteBatchLoading: false,
       resetPassBatchLoading: false,
       foldSearch: false,
+      editVisible: false,
+      getLoading: false,
+      exportLoading: false
       // 对话框类型，复用新增和编辑
-      dialogType: 'add'
+      // dialogType: 'add'
     }
   },
   created() {
@@ -318,13 +408,21 @@ export default {
         this.tableLoading = false
       })
     },
-    getDetail(row) {
-      console.log(row)
+    editUser(userId) {
+      // 显示编辑对话框
+      this.editVisible = true
+      getUser({ id: userId }).then(res => {
+        this.user = res.data
+      })
     },
+    /* getDetail(row) {
+      getUser({ id: row.id }).then(res => {
+      })
+    },*/
     resetForm(formName) {
       this.$refs[formName].resetFields()
     },
-    createUser() {
+    handleCreateUser() {
       this.$refs.userForm.validate(valid => {
         if (valid) {
           // 新建按钮loading
@@ -357,6 +455,28 @@ export default {
         }
       })
     },
+    handleUpdateUser() {
+      this.$refs.editUserForm.validate(valid => {
+        if (valid) {
+          this.createLoading = true
+          updateUser(this.user).then(res => {
+            this.editVisible = false
+            this.handleQuery()
+          }).finally(() => {
+            this.createLoading = false
+          })
+        }
+      })
+    },
+    handleExportUsers() {
+      // 暂时禁用导出按钮
+      this.exportLoading = true
+      exportUsers(this.query).then(res => {
+        window.open(process.env.VUE_APP_BASE_API + '/v1/file/download?token=' + res.data.token)
+      }).finally(() => {
+        this.exportLoading = false
+      })
+    },
     confirmDeleteUsers() {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
@@ -365,10 +485,10 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.deleteUsers()
+        this.handleDeleteUsers()
       })
     },
-    deleteUsers() {
+    handleDeleteUsers() {
       // 开启按钮loading
       this.deleteBatchLoading = true
       // 获得表格的选中行
