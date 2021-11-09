@@ -29,7 +29,7 @@
             <el-col :span="12">
               <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
               <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
-              <el-button size="small" type="text" style="padding-left: 0;" @click="changeFoldSearch">
+              <el-button size="small" type="text" style="padding-left: 0;" @click="handleFoldSearch">
                 展开查询
                 <i v-show="!foldSearch" class="el-icon-arrow-down" />
                 <i v-show="foldSearch" class="el-icon-arrow-up" />
@@ -77,13 +77,23 @@
               >
                 导入模板下载
               </el-button>
-              <el-button
-                size="small"
-                plain
+              <el-upload
+                ref="upload"
+                style="display: inline-block"
+                :action="uploadUrl"
+                :headers="authHeader"
+                :show-file-list="false"
+                :on-success="handleUploadSuccess"
+                :on-error="handleUploadError"
               >
-                <svg-icon icon-class="import" />
-                导入
-              </el-button>
+                <el-button
+                  size="small"
+                  plain
+                >
+                  <svg-icon icon-class="import" />
+                  导入
+                </el-button>
+              </el-upload>
               <el-button
                 size="small"
                 plain
@@ -157,8 +167,8 @@
           :page-size="query.pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="totalSize"
-          @size-change="changePageSize"
-          @current-change="changePageNum"
+          @size-change="handleChangePageSize"
+          @current-change="handleChangePageNum"
         />
       </div>
       <div class="dialog-wrapper">
@@ -330,6 +340,8 @@
 
 <script>
 import { createUser, deleteUsers, exportUsers, getUser, listUsers, resetPasswordBatch, updateUser } from '@/api/user'
+import { getToken } from '@/utils/auth'
+import { Message } from 'element-ui'
 
 export default {
   name: 'User',
@@ -383,9 +395,14 @@ export default {
       foldSearch: false,
       editVisible: false,
       getLoading: false,
-      exportLoading: false
+      exportLoading: false,
       // 对话框类型，复用新增和编辑
       // dialogType: 'add'
+      // upload组件用的几个参数
+      authHeader: {
+        Authorization: 'Bearer ' + getToken()
+      },
+      uploadUrl: process.env.VUE_APP_BASE_API + '/v1/file/upload'
     }
   },
   created() {
@@ -398,6 +415,7 @@ export default {
     // console.log(this.dict.label.user_status)
   },
   methods: {
+    // 主表格查询
     handleQuery() {
       // 开启loading
       this.tableLoading = true
@@ -419,9 +437,11 @@ export default {
       getUser({ id: row.id }).then(res => {
       })
     },*/
+    // 清空表单内容
     resetForm(formName) {
       this.$refs[formName].resetFields()
     },
+    // 处理创建用户
     handleCreateUser() {
       this.$refs.userForm.validate(valid => {
         if (valid) {
@@ -455,6 +475,7 @@ export default {
         }
       })
     },
+    // 处理更新用户
     handleUpdateUser() {
       this.$refs.editUserForm.validate(valid => {
         if (valid) {
@@ -468,6 +489,7 @@ export default {
         }
       })
     },
+    // 处理导出用户
     handleExportUsers() {
       // 暂时禁用导出按钮
       this.exportLoading = true
@@ -477,6 +499,7 @@ export default {
         this.exportLoading = false
       })
     },
+    // 确认删除用户
     confirmDeleteUsers() {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
@@ -488,6 +511,7 @@ export default {
         this.handleDeleteUsers()
       })
     },
+    // 处理删除用户
     handleDeleteUsers() {
       // 开启按钮loading
       this.deleteBatchLoading = true
@@ -507,6 +531,7 @@ export default {
         this.deleteBatchLoading = false
       })
     },
+    // 确认批量重置密码
     confirmResetPassBatch() {
       this.$confirm('此操作将重置密码为默认密码, 是否继续?', '确认重置', {
         confirmButtonText: '确认重置',
@@ -515,10 +540,11 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.resetPassBatch()
+        this.handleResetPassBatch()
       })
     },
-    resetPassBatch() {
+    // 处理重置密码
+    handleResetPassBatch() {
       // 开启按钮loading
       this.resetPassBatchLoading = true
       // 获得表格的选中行
@@ -535,19 +561,35 @@ export default {
         this.resetPassBatchLoading = false
       })
     },
+    // 处理用户选中变化
     handleUserChange(val) {
       this.selectedUser = val
     },
-    changePageNum(val) {
+    handleChangePageNum(val) {
       this.query.pageNum = val
       this.handleQuery()
     },
-    changePageSize(val) {
+    handleChangePageSize(val) {
       this.query.pageSize = val
       this.handleQuery()
     },
-    changeFoldSearch() {
+    handleFoldSearch() {
       this.foldSearch = !this.foldSearch
+    },
+    handleUploadError(err, file) {
+      const e = JSON.parse(err.message)
+      Message({
+        message: '文件「' + file.name + '」上传失败，错误原因：' + e.message,
+        type: 'error',
+        duration: 5 * 1000
+      })
+    },
+    handleUploadSuccess() {
+      Message({
+        message: '文件上传成功',
+        type: 'success',
+        duration: 5 * 1000
+      })
     }
   }
 }
