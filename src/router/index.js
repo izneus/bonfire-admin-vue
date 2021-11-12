@@ -160,7 +160,7 @@ export const asyncRoutes = [
       },
       {
         path: 'dict',
-        component: () => import('@/views/charts/line'),
+        component: () => import('@/views/system/dict'),
         name: 'Dict',
         meta: { title: '字典管理' }
       },

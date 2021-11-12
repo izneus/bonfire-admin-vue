@@ -5,8 +5,8 @@
         <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
           <el-row :gutter="24">
             <el-col :span="6">
-              <el-form-item label="用户名称:" prop="username">
-                <el-input v-model="query.username" placeholder="输入用户名称" />
+              <el-form-item label="字典名称:" prop="role">
+                <el-input v-model="query.role" placeholder="输入角色名称" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -26,40 +26,10 @@
                 icon="el-icon-delete"
                 class="line-button-danger"
                 :loading="deleteBatchLoading"
-                :disabled="selectedUser.length < 1"
-                @click="confirmDeleteUsers"
+                :disabled="selectedRole.length < 1"
+                @click="confirmDeleteRole"
               >
                 批量删除
-              </el-button>
-              <el-button
-                size="small"
-                icon="el-icon-download"
-                plain
-              >
-                导入模板下载
-              </el-button>
-              <el-button
-                size="small"
-                plain
-              >
-                <svg-icon icon-class="import" />
-                导入
-              </el-button>
-              <el-button
-                size="small"
-                plain
-              >
-                <svg-icon icon-class="export" />
-                导出
-              </el-button>
-              <el-button
-                size="small"
-                plain
-                :disabled="selectedUser.length < 1"
-                :loading="resetPassBatchLoading"
-                @click="confirmResetPassBatch"
-              >
-                批量重置密码
               </el-button>
             </el-button-group>
           </el-col>
@@ -70,38 +40,26 @@
               icon="el-icon-plus"
               @click="createVisible = true"
             >
-              新增用户
+              新增角色
             </el-button>
           </el-col>
         </el-row>
       </div>
       <div class="result-table">
         <el-table
-          v-loading="tableLoading"
           :data="tableData"
           style="width: 100%"
           show-overflow-tooltip="true"
           header-row-class-name="result-table-header"
           header-cell-class-name="result-table-header-cell"
-          @selection-change="handleUserChange"
+          @selection-change="handleRoleChange"
         >
           <el-empty slot="empty" />
           <el-table-column type="selection" width="55" />
-          <el-table-column prop="username" label="用户名" show-overflow-tooltip />
-          <el-table-column prop="nickname" label="昵称" show-overflow-tooltip />
-          <el-table-column prop="fullname" label="全名" show-overflow-tooltip />
-          <el-table-column prop="email" label="邮件" show-overflow-tooltip />
-          <el-table-column prop="mobile" label="手机" show-overflow-tooltip />
-          <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-          <el-table-column prop="status" label="状态" show-overflow-tooltip>
-            <template slot-scope="scope">
-              <el-tag size="small">{{ dict.label.user_status[scope.row.status] }}</el-tag>
-            </template>
-          </el-table-column>
+          <el-table-column prop="username" label="角色名" show-overflow-tooltip />
           <el-table-column fixed="right" label="操作">
             <template slot-scope="scope">
-              <el-button type="text" @click="getDetail(scope.row)">查看</el-button>
-              <el-button type="text">编辑</el-button>
+              <el-button type="text" @click="editRole(scope.row.id)">编辑</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -114,8 +72,8 @@
           :page-size="query.pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="totalSize"
-          @size-change="changePageSize"
-          @current-change="changePageNum"
+          @size-change="handleChangePageSize"
+          @current-change="handleChangePageNum"
         />
       </div>
     </div>
@@ -124,17 +82,72 @@
 
 <script>
 export default {
-  name: 'Role',
+  name: 'Dict',
   data() {
     return {
       query: {
         pageNum: 1,
         pageSize: 10,
         query: null
-      }
+      },
+      // 主表格数据
+      tableData: null,
+      totalSize: 0,
+      // 选中角色表的行
+      selectedRole: [],
+      deleteBatchLoading: false
     }
   },
-  methods: {}
+  methods: {
+    // 主表格查询
+    handleQuery() {
+      // 开启loading
+      // this.tableLoading = true
+      // listUsers(this.query).then(res => {
+      //   this.tableData = res.data.rows
+      //   this.totalSize = res.data.totalSize
+      // }).finally(() => {
+      //   this.tableLoading = false
+      // })
+    },
+    // 清空表单内容
+    resetForm(formName) {
+      this.$refs[formName].resetFields()
+    },
+    handleRoleChange(val) {
+      this.selectedRole = val
+    },
+    editRole(roleId) {
+      // 显示编辑对话框
+      // this.editVisible = true
+      // getUser({ id: userId }).then(res => {
+      //   this.user = res.data
+      // })
+    },
+    handleChangePageNum(val) {
+      this.query.pageNum = val
+      this.handleQuery()
+    },
+    handleChangePageSize(val) {
+      this.query.pageSize = val
+      this.handleQuery()
+    },
+    // 确认删除用户
+    confirmDeleteRole() {
+      this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
+        confirmButtonText: '确认删除',
+        confirmButtonClass: 'msg-danger',
+        cancelButtonText: '取消',
+        cancelButtonClass: 'msg-cancel',
+        type: 'warning'
+      }).then(() => {
+        this.handleDeleteRole()
+      })
+    },
+    // 处理删除用户
+    handleDeleteRole() {
+    }
+  }
 }
 </script>
 

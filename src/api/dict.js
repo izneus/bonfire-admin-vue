@@ -1,12 +1,12 @@
 import request from '@/utils/request'
 
 export function listDictDetails(dictType) {
-  const params = {
+  const data = {
     dictType
   }
   return request({
-    url: '/v1/dictDetails',
-    method: 'get',
-    params
+    url: '/v1/dict/listByDictType',
+    method: 'post',
+    data
   })
 }
