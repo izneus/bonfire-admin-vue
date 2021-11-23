@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { listDictDetails } from '@/api/dict'
+import { listDictsByDictType } from '@/api/dict'
 
 export default class Dict {
   constructor(dict) {
@@ -15,7 +15,7 @@ export default class Dict {
       Vue.set(this.dict.dict, n, {})
       Vue.set(this.dict.label, n, {})
       Vue.set(this.dict, n, [])
-      ps.push(listDictDetails(n).then(resp => {
+      ps.push(listDictsByDictType(n).then(resp => {
         this.dict[n].splice(0, 0, ...resp.data.details)
         resp.data.details.forEach(d => {
           Vue.set(this.dict.dict[n], d.dictValue, d)
