@@ -135,7 +135,7 @@ export const asyncRoutes = [
     component: Layout,
     name: 'System',
     meta: {
-      title: '系统管理',
+      title: '系统',
       icon: 'lock',
       roles: ['admin']
     },
@@ -144,17 +144,17 @@ export const asyncRoutes = [
         path: 'user',
         component: () => import('@/views/system/user'),
         name: 'User',
-        meta: { title: '用户管理'}
+        meta: { title: '用户管理' }
       },
       {
         path: 'role',
         component: () => import('@/views/system/role'),
         name: 'Role',
-        meta: { title: '角色管理'}
+        meta: { title: '角色管理' }
       },
       {
         path: 'authority',
-        component: () => import('@/views/charts/line'),
+        component: () => import('@/views/system/authority'),
         name: 'Authority',
         meta: { title: '权限管理' }
       },
@@ -169,6 +169,30 @@ export const asyncRoutes = [
         component: () => import('@/views/charts/line'),
         name: 'Menu',
         meta: { title: '菜单管理' }
+      },
+      {
+        path: 'log',
+        component: () => import('@/views/system/log'),
+        name: 'Log',
+        meta: { title: '日志管理' }
+      }
+    ]
+  },
+  {
+    path: '/task',
+    component: Layout,
+    name: 'Task',
+    meta: {
+      title: '任务调度',
+      icon: 'lock',
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'job',
+        component: () => import('@/views/task/job'),
+        name: 'Job',
+        meta: { title: '任务管理' }
       }
     ]
   },

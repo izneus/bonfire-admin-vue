@@ -95,7 +95,7 @@ export default {
       totalSize: 0,
       // 选中角色表的行
       selectedRole: [],
-      deleteBatchLoading: false,
+      deleteBatchLoading: false
     }
   },
   methods: {
@@ -146,7 +146,7 @@ export default {
     },
     // 处理删除用户
     handleDeleteRole() {
-    },
+    }
   }
 }
 </script>
