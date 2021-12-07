@@ -18,3 +18,35 @@ export function listDicts(data) {
     data
   })
 }
+
+export function createDict(data) {
+  return request({
+    url: '/v1/dict/create',
+    method: 'post',
+    data
+  })
+}
+
+export function getDict(data) {
+  return request({
+    url: '/v1/dict/get',
+    method: 'post',
+    data
+  })
+}
+
+export function updateDict(data) {
+  return request({
+    url: '/v1/dict/update',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteDicts(data) {
+  return request({
+    url: '/v1/dict/batchDelete',
+    method: 'post',
+    data
+  })
+}

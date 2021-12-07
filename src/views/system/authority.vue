@@ -96,11 +96,6 @@
           >
             <el-row :gutter="30">
               <el-col :span="12">
-                <el-form-item label="权限ID" prop="id">
-                  <el-input v-model="authority.id" placeholder="输入权限ID" suffix-icon="el-icon-authority" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
                 <el-form-item label="权限名称" prop="authority">
                   <el-input v-model="authority.authority" placeholder="输入权限名称" />
                 </el-form-item>
@@ -172,7 +167,11 @@
 </template>
 
 <script>
+<<<<<<< HEAD
+import { createAuthority, deleteAuthorities, getAuthority, listAuthorities, updateAuthority } from '@/api/authority'
+=======
 import { createAuthority, deleteAuthorities, exportAuthorities, getAuthority, listAuthorities, updateAuthority } from '@/api/authority'
+>>>>>>> f33a6e906ed629e3c45cdaddef94820e4ed1a4be
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
 export default {
@@ -188,15 +187,11 @@ export default {
       },
       // 新建权限的数据
       authority: {
-        id: null,
         authority: null,
         remark: null
       },
       // 新建权限校验规则
       authorityRules: {
-        id: [
-          { required: true, message: '请输入权限ID', trigger: 'blur' }
-        ],
         authority: [
           { required: true, message: '请输入权限名称', trigger: 'blur' }
         ]
@@ -308,16 +303,6 @@ export default {
             this.createLoading = false
           })
         }
-      })
-    },
-    // 处理导出权限
-    handleExportAuthorities() {
-      // 暂时禁用导出按钮
-      this.exportLoading = true
-      exportAuthorities(this.query).then(res => {
-        window.open(process.env.VUE_APP_BASE_API + '/v1/file/download?token=' + res.data.token)
-      }).finally(() => {
-        this.exportLoading = false
       })
     },
     // 确认删除权限

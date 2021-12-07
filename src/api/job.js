@@ -1,39 +1,39 @@
 import request from '@/utils/request'
 
-export function listRoles(data) {
+export function listJobs(data) {
   return request({
-    url: '/v1/role/list',
+    url: '/v1/job/list',
     method: 'post',
     data
   })
 }
-export function createRole(data) {
+export function createJob(data) {
   return request({
-    url: '/v1/role/create',
-    method: 'post',
-    data
-  })
-}
-
-export function getRole(data) {
-  return request({
-    url: '/v1/role/get',
+    url: '/v1/job/create',
     method: 'post',
     data
   })
 }
 
-export function updateRole(data) {
+export function getJob(data) {
   return request({
-    url: '/v1/role/update',
+    url: '/v1/job/get',
     method: 'post',
     data
   })
 }
 
-export function deleteRoles(data) {
+export function updateJob(data) {
   return request({
-    url: '/v1/role/batchDelete',
+    url: '/v1/job/update',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteJobs(data) {
+  return request({
+    url: '/v1/job/batchDelete',
     method: 'post',
     data
   })

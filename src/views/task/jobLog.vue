@@ -5,8 +5,8 @@
         <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
           <el-row :gutter="24">
             <el-col :span="6">
-              <el-form-item label="方法名称:" prop="method">
-                <el-input v-model="query.method" placeholder="输入方法名称" />
+              <el-form-item label="任务id:" prop="jobId">
+                <el-input v-model="query.jobId" placeholder="输入任务id" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -26,8 +26,8 @@
                 icon="el-icon-delete"
                 class="line-button-danger"
                 :loading="deleteBatchLoading"
-                :disabled="selectedLog.length < 1"
-                @click="confirmDeleteLogs"
+                :disabled="selectedJobLog.length < 1"
+                @click="confirmDeleteJobLogs"
               >
                 批量删除
               </el-button>
@@ -43,17 +43,21 @@
           show-overflow-tooltip="true"
           header-row-class-name="result-table-header"
           header-cell-class-name="result-table-header-cell"
-          @selection-change="handleLogChange"
+          @selection-change="handleJobLogChange"
         >
           <el-empty slot="empty" />
           <el-table-column type="selection" width="55" />
-          <el-table-column prop="method" label="方法名称" show-overflow-tooltip />
-          <el-table-column prop="userAgent" label="用户代理" show-overflow-tooltip />
-          <el-table-column prop="clientIp" label="客户端ip" show-overflow-tooltip />
-          <el-table-column prop="description" label="注解描述" show-overflow-tooltip />
-          <el-table-column prop="browser" label="浏览器" show-overflow-tooltip />
-          <el-table-column prop="os" label="系统" show-overflow-tooltip />
-          <el-table-column prop="remark" label="备注" show-overflow-tooltip />
+          <el-table-column prop="jobId" label="任务id" show-overflow-tooltip />
+          <el-table-column prop="jobClass" label="任务类别" show-overflow-tooltip />
+          <el-table-column prop="jobMethod" label="任务方法" show-overflow-tooltip />
+          <el-table-column prop="param" label="参数" show-overflow-tooltip />
+          <el-table-column prop="status" label="状态" show-overflow-tooltip />
+          <el-table-column prop="message" label="信息" show-overflow-tooltip />
+          <el-table-column prop="durationMillis" label="执行消耗时间（单位：毫秒）" show-overflow-tooltip />
+          <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip />
+          <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />
+          <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip />
+          <el-table-column prop="updateUser" label="更新者" show-overflow-tooltip />
         </el-table>
       </div>
       <div class="foot-bar" style="text-align: right;">
@@ -73,50 +77,49 @@
 </template>
 
 <script>
-import { deleteLogs, getLog, listLogs } from '@/api/log'
+import { deleteJobLogs, getJobLog, listJobLogs } from '@/api/jobLog'
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
 export default {
-  name: 'Log',
+  name: 'JobLog',
   data() {
     return {
       // 查询表单的数据
       query: {
         pageNum: 1,
         pageSize: 10,
-        method: null,
-        userAgent: null,
-        clientIp: null,
-        description: null,
-        browser: null,
-        os: null,
-        remark: null
+        jobId: null,
+        jobClass: null,
+        jobMethod: null,
+        param: null,
+        status: null,
+        message: null,
+        durationMillis: null,
+        createTime: null,
+        createUser: null,
+        updateTime: null,
+        updateUser: null
       },
-      // 新建日志的数据
-      log: {
+      // 新建任务日志的数据
+      jobLog: {
         id: null,
-        method: null,
-        userAgent: null,
-        clientIp: null,
-        description: null,
-        browser: null,
-        os: null,
-        remark: null
-      },
-      // 新建日志校验规则
-      logRules: {
-        id: [
-          { required: true, message: '请输入日志ID', trigger: 'blur' }
-        ],
-        method: [
-          { required: true, message: '请输入方法名称', trigger: 'blur' }
-        ]
+        jobId: null,
+        jobClass: null,
+        jobMethod: null,
+        param: null,
+        status: null,
+        message: null,
+        durationMillis: null,
+        createTime: null,
+        createUser: null,
+        updateTime: null,
+        updateUser: null
       },
       // 主表格数据
       tableData: null,
       totalSize: 0,
       // 选中日志表的行
-      selectedLog: [],
+      selectedJobLog: [],
       // 一些涉及是否的状态
       createVisible: false,
       createNext: false,
@@ -151,18 +154,18 @@ export default {
     handleQuery() {
       // 开启loading
       this.tableLoading = true
-      listLogs(this.query).then(res => {
+      listJobLogs(this.query).then(res => {
         this.tableData = res.data.rows
         this.totalSize = res.data.totalSize
       }).finally(() => {
         this.tableLoading = false
       })
     },
-    editLog(logId) {
+    editJobLog(jobLogId) {
       // 显示编辑对话框
       this.editVisible = true
-      getLog({ id: logId }).then(res => {
-        this.log = res.data
+      getJobLog({ id: jobLogId }).then(res => {
+        this.joblog = res.data
       })
     },
     /* getDetail(row) {
@@ -173,8 +176,8 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields()
     },
-    // 确认删除日志
-    confirmDeleteLogs() {
+    // 确认删除任务日志
+    confirmDeleteJobLogs() {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
         confirmButtonClass: 'msg-danger',
@@ -182,16 +185,16 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.handleDeleteLogs()
+        this.handleDeleteJobLogs()
       })
     },
-    // 处理删除日志
-    handleDeleteLogs() {
+    // 处理删除任务日志
+    handleDeleteJobLogs() {
       // 开启按钮loading
       this.deleteBatchLoading = true
       // 获得表格的选中行
-      const ids = this.selectedLog.map(log => log.id)
-      deleteLogs({ ids }).then(res => {
+      const ids = this.selectedLog.map(jobLog => jobLog.id)
+      deleteJobLogs({ ids }).then(res => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
@@ -206,8 +209,8 @@ export default {
       })
     },
     // 处理用户选中变化
-    handleLogChange(val) {
-      this.selectedLog = val
+    handleJobLogChange(val) {
+      this.selectedJobLog = val
     },
     handleChangePageNum(val) {
       this.query.pageNum = val

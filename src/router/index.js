@@ -141,6 +141,36 @@ export const asyncRoutes = [
     },
     children: [
       {
+        path: 'dict',
+        component: () => import('@/views/system/dict'),
+        name: 'Dict',
+        meta: { title: '字典管理' }
+      },
+      {
+        path: 'log',
+        component: () => import('@/views/system/log'),
+        name: 'Log',
+        meta: { title: '日志管理' }
+      },
+      {
+        path: 'file',
+        component: () => import('@/views/system/file'),
+        name: 'File',
+        meta: { title: '文件管理' }
+      }
+    ]
+  },
+  {
+    path: '/authority',
+    component: Layout,
+    name: 'Authority',
+    meta: {
+      title: '权限管理',
+      icon: 'lock',
+      roles: ['admin']
+    },
+    children: [
+      {
         path: 'user',
         component: () => import('@/views/system/user'),
         name: 'User',
@@ -159,22 +189,16 @@ export const asyncRoutes = [
         meta: { title: '权限管理' }
       },
       {
-        path: 'dict',
+        path: 'department',
         component: () => import('@/views/system/dict'),
-        name: 'Dict',
-        meta: { title: '字典管理' }
+        name: 'Department',
+        meta: { title: '部门管理' }
       },
       {
         path: 'menu',
-        component: () => import('@/views/charts/line'),
+        component: () => import('@/views/system/user'),
         name: 'Menu',
         meta: { title: '菜单管理' }
-      },
-      {
-        path: 'log',
-        component: () => import('@/views/system/log'),
-        name: 'Log',
-        meta: { title: '日志管理' }
       }
     ]
   },
@@ -193,6 +217,66 @@ export const asyncRoutes = [
         component: () => import('@/views/task/job'),
         name: 'Job',
         meta: { title: '任务管理' }
+      },
+      {
+        path: 'joblog',
+        component: () => import('@/views/task/jobLog'),
+        name: 'Joblog',
+        meta: { title: '任务管理日志' }
+      }
+    ]
+  },
+  {
+    path: '/monitor',
+    component: Layout,
+    name: 'Monitor',
+    meta: {
+      title: '监控',
+      icon: 'lock',
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'phone',
+        component: () => import('@/views/system/user'),
+        name: 'Phone',
+        meta: { title: '手机监控' }
+      }
+    ]
+  },
+  {
+    path: '/notice',
+    component: Layout,
+    name: 'Notice',
+    meta: {
+      title: '公告',
+      icon: 'lock',
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'inform',
+        component: () => import('@/views/system/user'),
+        name: 'Inform',
+        meta: { title: '通知公告' }
+      }
+    ]
+  },
+  {
+    path: '/oder',
+    component: Layout,
+    name: 'Order',
+    meta: {
+      title: '单子',
+      icon: 'lock',
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'work',
+        component: () => import('@/views/system/user'),
+        name: 'Work',
+        meta: { title: '工单' }
       }
     ]
   },

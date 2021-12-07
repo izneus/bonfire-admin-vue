@@ -1,47 +1,39 @@
 import request from '@/utils/request'
 
-export function listAuthorities(params) {
+export function listAuthorities(data) {
   return request({
-    url: '/v1/authorities',
-    method: 'get',
-    params
+    url: '/v1/auth/list',
+    method: 'post',
+    data
   })
 }
 export function createAuthority(data) {
   return request({
-    url: '/v1/authorities',
+    url: '/v1/auth/create',
     method: 'post',
     data
   })
 }
 
-export function getAuthority(params) {
+export function getAuthority(data) {
   return request({
-    url: '/v1/authorities/' + params.toString(),
-    method: 'get',
-    params
+    url: '/v1/auth/get',
+    method: 'post',
+    data
   })
 }
 
 export function updateAuthority(data) {
   return request({
-    url: '/v1/authorities/' + data.toString(),
+    url: '/v1/auth/update',
     method: 'post',
     data
   })
 }
 
-export function deleteAuthorities(params) {
+export function deleteAuthorities(data) {
   return request({
-    url: '/v1/authorities/' + params.toString(),
-    method: 'get',
-    params
-  })
-}
-
-export function exportAuthorities(data) {
-  return request({
-    url: '/v1/authorities/' + data.toString(),
+    url: '/v1/auth/batchDelete',
     method: 'post',
     data
   })

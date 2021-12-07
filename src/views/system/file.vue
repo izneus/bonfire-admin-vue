@@ -5,8 +5,8 @@
         <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
           <el-row :gutter="24">
             <el-col :span="6">
-              <el-form-item label="任务名称:" prop="jobName">
-                <el-input v-model="query.jobName" placeholder="输入任务名称" />
+              <el-form-item label="文件名:" prop="filename">
+                <el-input v-model="query.filename" placeholder="输入文件名称" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -26,22 +26,12 @@
                 icon="el-icon-delete"
                 class="line-button-danger"
                 :loading="deleteBatchLoading"
-                :disabled="selectedJob.length < 1"
-                @click="confirmDeleteJobs"
+                :disabled="selectedFile.length < 1"
+                @click="confirmDeleteFiles"
               >
                 批量删除
               </el-button>
             </el-button-group>
-          </el-col>
-          <el-col :span="12" style="text-align: right;">
-            <el-button
-              size="small"
-              type="primary"
-              icon="el-icon-plus"
-              @click="createVisible = true"
-            >
-              新增任务
-            </el-button>
           </el-col>
         </el-row>
       </div>
@@ -53,15 +43,23 @@
           show-overflow-tooltip="true"
           header-row-class-name="result-table-header"
           header-cell-class-name="result-table-header-cell"
-          @selection-change="handleJobChange"
+          @selection-change="handleFileChange"
         >
           <el-empty slot="empty" />
           <el-table-column type="selection" width="55" />
-          <el-table-column prop="jobName" label="任务名称" show-overflow-tooltip />
+          <el-table-column prop="filename" label="文件名称" show-overflow-tooltip />
+          <el-table-column prop="uniqueFilename" label="哈希文件名称" show-overflow-tooltip />
+          <el-table-column prop="suffix" label="后缀" show-overflow-tooltip />
+          <el-table-column prop="path" label="文件路径" show-overflow-tooltip />
+          <el-table-column prop="fileSize" label="文件大小" show-overflow-tooltip />
+          <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip />
+          <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />
+          <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip />
+          <el-table-column prop="updateUser" label="更新者" show-overflow-tooltip />
           <el-table-column prop="remark" label="备注" show-overflow-tooltip />
           <el-table-column fixed="right" label="操作">
             <template slot-scope="scope">
-              <el-button type="text" @click="editJob(scope.row.id)">编辑</el-button>
+              <el-button type="text" @click="editFile(scope.row.id)">编辑</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -80,73 +78,69 @@
       </div>
       <div class="dialog-wrapper">
         <el-dialog
-          title="新建任务"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="createVisible"
-          @close="resetForm('jobForm')"
-        >
-          <el-form
-            ref="jobForm"
-            label-width="auto"
-            size="medium"
-            label-position="top"
-            :model="job"
-            :rules="jobRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="任务名称" prop="jobName">
-                  <el-input v-model="job.jobName" placeholder="输入任务名称" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="job.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-checkbox
-              v-model="createNext"
-              style="float: left;height: 36px;line-height: 36px;"
-            >继续新建下一条</el-checkbox>
-            <el-button size="medium" plain @click="createVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleCreateJob"
-            >创建任务</el-button>
-          </span>
-        </el-dialog>
-      </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="编辑任务"
+          title="编辑文件"
           width="800px"
           :close-on-click-modal="false"
           :visible.sync="editVisible"
-          @close="resetForm('editJobForm')"
+          @close="resetForm('editFileForm')"
         >
           <el-form
-            ref="editJobForm"
+            ref="editFileForm"
             label-width="auto"
             size="medium"
             label-position="top"
-            :model="job"
-            :rules="jobRules"
+            :model="file"
+            :rules="fileRules"
           >
             <el-row :gutter="30">
               <el-col :span="12">
-                <el-form-item label="任务名称" prop="jobName">
-                  <el-input v-model="job.jobName" placeholder="输入任务名称" />
+                <el-form-item label="文件名称" prop="filename">
+                  <el-input v-model="file.filename" placeholder="输入文件名称" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="哈希文件名称" prop="uniqueFilename">
+                  <el-input v-model="file.uniqueFilename" placeholder="输入哈希文件名称" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="后缀" prop="suffix">
+                  <el-input v-model="file.suffix" placeholder="输入后缀" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="文件路径" prop="path">
+                  <el-input v-model="file.path" placeholder="输入文件路径" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="文件大小" prop="fileSize">
+                  <el-input v-model="file.fileSize" placeholder="输入文件大小" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="创建时间" prop="createTime">
+                  <el-input v-model="file.createTime" placeholder="输入创建时间" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="创建者" prop="createUser">
+                  <el-input v-model="file.createUser" placeholder="输入创建者" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="更新时间" prop="updateTime">
+                  <el-input v-model="file.updateTime" placeholder="输入更新时间" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item label="更新者" prop="updateUser">
+                  <el-input v-model="file.updateUser" placeholder="输入更新者" />
                 </el-form-item>
               </el-col>
               <el-col :span="24">
                 <el-form-item label="备注" prop="remark">
-                  <el-input v-model="job.remark" type="textarea" :rows="5" placeholder="输入备注" />
+                  <el-input v-model="file.remark" type="textarea" :rows="5" placeholder="输入备注" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -157,8 +151,8 @@
               size="medium"
               type="primary"
               :loading="createLoading"
-              @click="handleUpdateJob"
-            >编辑任务</el-button>
+              @click="handleUpdateFile"
+            >编辑文件</el-button>
           </span>
         </el-dialog>
       </div>
@@ -167,37 +161,52 @@
 </template>
 
 <script>
-import { createJob, deleteJobs, getJob, listJobs, updateJob } from '@/api/job'
+import { createFile, deleteFiles, getFile, listFiles, updateFile } from '@/api/file'
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
 export default {
-  name: 'Job',
+  name: 'File',
   data() {
     return {
       // 查询表单的数据
       query: {
         pageNum: 1,
         pageSize: 10,
-        jobName: null,
+        filename: null,
+        uniqueFilename: null,
+        suffix: null,
+        path: null,
+        fileSize: null,
+        createTime: null,
+        createUser: null,
+        updateTime: null,
+        updateUser: null,
         remark: null
       },
-      // 新建任务的数据
-      job: {
-        id: null,
-        jobName: null,
+      // 新建文件的数据
+      file: {
+        filename: null,
+        uniqueFilename: null,
+        suffix: null,
+        path: null,
+        fileSize: null,
+        createTime: null,
+        createUser: null,
+        updateTime: null,
+        updateUser: null,
         remark: null
       },
-      // 新建任务校验规则
-      jobRules: {
-        jobName: [
-          { required: true, message: '请输入任务名称', trigger: 'blur' }
+      // 新建文件校验规则
+      fileRules: {
+        filename: [
+          { required: true, message: '请输入文件名称', trigger: 'blur' }
         ]
       },
       // 主表格数据
       tableData: null,
       totalSize: 0,
-      // 选中任务表的行
-      selectedJob: [],
+      // 选中用户表的行
+      selectedFile: [],
       // 一些涉及是否的状态
       createVisible: false,
       createNext: false,
@@ -232,18 +241,18 @@ export default {
     handleQuery() {
       // 开启loading
       this.tableLoading = true
-      listJobs(this.query).then(res => {
+      listFiles(this.query).then(res => {
         this.tableData = res.data.rows
         this.totalSize = res.data.totalSize
       }).finally(() => {
         this.tableLoading = false
       })
     },
-    editJob(jobId) {
+    editFile(fileId) {
       // 显示编辑对话框
       this.editVisible = true
-      getJob({ id: jobId }).then(res => {
-        this.job = res.data
+      getFile({ id: fileId }).then(res => {
+        this.file = res.data
       })
     },
     /* getDetail(row) {
@@ -254,14 +263,14 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields()
     },
-    // 处理创建任务
-    handleCreateJob() {
-      this.$refs.jobForm.validate(valid => {
+    // 处理文件权限
+    handleCreateFile() {
+      this.$refs.fileForm.validate(valid => {
         if (valid) {
           // 新建按钮loading
           this.createLoading = true
           // 请求api
-          createJob(this.job).then(res => {
+          createFile(this.file).then(res => {
             // 成功请求弹出提示
             this.$message({
               showClose: true,
@@ -271,7 +280,7 @@ export default {
             // 判断是否需要继续新建下一条
             if (this.createNext) {
               // 是，重置form
-              this.$refs.jobForm.resetFields()
+              this.$refs.fileForm.resetFields()
             } else {
               // 否，关闭对话框
               this.createVisible = false
@@ -288,12 +297,12 @@ export default {
         }
       })
     },
-    // 处理更新任务
-    handleUpdateJob() {
-      this.$refs.editJobForm.validate(valid => {
+    // 处理更新文件
+    handleUpdateFile() {
+      this.$refs.editFileForm.validate(valid => {
         if (valid) {
           this.createLoading = true
-          updateJob(this.job).then(res => {
+          updateFile(this.file).then(res => {
             this.editVisible = false
             this.handleQuery()
           }).finally(() => {
@@ -302,8 +311,8 @@ export default {
         }
       })
     },
-    // 确认删除任务
-    confirmDeleteJobs() {
+    // 确认删除文件
+    confirmDeleteFiles() {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
         confirmButtonClass: 'msg-danger',
@@ -311,16 +320,16 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.handleDeleteJobs()
+        this.handleDeleteFiles()
       })
     },
-    // 处理删除任务
-    handleDeleteJobs() {
+    // 处理删除文件
+    handleDeleteFiles() {
       // 开启按钮loading
       this.deleteBatchLoading = true
       // 获得表格的选中行
-      const ids = this.selectedJob.map(job => job.id)
-      deleteJobs({ ids }).then(res => {
+      const ids = this.selectedFile.map(file => file.id)
+      deleteFiles({ ids }).then(res => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
@@ -334,9 +343,9 @@ export default {
         this.deleteBatchLoading = false
       })
     },
-    // 处理任务选中变化
-    handleJobChange(val) {
-      this.selectedJob = val
+    // 处理用户选中变化
+    handleFileChange(val) {
+      this.selectedFile = val
     },
     handleChangePageNum(val) {
       this.query.pageNum = val

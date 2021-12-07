@@ -1,26 +1,25 @@
 import request from '@/utils/request'
 
-export function listLogs(data) {
+export function listJobLogs(data) {
   return request({
-    url: '/v1/accessLog/list',
+    url: '/v1/jobLog/list',
     method: 'post',
     data
   })
 }
 
-export function getLog(data) {
+export function getJobLog(data) {
   return request({
-    url: '/v1/accessLog/get',
+    url: '/v1/jobLog/get',
     method: 'post',
     data
   })
 }
 
-export function deleteLogs(data) {
+export function deleteJobLogs(data) {
   return request({
-    url: '/v1/accessLog/batchDelete',
+    url: '/v1/jobLog/batchDelete',
     method: 'post',
     data
   })
 }
-

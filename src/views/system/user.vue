@@ -155,6 +155,7 @@
           <el-table-column fixed="right" label="操作">
             <template slot-scope="scope">
               <el-button type="text" @click="editUser(scope.row.id)">编辑</el-button>
+              <el-button type="text" @click="setRole(scope.row.id)">设置角色</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -334,12 +335,47 @@
           </span>
         </el-dialog>
       </div>
+      <div class="dialog-wrapper">
+        <el-dialog
+          title="设置角色"
+          width="800px"
+          :close-on-click-modal="false"
+          :visible.sync="setVisible"
+        >
+          <el-form
+            ref="setRoleForm"
+            label-width="auto"
+            size="medium"
+            label-position="top"
+            :model="user"
+            :rules="userRules"
+          >
+            <el-col :span="24">
+              <el-form-item label="角色名称">
+                <el-checkbox-group v-for="data in checkList" :key="data.roleName">
+                  <el-checkbox label="data.roleName" />
+                </el-checkbox-group>
+              </el-form-item>
+            </el-col>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button size="medium" plain @click="setVisible = false">取消</el-button>
+            <el-button
+              size="medium"
+              type="primary"
+              :loading="createLoading"
+              @click="handleUpdateUser"
+            >设置角色</el-button>
+          </span>
+        </el-dialog>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { createUser, deleteUsers, exportUsers, getUser, listUsers, resetPasswordBatch, updateUser } from '@/api/user'
+import { listRoles } from '@/api/role'
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
 
@@ -365,7 +401,8 @@ export default {
         email: null,
         mobile: null,
         remark: null,
-        status: null
+        status: null,
+        roleIds: []
       },
       // 新建用户校验规则
       userRules: {
@@ -378,11 +415,16 @@ export default {
         ],
         email: [
           { type: 'email', message: '请输入正确的电子邮件地址', trigger: 'blur' }
+        ],
+        roleIds: [
+          { type: 'array', required: true, message: '请至少选择一个角色', trigger: 'change' }
         ]
       },
       // 主表格数据
       tableData: null,
       totalSize: 0,
+      // 复选框数据
+      checkList: [],
       // 选中用户表的行
       selectedUser: [],
       // 一些涉及是否的状态
@@ -394,6 +436,7 @@ export default {
       resetPassBatchLoading: false,
       foldSearch: false,
       editVisible: false,
+      setVisible: false,
       getLoading: false,
       exportLoading: false,
       // 对话框类型，复用新增和编辑
@@ -426,11 +469,24 @@ export default {
         this.tableLoading = false
       })
     },
+    // 角色列表查询
+    queryRoles() {
+      listRoles(this.role).then(res => {
+        this.checkList = res.data.rows
+      })
+    },
     editUser(userId) {
       // 显示编辑对话框
       this.editVisible = true
       getUser({ id: userId }).then(res => {
         this.user = res.data
+      })
+    },
+    setRole(userId) {
+      // 显示编辑对话框
+      this.setVisible = true
+      getUser({ id: userId }).then(res => {
+        this.user = { roleIds: [], ...res.data }
       })
     },
     /* getDetail(row) {
