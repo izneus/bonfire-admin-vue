@@ -183,9 +183,9 @@ export const asyncRoutes = [
         meta: { title: '角色管理' }
       },
       {
-        path: 'authority',
-        component: () => import('@/views/system/authority'),
-        name: 'Authority',
+        path: 'auth',
+        component: () => import('@/views/system/auth'),
+        name: 'Auth',
         meta: { title: '权限管理' }
       },
       {
@@ -240,14 +240,14 @@ export const asyncRoutes = [
         path: 'phone',
         component: () => import('@/views/system/user'),
         name: 'Phone',
-        meta: { title: '手机监控' }
+        meta: { title: '主机监控' }
       }
     ]
   },
   {
-    path: '/notice',
+    path: '/inform',
     component: Layout,
-    name: 'Notice',
+    name: 'Inform',
     meta: {
       title: '公告',
       icon: 'lock',
@@ -255,9 +255,9 @@ export const asyncRoutes = [
     },
     children: [
       {
-        path: 'inform',
-        component: () => import('@/views/system/user'),
-        name: 'Inform',
+        path: 'notice',
+        component: () => import('@/views/system/notice'),
+        name: 'Notice',
         meta: { title: '通知公告' }
       }
     ]

@@ -167,11 +167,7 @@
 </template>
 
 <script>
-<<<<<<< HEAD
 import { createAuthority, deleteAuthorities, getAuthority, listAuthorities, updateAuthority } from '@/api/authority'
-=======
-import { createAuthority, deleteAuthorities, exportAuthorities, getAuthority, listAuthorities, updateAuthority } from '@/api/authority'
->>>>>>> f33a6e906ed629e3c45cdaddef94820e4ed1a4be
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
 export default {

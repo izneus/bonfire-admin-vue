@@ -38,7 +38,7 @@
               size="small"
               type="primary"
               icon="el-icon-plus"
-              @click="createVisible = true"
+              @click="createRole"
             >
               新增角色
             </el-button>
@@ -106,6 +106,13 @@
                   <el-input v-model="role.remark" type="textarea" :rows="5" placeholder="输入备注" />
                 </el-form-item>
               </el-col>
+              <el-col :span="24">
+                <el-form-item label="权限名称" prop="authorityIds">
+                  <el-checkbox-group v-model="role.authorityIds">
+                    <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
+                  </el-checkbox-group>
+                </el-form-item>
+              </el-col>
             </el-row>
           </el-form>
           <span slot="footer" class="dialog-footer">
@@ -150,6 +157,13 @@
                   <el-input v-model="role.remark" type="textarea" :rows="5" placeholder="输入备注" />
                 </el-form-item>
               </el-col>
+              <el-col :span="24">
+                <el-form-item label="权限名称" prop="authorityIds">
+                  <el-checkbox-group v-model="role.authorityIds">
+                    <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
+                  </el-checkbox-group>
+                </el-form-item>
+              </el-col>
             </el-row>
           </el-form>
           <span slot="footer" class="dialog-footer">
@@ -163,14 +177,51 @@
           </span>
         </el-dialog>
       </div>
+      <div class="dialog-wrapper">
+        <el-dialog
+          title="设置权限"
+          width="800px"
+          :close-on-click-modal="false"
+          :visible.sync="setVisible"
+          @close="resetForm('setAuthForm')"
+        >
+          <el-form
+            ref="setAuthForm"
+            label-width="auto"
+            size="medium"
+            label-position="top"
+            :model="roleAuth"
+            :rules="roleAuthRules"
+          >
+            <el-col :span="24">
+              <el-form-item label="权限名称" prop="authorityIds">
+                <el-checkbox-group v-model="roleAuth.authorityIds">
+                  <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
+                </el-checkbox-group>
+              </el-form-item>
+            </el-col>
+          </el-form>
+          <span slot="footer" class="dialog-footer">
+            <el-button size="medium" plain @click="setVisible = false">取消</el-button>
+            <el-button
+              size="medium"
+              type="primary"
+              :loading="createLoading"
+              @click="handleSetRoleAuth"
+            >设置权限</el-button>
+          </span>
+        </el-dialog>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { createRole, deleteRoles, getRole, listRoles, updateRole } from '@/api/role'
+import { createRole, deleteRoles, getRole, listRoles, updateRole, setRoleAuth } from '@/api/role'
+import { listAuthorities } from '@/api/authority'
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
+
 export default {
   name: 'Role',
   data() {
@@ -179,25 +230,41 @@ export default {
       query: {
         pageNum: 1,
         pageSize: 10,
-        id: null,
         roleName: null,
         remark: null
       },
       // 新建角色的数据
       role: {
+        id: null,
         roleName: null,
-        remark: null
+        remark: null,
+        authorityIds: []
+      },
+      roleAuth: {
+        roleId: null,
+        authorityIds: []
       },
       // 新建角色校验规则
       roleRules: {
         roleName: [
           { required: true, message: '请输入角色名称', trigger: 'blur' }
+        ],
+        authorityIds: [
+          { type: 'array', required: true, message: '请至少选择一个权限', trigger: 'change' }
+        ]
+      },
+      // 设置角色权限校验规则
+      roleAuthRules: {
+        authorityIds: [
+          { type: 'array', required: true, message: '请至少选择一个权限', trigger: 'change' }
         ]
       },
       // 主表格数据
       tableData: null,
       totalSize: 0,
-      // 选中用户表的行
+      // 复选框数据
+      checkList: [],
+      // 选中角色表的行
       selectedRole: [],
       // 一些涉及是否的状态
       createVisible: false,
@@ -241,18 +308,35 @@ export default {
         this.tableLoading = false
       })
     },
+    createRole() {
+      // 显示创建角色对话框
+      this.createVisible = true
+      listAuthorities({ ...this.query, pageSize: 100 }).then(res => {
+        this.checkList = res.data.rows
+      })
+    },
     editRole(roleId) {
       // 显示编辑对话框
+      // 加载所有角色权限
+      listAuthorities({ ...this.query, pageSize: 100 }).then(res => {
+        this.checkList = res.data.rows
+      })
       this.editVisible = true
       getRole({ id: roleId }).then(res => {
         this.role = res.data
+        this.role.authorityIds = res.data.authorityIds == null ? [] : res.data.authorityIds
       })
     },
     setAuthority(authorityId) {
       // 显示设置权限对话框
+      // 加载所有权限的名称
+      listAuthorities({ ...this.query, pageSize: 100 }).then(res => {
+        this.checkList = res.data.rows
+      })
       this.setVisible = true
       getRole({ id: authorityId }).then(res => {
-        this.role = res.data
+        this.roleAuth.roleId = res.data.id
+        this.roleAuth.authorityIds = res.data.authorityIds == null ? [] : res.data.authorityIds
       })
     },
     /* getDetail(row) {
@@ -304,6 +388,20 @@ export default {
           this.createLoading = true
           updateRole(this.role).then(res => {
             this.editVisible = false
+            this.handleQuery()
+          }).finally(() => {
+            this.createLoading = false
+          })
+        }
+      })
+    },
+    // 处理设置角色权限
+    handleSetRoleAuth() {
+      this.$refs.setAuthForm.validate(valid => {
+        if (valid) {
+          this.createLoading = true
+          setRoleAuth(this.roleAuth).then(res => {
+            this.setVisible = false
             this.handleQuery()
           }).finally(() => {
             this.createLoading = false

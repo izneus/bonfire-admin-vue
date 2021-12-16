@@ -63,7 +63,7 @@ export function updateUser(data) {
 
 export function deleteUsers(data) {
   return request({
-    url: '/v1/user/deleteBatch',
+    url: '/v1/user/batchDelete',
     method: 'post',
     data
   })
@@ -80,6 +80,14 @@ export function resetPasswordBatch(data) {
 export function exportUsers(data) {
   return request({
     url: '/v1/user/export',
+    method: 'post',
+    data
+  })
+}
+
+export function setUserRole(data) {
+  return request({
+    url: '/v1/user/setRole',
     method: 'post',
     data
   })
