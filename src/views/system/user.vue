@@ -119,7 +119,7 @@
               size="small"
               type="primary"
               icon="el-icon-plus"
-              @click="createVisible = true"
+              @click="createUser"
             >
               新增用户
             </el-button>
@@ -237,6 +237,13 @@
                 </el-form-item>
               </el-col>
             </el-row>
+            <el-col :span="24">
+              <el-form-item label="角色名称" prop="roleIds">
+                <el-checkbox-group v-model="user.roleIds">
+                  <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
+                </el-checkbox-group>
+              </el-form-item>
+            </el-col>
           </el-form>
           <span slot="footer" class="dialog-footer">
             <el-checkbox
@@ -276,7 +283,6 @@
                     v-model="user.username"
                     placeholder="输入用户名"
                     suffix-icon="el-icon-user"
-                    readonly="true"
                   />
                 </el-form-item>
               </el-col>
@@ -322,6 +328,13 @@
                   <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
                 </el-form-item>
               </el-col>
+              <el-col :span="24">
+                <el-form-item label="角色名称" prop="roleIds">
+                  <el-checkbox-group v-model="user.roleIds">
+                    <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
+                  </el-checkbox-group>
+                </el-form-item>
+              </el-col>
             </el-row>
           </el-form>
           <span slot="footer" class="dialog-footer">
@@ -341,19 +354,20 @@
           width="800px"
           :close-on-click-modal="false"
           :visible.sync="setVisible"
+          @close="resetForm('setRoleForm')"
         >
           <el-form
             ref="setRoleForm"
             label-width="auto"
             size="medium"
             label-position="top"
-            :model="user"
-            :rules="userRules"
+            :model="userRole"
+            :rules="userRoleRules"
           >
             <el-col :span="24">
-              <el-form-item label="角色名称">
-                <el-checkbox-group v-for="data in checkList" :key="data.roleName">
-                  <el-checkbox label="data.roleName" />
+              <el-form-item label="角色名称" prop="roleIds">
+                <el-checkbox-group v-model="userRole.roleIds">
+                  <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
                 </el-checkbox-group>
               </el-form-item>
             </el-col>
@@ -364,7 +378,7 @@
               size="medium"
               type="primary"
               :loading="createLoading"
-              @click="handleUpdateUser"
+              @click="handleSetUserRole"
             >设置角色</el-button>
           </span>
         </el-dialog>
@@ -374,7 +388,7 @@
 </template>
 
 <script>
-import { createUser, deleteUsers, exportUsers, getUser, listUsers, resetPasswordBatch, updateUser } from '@/api/user'
+import { createUser, deleteUsers, exportUsers, getUser, listUsers, resetPasswordBatch, setUserRole, updateUser } from '@/api/user'
 import { listRoles } from '@/api/role'
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
@@ -404,6 +418,11 @@ export default {
         status: null,
         roleIds: []
       },
+      // 新建用户角色的数据
+      userRole: {
+        userId: null,
+        roleIds: []
+      },
       // 新建用户校验规则
       userRules: {
         username: [
@@ -416,6 +435,11 @@ export default {
         email: [
           { type: 'email', message: '请输入正确的电子邮件地址', trigger: 'blur' }
         ],
+        roleIds: [
+          { type: 'array', required: true, message: '请至少选择一个角色', trigger: 'change' }
+        ]
+      },
+      userRoleRules: {
         roleIds: [
           { type: 'array', required: true, message: '请至少选择一个角色', trigger: 'change' }
         ]
@@ -469,24 +493,35 @@ export default {
         this.tableLoading = false
       })
     },
-    // 角色列表查询
-    queryRoles() {
-      listRoles(this.role).then(res => {
+    createUser() {
+      // 显示创建用户对话框
+      this.createVisible = true
+      listRoles({ ...this.query, pageSize: 100 }).then(res => {
         this.checkList = res.data.rows
       })
     },
     editUser(userId) {
       // 显示编辑对话框
+      // 加载所有角色的名称
+      listRoles({ ...this.query, pageSize: 100 }).then(res => {
+        this.checkList = res.data.rows
+      })
       this.editVisible = true
       getUser({ id: userId }).then(res => {
         this.user = res.data
+        this.user.roleIds = res.data.roleIds == null ? [] : res.data.roleIds
       })
     },
     setRole(userId) {
-      // 显示编辑对话框
+      // 显示设置角色对话框
+      // 加载所有角色的名称
+      listRoles({ ...this.query, pageSize: 100 }).then(res => {
+        this.checkList = res.data.rows
+      })
       this.setVisible = true
       getUser({ id: userId }).then(res => {
-        this.user = { roleIds: [], ...res.data }
+        this.userRole.userId = res.data.id
+        this.userRole.roleIds = res.data.roleIds == null ? [] : res.data.roleIds
       })
     },
     /* getDetail(row) {
@@ -538,6 +573,20 @@ export default {
           this.createLoading = true
           updateUser(this.user).then(res => {
             this.editVisible = false
+            this.handleQuery()
+          }).finally(() => {
+            this.createLoading = false
+          })
+        }
+      })
+    },
+    // 处理设置用户角色
+    handleSetUserRole() {
+      this.$refs.setRoleForm.validate(valid => {
+        if (valid) {
+          this.createLoading = true
+          setUserRole(this.userRole).then(res => {
+            this.setVisible = false
             this.handleQuery()
           }).finally(() => {
             this.createLoading = false

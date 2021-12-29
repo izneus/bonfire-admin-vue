@@ -39,3 +39,11 @@ export function deleteRoles(data) {
   })
 }
 
+export function setRoleAuth(data) {
+  return request({
+    url: '/v1/role/setAuth',
+    method: 'post',
+    data
+  })
+}
+
