@@ -1,6 +1,14 @@
 <template>
   <div>
-    <svg-icon :icon-class="isFullscreen?'exit-fullscreen':'fullscreen'" @click="click" />
+    <el-tooltip class="item" effect="dark" content="退出全屏" placement="top" popper-class="mini-tip">
+      <i v-show="isFullscreen" class="ri-fullscreen-exit-line" @click="click" />
+    </el-tooltip>
+
+    <el-tooltip class="item" effect="dark" content="全屏显示" placement="top" popper-class="mini-tip">
+      <i v-show="!isFullscreen" class="ri-fullscreen-line" @click="click" />
+    </el-tooltip>
+    <!--    <i class="ri-fullscreen-line" @click="click"></i>-->
+    <!--    <svg-icon :icon-class="isFullscreen?'exit-fullscreen':'fullscreen'" @click="click" />-->
   </div>
 </template>
 
@@ -49,12 +57,12 @@ export default {
 </script>
 
 <style scoped>
-.screenfull-svg {
-  display: inline-block;
-  cursor: pointer;
-  fill: #5a5e66;;
-  width: 20px;
-  height: 20px;
-  vertical-align: 10px;
-}
+/*.screenfull-svg {*/
+/*  display: inline-block;*/
+/*  cursor: pointer;*/
+/*  fill: #5a5e66;;*/
+/*  width: 20px;*/
+/*  height: 20px;*/
+/*  vertical-align: 10px;*/
+/*}*/
 </style>

@@ -12,15 +12,42 @@
         @click.middle.native="!isAffix(tag)?closeSelectedTag(tag):''"
         @contextmenu.prevent.native="openMenu(tag,$event)"
       >
-        {{ generateTitle(tag.title) }}
+        <span class="tags-view-title">{{ generateTitle(tag.title) }}</span>
         <span v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
+        <svg width="7" height="7" class="tabs-background-before">
+          <path d="M 0 7 A 7 7 0 0 0 7 0 L 7 7 Z" />
+        </svg>
+        <svg width="7" height="7" class="tabs-background-after">
+          <path d="M 0 0 A 7 7 0 0 0 7 7 L 0 7 Z" />
+        </svg>
+        <div class="tabs-divider" />
       </router-link>
     </scroll-pane>
     <ul v-show="visible" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
-      <li @click="refreshSelectedTag(selectedTag)">{{ $t('tagsView.refresh') }}</li>
-      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">{{ $t('tagsView.close') }}</li>
-      <li @click="closeOthersTags">{{ $t('tagsView.closeOthers') }}</li>
-      <li @click="closeAllTags(selectedTag)">{{ $t('tagsView.closeAll') }}</li>
+      <li @click="refreshSelectedTag(selectedTag)">
+        <div style="display: flex">
+          <i class="ri-refresh-line" style="flex:2;" />
+          <span style="flex: 8;">{{ $t('tagsView.refresh') }}</span>
+        </div>
+      </li>
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">
+        <div style="display: flex">
+          <i class="ri-close-circle-line" style="flex:2;" />
+          <span style="flex: 8;">{{ $t('tagsView.close') }}</span>
+        </div>
+      </li>
+      <li @click="closeOthersTags">
+        <div style="display: flex">
+          <span style="flex: 2;" />
+          <span style="flex: 8;">{{ $t('tagsView.closeOthers') }}</span>
+        </div>
+      </li>
+      <li @click="closeAllTags(selectedTag)">
+        <div style="display: flex">
+          <span style="flex: 2;" />
+          <span style="flex: 8;">{{ $t('tagsView.closeAll') }}</span>
+        </div>
+      </li>
     </ul>
   </div>
 </template>
@@ -175,6 +202,7 @@ export default {
     openMenu(tag, e) {
       const menuMinWidth = 105
       const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
+      // noinspection JSUnresolvedVariable
       const offsetWidth = this.$el.offsetWidth // container width
       const maxLeft = offsetWidth - menuMinWidth // left boundary
       const left = e.clientX - offsetLeft + 15 // 15: margin right
@@ -201,26 +229,32 @@ export default {
 
 <style lang="scss" scoped>
 .tags-view-container {
-  height: 26px;
+  height: 40px;
   width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #DCDFE6;
+  background: #f0f2f5;
+  padding-top: 6px;
+  //padding-left: 10px;
+  //border-bottom: 1px solid #DCDFE6;
   //box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .12), 0 0 3px 0 rgba(0, 0, 0, .04);
   .tags-view-wrapper {
     .tags-view-item {
+      z-index: 1;
       display: inline-block;
       position: relative;
       cursor: pointer;
-      height: 26px;
-      line-height: 26px;
+      height: 34px;
+      width: 120px;
+      line-height: 34px;
+      border-top-left-radius: 7px;
+      border-top-right-radius: 7px;
       //border: 1px solid #d8dce5;
       border: none;
-      border-bottom: solid 1px #DCDFE6;
-      color: #495060;
-      background: #fff;
+      //border-bottom: solid 1px #DCDFE6;
+      color: #999;
+      background: #f0f2f5;
       //padding: 0 8px;
-      padding: 0 20px;
-      font-size: 12px;
+      padding: 0 16px;
+      font-size: 14px;
       margin: 0 0;
       //margin-left: 5px;
       //margin-top: 4px;
@@ -230,12 +264,55 @@ export default {
       &:last-of-type {
         margin-right: 15px;
       }*/
+      .tabs-background-before,
+      .tabs-background-after {
+        bottom: 0;
+        position: absolute;
+        fill: #f0f2f5;
+        //transition: background @speed;
+      }
+      .tabs-background-before {
+        left: -7px;
+      }
+      .tabs-background-after {
+        right: -7px;
+      }
+      /* divider */
+      .tabs-divider {
+        left: 0;
+        top: 50%;
+        width: 1px;
+        height: 14px;
+        background-color: #a9adb0;
+        position: absolute;
+        transform: translateY(-50%);
+      }
+      &:first-child {
+        margin-left: 10px;
+        .tabs-divider {
+          background-color: transparent;
+        }
+      }
       &.active {
-        background-color: #1890ff;
-        color: #fff;
+        z-index: 3;
+        background-color: #ffffff;
+        color: #333333;
+        .tabs-background-before,
+        .tabs-background-after {
+          fill: #ffffff;
+          //transition: background @speed;
+        }
+        .tabs-divider {
+          background-color: #ffffff;
+        }
+        & + .tags-view-item {
+          .tabs-divider {
+            background-color: transparent;
+          }
+        }
         //border-color: #1890ff;
         //padding-bottom: 3px;
-        border-bottom: solid 1px #DCDFE6;
+        //border-bottom: solid 1px #DCDFE6;
         /*&::before {
           content: '';
           background: #fff;
@@ -247,9 +324,27 @@ export default {
           margin-right: 2px;
         }*/
       }
+      &:hover:not(.active) {
+        z-index: 2;
+        background-color: rgba(0,0,0,.06);
+        .tabs-background-before,
+        .tabs-background-after {
+          fill: rgba(0,0,0,.06);
+          //transition: background @speed;
+        }
+        .tabs-divider {
+          background-color: transparent;
+        }
+        & + .tags-view-item {
+          .tabs-divider {
+            background-color: transparent;
+          }
+        }
+      }
     }
   }
   .contextmenu {
+    width: 120px;
     margin: 0;
     background: #fff;
     z-index: 3000;
@@ -260,8 +355,9 @@ export default {
     font-size: 12px;
     font-weight: 400;
     color: #333;
-    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
+    box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
     li {
+      font-size: 14px;
       margin: 0;
       padding: 7px 16px;
       cursor: pointer;
@@ -285,21 +381,29 @@ export default {
     .el-icon-close {
       width: 16px;
       height: 16px;
-      vertical-align: 2px;
+      vertical-align: 11px;
       border-radius: 50%;
       text-align: center;
       transition: all .3s cubic-bezier(.645, .045, .355, 1);
       transform-origin: 100% 50%;
       &:before {
-        transform: scale(.6);
+        transform: scale(.9);
         display: inline-block;
-        vertical-align: -4px;
+        //vertical-align: -4px;
         font-size: 16px;
       }
       &:hover {
-        background-color: #b4bccc;
-        color: #fff;
+        background-color: #e8eaed;
+        color: #999;
       }
+    }
+    .tags-view-title {
+      width: 74px;
+      overflow: hidden;
+      white-space: nowrap;
+      margin-right: 4px;
+      display: inline-block;
+      mask-image: linear-gradient(90deg,#000 0%,#000 calc(100% - 24px),transparent);
     }
   }
 }

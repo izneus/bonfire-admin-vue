@@ -1,32 +1,27 @@
 <template>
   <div class="navbar">
     <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-
     <!--    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" />-->
-
     <div class="right-menu">
       <template v-if="device!=='mobile'">
-        <search id="header-search" class="right-menu-item" />
-
-        <error-log class="errLog-container right-menu-item hover-effect" />
-
+        <!--        <search id="header-search" class="right-menu-item" />-->
+        <!--        <error-log class="errLog-container right-menu-item hover-effect" />-->
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
-
-        <el-tooltip :content="$t('navbar.size')" effect="dark" placement="bottom">
-          <size-select id="size-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
-
-        <lang-select class="right-menu-item hover-effect" />
-
+        <!--        <el-tooltip :content="$t('navbar.size')" effect="dark" placement="bottom">-->
+        <!--          <size-select id="size-select" class="right-menu-item hover-effect" />-->
+        <!--        </el-tooltip>-->
+        <!--        <lang-select class="right-menu-item hover-effect" />-->
       </template>
-
+      <i class="ri-notification-2-line right-menu-item hover-effect" />
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar">
+          <i class="ri-user-line" />
+          <span class="user-name">{{ name }}</span>
+          <!--          <img src="" class="user-avatar" alt="">-->
           <i class="el-icon-caret-bottom" />
         </div>
-        <el-dropdown-menu slot="dropdown">
-          <router-link to="/profile/index">
+        <el-dropdown-menu slot="dropdown" style="width: 200px;">
+          <!--          <router-link to="/profile/index">
             <el-dropdown-item>
               {{ $t('navbar.profile') }}
             </el-dropdown-item>
@@ -43,9 +38,24 @@
           </a>
           <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
             <el-dropdown-item>Docs</el-dropdown-item>
-          </a>
+          </a>-->
+          <el-dropdown-item>
+            <div style="display: flex">
+              <i class="ri-profile-line" style="flex: 1;" />
+              <span style="flex: 9;">个人中心</span>
+            </div>
+          </el-dropdown-item>
+          <el-dropdown-item>
+            <div style="display: flex">
+              <i class="ri-lock-2-line" style="flex: 1;" />
+              <span style="flex: 9;">修改密码</span>
+            </div>
+          </el-dropdown-item>
           <el-dropdown-item divided @click.native="logout">
-            <span style="display:block;">{{ $t('navbar.logOut') }}</span>
+            <div style="display: flex">
+              <i class="ri-logout-box-r-line" style="flex: 1;" />
+              <span style="flex: 9;">{{ $t('navbar.logOut') }}</span>
+            </div>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -57,27 +67,28 @@
 import { mapGetters } from 'vuex'
 // import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
-import ErrorLog from '@/components/ErrorLog'
+// import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-import LangSelect from '@/components/LangSelect'
-import Search from '@/components/HeaderSearch'
+// import SizeSelect from '@/components/SizeSelect'
+// import LangSelect from '@/components/LangSelect'
+// import Search from '@/components/HeaderSearch'
 
 export default {
   components: {
     // Breadcrumb,
     Hamburger,
-    ErrorLog,
-    Screenfull,
-    SizeSelect,
-    LangSelect,
-    Search
+    // ErrorLog,
+    Screenfull
+    // SizeSelect,
+    // LangSelect,
+    // Search
   },
   computed: {
     ...mapGetters([
       'sidebar',
       'avatar',
-      'device'
+      'device',
+      'name'
     ])
   },
   methods: {
@@ -94,15 +105,16 @@ export default {
 
 <style lang="scss" scoped>
 .navbar {
-  height: 50px;
+  height: 40px;
   overflow: hidden;
   position: relative;
   background: #fff;
   //box-shadow: 0 1px 4px rgba(0,21,41,.08);
-  border-bottom: 1px solid #DCDFE6;
+  box-shadow: 0 10px 10px -10px #ccc;
+  //border-bottom: 1px solid #DCDFE6;
 
   .hamburger-container {
-    line-height: 46px;
+    line-height: 40px;
     height: 100%;
     float: left;
     cursor: pointer;
@@ -126,7 +138,7 @@ export default {
   .right-menu {
     float: right;
     height: 100%;
-    line-height: 50px;
+    line-height: 40px;
 
     &:focus {
       outline: none;
@@ -154,7 +166,7 @@ export default {
       margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 5px;
+        //margin-top: 5px;
         position: relative;
 
         .user-avatar {
@@ -170,6 +182,14 @@ export default {
           right: -20px;
           top: 25px;
           font-size: 12px;
+        }
+
+        .user-name {
+          font-size: 14px;
+          float: right;
+          margin-left: 2px;
+          max-width: 100px;
+          overflow: hidden;
         }
       }
     }

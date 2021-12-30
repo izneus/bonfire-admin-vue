@@ -10,15 +10,16 @@
   .sidebar-container {
     transition: width 0.28s;
     width: $sideBarWidth !important;
-    background-color: $menuBg;
+    //background-color: $menuBg;
     height: 100%;
     position: fixed;
-    font-size: 0px;
+    font-size: 0;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 1001;
     overflow: hidden;
+    box-shadow: 10px 0 10px -10px #c7c7c7;
 
     // reset element-ui css
     .horizontal-collapse-transition {
@@ -27,10 +28,11 @@
 
     .scrollbar-wrapper {
       overflow-x: hidden !important;
+      overscroll-behavior: none;
     }
 
     .el-scrollbar__bar.is-vertical {
-      right: 0px;
+      right: 0;
     }
 
     .el-scrollbar {
@@ -54,7 +56,9 @@
     }
 
     .svg-icon {
-      margin-right: 16px;
+      margin-right: 14px;
+      font-size: 16px;
+      vertical-align: middle;
     }
 
     .sub-el-icon {
@@ -66,27 +70,40 @@
       border: none;
       height: 100%;
       width: 100% !important;
+      //font-weight: 500;
     }
 
     // menu hover
     .submenu-title-noDropdown,
     .el-submenu__title {
       &:hover {
-        background-color: $menuHover !important;
+        background-color: #e8f4ff !important;
+        color: #1890ff !important;
       }
+      //border-left: transparent solid 4px;
     }
 
     .is-active>.el-submenu__title {
-      color: $subMenuActiveText !important;
+      color: $subMenuActiveText;
+    }
+
+    .is-active.submenu-title-noDropdown {
+      background-color: #e8f4ff !important;
+      color: #1890ff !important;
+    }
+
+    .el-menu-item {
+      //border-left: transparent solid 4px;
     }
 
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
       min-width: $sideBarWidth !important;
-      background-color: $subMenuBg !important;
+      //background-color: $subMenuBg !important;
 
-      &:hover {
-        background-color: $subMenuHover !important;
+      &:hover:not(.is-active) {
+        background-color: #e8f4ff !important;
+        color: #1890ff !important;
       }
     }
   }
@@ -159,7 +176,7 @@
   // mobile responsive
   .mobile {
     .main-container {
-      margin-left: 0px;
+      margin-left: 0;
     }
 
     .sidebar-container {
@@ -201,7 +218,8 @@
   .el-menu-item {
     &:hover {
       // you can use $subMenuHover
-      background-color: $menuHover !important;
+      background-color: #e8f4ff !important;
+      color: #1890ff !important;
     }
   }
 

@@ -1,7 +1,7 @@
 <template>
   <div :class="{'has-logo':showLogo}">
-    <logo v-if="showLogo" :collapse="isCollapse" />
-    <el-scrollbar wrap-class="scrollbar-wrapper">
+    <logo v-if="showLogo" :collapse="isCollapse" :class="{'has-shadow': hasShadow}" />
+    <el-scrollbar ref="sidebarScroll" wrap-class="scrollbar-wrapper">
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
@@ -26,6 +26,11 @@ import variables from '@/styles/variables.scss'
 
 export default {
   components: { SidebarItem, Logo },
+  data() {
+    return {
+      hasShadow: false
+    }
+  },
   computed: {
     ...mapGetters([
       'permission_routes',
@@ -49,6 +54,24 @@ export default {
     isCollapse() {
       return !this.sidebar.opened
     }
+  },
+  mounted() {
+    this.handleScroll()
+  },
+  methods: {
+    handleScroll() {
+      const scrollbarEl = this.$refs.sidebarScroll.wrap
+      scrollbarEl.onscroll = () => {
+        this.hasShadow = scrollbarEl.scrollTop > 0
+      }
+    }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.has-shadow {
+  box-shadow: 0 10px 10px -10px #c7c7c7;
+  z-index: 50;
+}
+</style>

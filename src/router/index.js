@@ -7,10 +7,10 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
-import componentsRouter from './modules/components'
+/* import componentsRouter from './modules/components'
 import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
-import nestedRouter from './modules/nested'
+import nestedRouter from './modules/nested' */
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -77,9 +77,9 @@ export const constantRoutes = [
     children: [
       {
         path: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
+        component: () => import('@/views/system/empty'),
         name: 'Dashboard',
-        meta: { title: 'dashboard', icon: 'dashboard', affix: true }
+        meta: { title: 'dashboard', icon: 'ri-home-2-line', affix: true }
       }
     ]
   },
@@ -136,7 +136,7 @@ export const asyncRoutes = [
     name: 'System',
     meta: {
       title: '系统',
-      icon: 'lock',
+      icon: 'ri-settings-line',
       roles: ['admin']
     },
     children: [
@@ -161,12 +161,12 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/authority',
+    path: '/auth',
     component: Layout,
-    name: 'Authority',
+    name: 'Auth',
     meta: {
       title: '权限管理',
-      icon: 'lock',
+      icon: 'ri-user-settings-line',
       roles: ['admin']
     },
     children: [
@@ -190,13 +190,13 @@ export const asyncRoutes = [
       },
       {
         path: 'department',
-        component: () => import('@/views/system/dict'),
+        component: () => import('@/views/system/empty'),
         name: 'Department',
         meta: { title: '部门管理' }
       },
       {
         path: 'menu',
-        component: () => import('@/views/system/user'),
+        component: () => import('@/views/system/empty'),
         name: 'Menu',
         meta: { title: '菜单管理' }
       }
@@ -208,7 +208,7 @@ export const asyncRoutes = [
     name: 'Task',
     meta: {
       title: '任务调度',
-      icon: 'lock',
+      icon: 'ri-task-line',
       roles: ['admin']
     },
     children: [
@@ -222,7 +222,7 @@ export const asyncRoutes = [
         path: 'joblog',
         component: () => import('@/views/task/jobLog'),
         name: 'Joblog',
-        meta: { title: '任务管理日志' }
+        meta: { title: '任务日志' }
       }
     ]
   },
@@ -232,13 +232,13 @@ export const asyncRoutes = [
     name: 'Monitor',
     meta: {
       title: '监控',
-      icon: 'lock',
+      icon: 'ri-server-line',
       roles: ['admin']
     },
     children: [
       {
         path: 'phone',
-        component: () => import('@/views/system/user'),
+        // component: () => import('@/views/system/user'),
         name: 'Phone',
         meta: { title: '主机监控' }
       }
@@ -250,31 +250,31 @@ export const asyncRoutes = [
     name: 'Inform',
     meta: {
       title: '公告',
-      icon: 'lock',
+      icon: 'ri-mail-send-line',
       roles: ['admin']
     },
     children: [
       {
         path: 'notice',
-        component: () => import('@/views/system/notice'),
+        component: () => import('@/views/system/empty'),
         name: 'Notice',
         meta: { title: '通知公告' }
       }
     ]
   },
   {
-    path: '/oder',
+    path: '/order',
     component: Layout,
     name: 'Order',
     meta: {
-      title: '单子',
-      icon: 'lock',
+      title: '工单管理',
+      icon: 'ri-todo-line',
       roles: ['admin']
     },
     children: [
       {
         path: 'work',
-        component: () => import('@/views/system/user'),
+        component: () => import('@/views/system/empty'),
         name: 'Work',
         meta: { title: '工单' }
       }

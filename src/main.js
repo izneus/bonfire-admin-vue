@@ -23,6 +23,9 @@ import * as filters from './filters' // global filters
 // 数据字典
 import dict from './components/Dict'
 
+// remix图标库
+import 'remixicon/fonts/remixicon.css'
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api

@@ -193,7 +193,7 @@ aside {
 
 // --------下面是自定义样式-----------
 .main-container {
-  background-color: #DCDFE6;
+  background-color: #f0f2f5;
 }
 
 .content-main {
@@ -257,4 +257,19 @@ aside {
   color: #f56c6c !important;
 }
 
+.nest-menu .el-menu-item {
+  padding-left: 50px !important;
+  //background-color: #e8e8e8 !important;
 
+  &.is-active {
+    //border-left: #1890ff solid 5px;
+    background-color: #e8f4ff !important;
+    color: #1890ff !important;
+  }
+}
+
+.mini-tip {
+  padding: 4px 8px;
+  border-radius: 2px;
+  //background: rgba(0, 0, 0, 0.6) !important;
+}
