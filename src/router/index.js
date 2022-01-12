@@ -136,7 +136,7 @@ export const asyncRoutes = [
     name: 'System',
     meta: {
       title: '系统',
-      icon: 'ri-settings-line',
+      icon: 'ri-settings-6-line',
       roles: ['admin']
     },
     children: [
