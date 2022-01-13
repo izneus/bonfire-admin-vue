@@ -4,11 +4,11 @@
       <el-image
         :src="require('@/assets/login.png')"
         fit="fill"
-        style="width: 100%;height: 567px;display: block;"
+        style="width: 100%;height: 567px;display: block;border-radius: 20px;"
       />
     </div>
     <div style="flex: 385">
-      <div class="login-container" style="padding: 20px 20px">
+      <div class="login-container" style="padding: 50px 50px">
         <el-form
           ref="loginForm"
           :model="loginForm"
@@ -91,7 +91,7 @@
               <el-image
                 :loading="captchaLoading"
                 :src="captchaImage"
-                style="width: 100%; height: 42px; float: right;"
+                style="width: 100%; height: 42px; float: right;border-radius: 5px;"
                 @click="setCaptchaImage"
               />
             </el-col>
@@ -100,7 +100,7 @@
           <el-button
             :loading="loading"
             type="primary"
-            style="width:100%;margin-bottom:30px;height: 40px;"
+            style="width:100%;margin-bottom:30px;height: 40px;background-color: #2A99E6;border-radius: 5px;"
             @click.native.prevent="handleLogin"
           >
             {{ $t('login.logIn') }}
@@ -266,13 +266,13 @@ export default {
   .el-input {
     display: inline-block;
     height: 40px;
-    width: 80%;
+    width: 60%;
 
     input {
       background: #ffffff;
       border: none;
       //-webkit-appearance: none;
-      border-radius: 2px;
+      border-radius: 5px;
       padding: 12px 5px 12px 15px;
       color: #333;
       height: 40px;
@@ -352,7 +352,7 @@ export default {
 
   .svg-container {
     padding: 0 5px 0 15px;
-    color: #333;
+    color: #666666;
     vertical-align: middle;
     width: 30px;
     display: inline-block;
@@ -384,7 +384,7 @@ export default {
     right: 10px;
     top: 2px;
     font-size: 16px;
-    color: #333;
+    color: #666666;
     cursor: pointer;
     user-select: none;
   }
