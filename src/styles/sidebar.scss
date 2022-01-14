@@ -73,6 +73,10 @@
       //font-weight: 500;
     }
 
+    .el-submenu.is-active {
+
+    }
+
     // menu hover
     .submenu-title-noDropdown,
     .el-submenu__title {
@@ -84,7 +88,7 @@
     }
 
     .is-active>.el-submenu__title {
-      color: $subMenuActiveText;
+      color: #1890ff !important;
     }
 
     .is-active.submenu-title-noDropdown {
