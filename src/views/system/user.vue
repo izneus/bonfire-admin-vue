@@ -1,18 +1,216 @@
 <template>
-  <div class="app-container">
-    <div class="content-main">
-      <div class="search-bar">
-        <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
-          <el-row :gutter="24">
-            <el-col :span="6">
-              <el-form-item label="用户名称:" prop="username">
-                <el-input v-model="query.username" placeholder="输入用户名称" />
+  <div class="app-container" :class="{'has-bulk':selectedUser.length > 0}">
+    <div class="filter-wrapper">
+      <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
+        <el-row :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="用户名称:" prop="username">
+              <el-input v-model="query.username" placeholder="输入用户名称" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="用户状态:" prop="status">
+              <el-select
+                v-model="query.status"
+                clearable
+                placeholder="选择用户状态"
+                style="width: 100%"
+              >
+                <el-option
+                  v-for="item in dict.user_status"
+                  :key="item.dictValue"
+                  :label="item.dictLabel"
+                  :value="item.dictValue"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
+            <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
+            <el-button size="small" type="text" style="padding-left: 0;" @click="handleFoldSearch">
+              展开查询
+              <i v-show="!foldSearch" class="el-icon-arrow-down" />
+              <i v-show="foldSearch" class="el-icon-arrow-up" />
+            </el-button>
+          </el-col>
+        </el-row>
+        <el-row v-show="foldSearch" :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
+    <div class="table-wrapper">
+      <div class="toolbar-wrapper">
+        <el-row :gutter="24" type="flex" justify="end">
+          <el-col :span="12">
+            <div class="tool-title">用户列表</div>
+          </el-col>
+          <el-col :span="12" style="text-align: right;">
+            <el-tooltip class="item" effect="dark" content="导入模板下载" placement="top" popper-class="mini-tip">
+              <el-button
+                icon="el-icon-document"
+                class="tool-button"
+                size="small"
+                plain
+              />
+            </el-tooltip>
+
+            <el-tooltip class="item" effect="dark" content="导入" placement="top" popper-class="mini-tip">
+              <el-upload
+                ref="upload"
+                style="display: inline-block"
+                :action="uploadUrl"
+                :headers="authHeader"
+                :show-file-list="false"
+                :on-success="handleUploadSuccess"
+                :on-error="handleUploadError"
+              >
+                <el-button
+                  class="tool-button"
+                  size="small"
+                  icon="el-icon-upload2"
+                  plain
+                />
+              </el-upload>
+            </el-tooltip>
+
+            <el-tooltip class="item" effect="dark" content="导出" placement="top" popper-class="mini-tip">
+              <el-button
+                icon="el-icon-download"
+                class="tool-button"
+                size="small"
+                plain
+                :loading="exportLoading"
+                @click="handleExportUsers"
+              />
+            </el-tooltip>
+
+            <el-button
+              size="small"
+              type="primary"
+              icon="el-icon-plus"
+              @click="createUser"
+            >
+              新增用户
+            </el-button>
+          </el-col>
+        </el-row>
+      </div>
+      <el-table
+        v-loading="tableLoading"
+        :data="tableData"
+        style="width: 100%"
+        show-overflow-tooltip="true"
+        header-row-class-name="result-table-header"
+        header-cell-class-name="result-table-header-cell"
+        @selection-change="handleUserChange"
+      >
+        <el-empty slot="empty" />
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="username" label="用户名" show-overflow-tooltip />
+        <el-table-column prop="nickname" label="昵称" show-overflow-tooltip />
+        <el-table-column prop="fullname" label="全名" show-overflow-tooltip />
+        <el-table-column prop="email" label="邮件" show-overflow-tooltip />
+        <el-table-column prop="mobile" label="手机" show-overflow-tooltip />
+        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
+        <el-table-column prop="status" label="状态" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.status === '0'" size="small" type="success">
+              {{ dict.label.user_status[scope.row.status] }}
+            </el-tag>
+            <el-tag v-else size="small" type="danger">{{ dict.label.user_status[scope.row.status] }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column fixed="right" label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" @click="editUser(scope.row.id)">编辑</el-button>
+            <el-button type="text" @click="setRole(scope.row.id)">设置角色</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagi-wrapper">
+        <el-pagination
+          background
+          :current-page="query.pageNum"
+          :page-sizes="[10, 20, 30, 50]"
+          :page-size="query.pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="totalSize"
+          @size-change="handleChangePageSize"
+          @current-change="handleChangePageNum"
+        />
+      </div>
+    </div>
+    <div v-show="selectedUser.length > 0" class="bulk-wrapper">
+      <div class="bulk-col-left">
+        <div class="bulk-desc">
+          已选择&nbsp;<a>{{selectedUser.length}}</a>&nbsp;项
+        </div>
+      </div>
+      <div class="bulk-col-right">
+        <el-button
+          type="danger"
+          plain
+          size="small"
+          icon="el-icon-delete"
+          :loading="deleteBatchLoading"
+          @click="confirmDeleteUsers"
+        >
+          批量删除
+        </el-button>
+
+        <el-button
+          type="primary"
+          size="small"
+          plain
+          :loading="resetPassBatchLoading"
+          @click="confirmResetPassBatch"
+        >
+          批量重置密码
+        </el-button>
+      </div>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="新建用户"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="createVisible"
+        @close="resetForm('userForm')"
+      >
+        <el-form
+          ref="userForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="user"
+          :rules="userRules"
+        >
+          <el-row :gutter="30">
+            <el-col :span="12">
+              <el-form-item label="用户名" prop="username">
+                <el-input v-model="user.username" placeholder="输入用户名" suffix-icon="el-icon-user" />
               </el-form-item>
             </el-col>
-            <el-col :span="6">
-              <el-form-item label="用户状态:" prop="status">
+            <el-col :span="12">
+              <el-form-item label="用户状态" prop="status">
                 <el-select
-                  v-model="query.status"
+                  v-model="user.status"
                   clearable
                   placeholder="选择用户状态"
                   style="width: 100%"
@@ -27,216 +225,122 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
-              <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
-              <el-button size="small" type="text" style="padding-left: 0;" @click="handleFoldSearch">
-                展开查询
-                <i v-show="!foldSearch" class="el-icon-arrow-down" />
-                <i v-show="foldSearch" class="el-icon-arrow-up" />
-              </el-button>
-            </el-col>
-          </el-row>
-          <el-row v-show="foldSearch" :gutter="24">
-            <el-col :span="6">
-              <el-form-item label="测试选项:">
-                <el-input placeholder="输入测试选项" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="6">
-              <el-form-item label="测试选项:">
-                <el-input placeholder="输入测试选项" />
+              <el-form-item label="昵称" prop="nickname">
+                <el-input v-model="user.nickname" placeholder="输入昵称" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="测试选项:">
-                <el-input placeholder="输入测试选项" />
+              <el-form-item label="姓名" prop="fullname">
+                <el-input v-model="user.fullname" placeholder="输入姓名" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="手机号码" prop="mobile">
+                <el-input v-model="user.mobile" placeholder="输入手机号码" suffix-icon="el-icon-phone-outline" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="电子邮件" prop="email">
+                <el-input v-model="user.email" placeholder="输入电子邮件地址" suffix-icon="el-icon-message" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
               </el-form-item>
             </el-col>
           </el-row>
+          <el-col :span="24">
+            <el-form-item label="角色名称" prop="roleIds">
+              <el-checkbox-group v-model="user.roleIds">
+                <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
+              </el-checkbox-group>
+            </el-form-item>
+          </el-col>
         </el-form>
-      </div>
-      <div class="tool-bar">
-        <el-row :gutter="24">
-          <el-col :span="12">
-            <el-button-group>
-              <el-button
-                size="small"
-                plain
-                icon="el-icon-delete"
-                class="line-button-danger"
-                :loading="deleteBatchLoading"
-                :disabled="selectedUser.length < 1"
-                @click="confirmDeleteUsers"
-              >
-                批量删除
-              </el-button>
-              <el-button
-                size="small"
-                icon="el-icon-download"
-                plain
-              >
-                导入模板下载
-              </el-button>
-              <el-upload
-                ref="upload"
-                style="display: inline-block"
-                :action="uploadUrl"
-                :headers="authHeader"
-                :show-file-list="false"
-                :on-success="handleUploadSuccess"
-                :on-error="handleUploadError"
-              >
-                <el-button
-                  size="small"
-                  plain
-                >
-                  <svg-icon icon-class="import" />
-                  导入
-                </el-button>
-              </el-upload>
-              <el-button
-                size="small"
-                plain
-                :loading="exportLoading"
-                @click="handleExportUsers"
-              >
-                <svg-icon icon-class="export" />
-                导出
-              </el-button>
-              <el-button
-                size="small"
-                plain
-                :disabled="selectedUser.length < 1"
-                :loading="resetPassBatchLoading"
-                @click="confirmResetPassBatch"
-              >
-                批量重置密码
-              </el-button>
-            </el-button-group>
-          </el-col>
-          <el-col :span="12" style="text-align: right;">
-            <el-button
-              size="small"
-              type="primary"
-              icon="el-icon-plus"
-              @click="createUser"
-            >
-              新增用户
-            </el-button>
-          </el-col>
-        </el-row>
-      </div>
-      <div class="result-table">
-        <el-table
-          v-loading="tableLoading"
-          :data="tableData"
-          style="width: 100%"
-          show-overflow-tooltip="true"
-          header-row-class-name="result-table-header"
-          header-cell-class-name="result-table-header-cell"
-          @selection-change="handleUserChange"
-        >
-          <el-empty slot="empty" />
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="username" label="用户名" show-overflow-tooltip />
-          <el-table-column prop="nickname" label="昵称" show-overflow-tooltip />
-          <el-table-column prop="fullname" label="全名" show-overflow-tooltip />
-          <el-table-column prop="email" label="邮件" show-overflow-tooltip />
-          <el-table-column prop="mobile" label="手机" show-overflow-tooltip />
-          <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-          <el-table-column prop="status" label="状态" show-overflow-tooltip>
-            <template slot-scope="scope">
-              <el-tag v-if="scope.row.status === '0'" size="small" type="success">
-                {{ dict.label.user_status[scope.row.status] }}
-              </el-tag>
-              <el-tag v-else size="small" type="danger">{{ dict.label.user_status[scope.row.status] }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column fixed="right" label="操作">
-            <template slot-scope="scope">
-              <el-button type="text" @click="editUser(scope.row.id)">编辑</el-button>
-              <el-button type="text" @click="setRole(scope.row.id)">设置角色</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div class="foot-bar" style="text-align: right;">
-        <el-pagination
-          background
-          :current-page="query.pageNum"
-          :page-sizes="[10, 20, 30, 50]"
-          :page-size="query.pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="totalSize"
-          @size-change="handleChangePageSize"
-          @current-change="handleChangePageNum"
-        />
-      </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="新建用户"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="createVisible"
-          @close="resetForm('userForm')"
-        >
-          <el-form
-            ref="userForm"
-            label-width="auto"
+        <span slot="footer" class="dialog-footer">
+          <el-checkbox
+            v-model="createNext"
+            style="float: left;height: 36px;line-height: 36px;"
+          >继续新建下一条</el-checkbox>
+          <el-button size="medium" plain @click="createVisible = false">取消</el-button>
+          <el-button
             size="medium"
-            label-position="top"
-            :model="user"
-            :rules="userRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="用户名" prop="username">
-                  <el-input v-model="user.username" placeholder="输入用户名" suffix-icon="el-icon-user" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="用户状态" prop="status">
-                  <el-select
-                    v-model="user.status"
-                    clearable
-                    placeholder="选择用户状态"
-                    style="width: 100%"
-                  >
-                    <el-option
-                      v-for="item in dict.user_status"
-                      :key="item.dictValue"
-                      :label="item.dictLabel"
-                      :value="item.dictValue"
-                    />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="昵称" prop="nickname">
-                  <el-input v-model="user.nickname" placeholder="输入昵称" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="姓名" prop="fullname">
-                  <el-input v-model="user.fullname" placeholder="输入姓名" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="手机号码" prop="mobile">
-                  <el-input v-model="user.mobile" placeholder="输入手机号码" suffix-icon="el-icon-phone-outline" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="电子邮件" prop="email">
-                  <el-input v-model="user.email" placeholder="输入电子邮件地址" suffix-icon="el-icon-message" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-            </el-row>
+            type="primary"
+            :loading="createLoading"
+            @click="handleCreateUser"
+          >创建用户</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="编辑用户"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="editVisible"
+        @close="resetForm('editUserForm')"
+      >
+        <el-form
+          ref="editUserForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="user"
+          :rules="userRules"
+        >
+          <el-row :gutter="30">
+            <el-col :span="12">
+              <el-form-item label="用户名" prop="username">
+                <el-input
+                  v-model="user.username"
+                  placeholder="输入用户名"
+                  suffix-icon="el-icon-user"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="用户状态" prop="status">
+                <el-select
+                  v-model="user.status"
+                  clearable
+                  placeholder="选择用户状态"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in dict.user_status"
+                    :key="item.dictValue"
+                    :label="item.dictLabel"
+                    :value="item.dictValue"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="昵称" prop="nickname">
+                <el-input v-model="user.nickname" placeholder="输入昵称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="姓名" prop="fullname">
+                <el-input v-model="user.fullname" placeholder="输入姓名" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="手机号码" prop="mobile">
+                <el-input v-model="user.mobile" placeholder="输入手机号码" suffix-icon="el-icon-phone-outline" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="电子邮件" prop="email">
+                <el-input v-model="user.email" placeholder="输入电子邮件地址" suffix-icon="el-icon-message" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
+              </el-form-item>
+            </el-col>
             <el-col :span="24">
               <el-form-item label="角色名称" prop="roleIds">
                 <el-checkbox-group v-model="user.roleIds">
@@ -244,145 +348,53 @@
                 </el-checkbox-group>
               </el-form-item>
             </el-col>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-checkbox
-              v-model="createNext"
-              style="float: left;height: 36px;line-height: 36px;"
-            >继续新建下一条</el-checkbox>
-            <el-button size="medium" plain @click="createVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleCreateUser"
-            >创建用户</el-button>
-          </span>
-        </el-dialog>
-      </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="编辑用户"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="editVisible"
-          @close="resetForm('editUserForm')"
-        >
-          <el-form
-            ref="editUserForm"
-            label-width="auto"
+          </el-row>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button size="medium" plain @click="editVisible = false">取消</el-button>
+          <el-button
             size="medium"
-            label-position="top"
-            :model="user"
-            :rules="userRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="用户名" prop="username">
-                  <el-input
-                    v-model="user.username"
-                    placeholder="输入用户名"
-                    suffix-icon="el-icon-user"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="用户状态" prop="status">
-                  <el-select
-                    v-model="user.status"
-                    clearable
-                    placeholder="选择用户状态"
-                    style="width: 100%"
-                  >
-                    <el-option
-                      v-for="item in dict.user_status"
-                      :key="item.dictValue"
-                      :label="item.dictLabel"
-                      :value="item.dictValue"
-                    />
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="昵称" prop="nickname">
-                  <el-input v-model="user.nickname" placeholder="输入昵称" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="姓名" prop="fullname">
-                  <el-input v-model="user.fullname" placeholder="输入姓名" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="手机号码" prop="mobile">
-                  <el-input v-model="user.mobile" placeholder="输入手机号码" suffix-icon="el-icon-phone-outline" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="电子邮件" prop="email">
-                  <el-input v-model="user.email" placeholder="输入电子邮件地址" suffix-icon="el-icon-message" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="角色名称" prop="roleIds">
-                  <el-checkbox-group v-model="user.roleIds">
-                    <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
-                  </el-checkbox-group>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-button size="medium" plain @click="editVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleUpdateUser"
-            >编辑用户</el-button>
-          </span>
-        </el-dialog>
-      </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="设置角色"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="setVisible"
-          @close="resetForm('setRoleForm')"
+            type="primary"
+            :loading="createLoading"
+            @click="handleUpdateUser"
+          >编辑用户</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="设置角色"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="setVisible"
+        @close="resetForm('setRoleForm')"
+      >
+        <el-form
+          ref="setRoleForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="userRole"
+          :rules="userRoleRules"
         >
-          <el-form
-            ref="setRoleForm"
-            label-width="auto"
+          <el-col :span="24">
+            <el-form-item label="角色名称" prop="roleIds">
+              <el-checkbox-group v-model="userRole.roleIds">
+                <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
+              </el-checkbox-group>
+            </el-form-item>
+          </el-col>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button size="medium" plain @click="setVisible = false">取消</el-button>
+          <el-button
             size="medium"
-            label-position="top"
-            :model="userRole"
-            :rules="userRoleRules"
-          >
-            <el-col :span="24">
-              <el-form-item label="角色名称" prop="roleIds">
-                <el-checkbox-group v-model="userRole.roleIds">
-                  <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
-                </el-checkbox-group>
-              </el-form-item>
-            </el-col>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-button size="medium" plain @click="setVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleSetUserRole"
-            >设置角色</el-button>
-          </span>
-        </el-dialog>
-      </div>
+            type="primary"
+            :loading="createLoading"
+            @click="handleSetUserRole"
+          >设置角色</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
