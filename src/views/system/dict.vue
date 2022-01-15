@@ -1,37 +1,42 @@
 <template>
-  <div class="app-container">
-    <div class="content-main">
-      <div class="search-bar">
-        <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
-          <el-row :gutter="24">
-            <el-col :span="6">
-              <el-form-item label="字典类型:" prop="dictType">
-                <el-input v-model="query.dictType" placeholder="输入字典类型" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
-              <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
-            </el-col>
-          </el-row>
-        </el-form>
-      </div>
-      <div class="tool-bar">
+  <div class="app-container" :class="{'has-bulk':selectedDict.length > 0}">
+    <div class="filter-wrapper">
+      <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
         <el-row :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="字典类型:" prop="dictType">
+              <el-input v-model="query.dictType" placeholder="输入字典类型" />
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
-            <el-button-group>
-              <el-button
-                size="small"
-                plain
-                icon="el-icon-delete"
-                class="line-button-danger"
-                :loading="deleteBatchLoading"
-                :disabled="selectedDict.length < 1"
-                @click="confirmDeleteDicts"
-              >
-                批量删除
-              </el-button>
-            </el-button-group>
+            <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
+            <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
+          </el-col>
+        </el-row>
+        <el-row v-show="foldSearch" :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
+    <div class="table-wrapper">
+      <div class="toolbar-wrapper">
+        <el-row :gutter="24" type="flex" justify="end">
+          <el-col :span="12">
+            <div class="tool-title">字典列表</div>
           </el-col>
           <el-col :span="12" style="text-align: right;">
             <el-button
@@ -45,32 +50,30 @@
           </el-col>
         </el-row>
       </div>
-      <div class="result-table">
-        <el-table
-          v-loading="tableLoading"
-          :data="tableData"
-          style="width: 100%"
-          show-overflow-tooltip="true"
-          header-row-class-name="result-table-header"
-          header-cell-class-name="result-table-header-cell"
-          @selection-change="handleDictChange"
-        >
-          <el-empty slot="empty" />
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="dictType" label="字典类型" show-overflow-tooltip />
-          <el-table-column prop="dictValue" label="字典值" show-overflow-tooltip />
-          <el-table-column prop="dictLabel" label="字典标签" show-overflow-tooltip />
-          <el-table-column prop="status" label="字典状态" show-overflow-tooltip />
-          <el-table-column prop="dictSort" label="排序号" show-overflow-tooltip />
-          <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-          <el-table-column fixed="right" label="操作">
-            <template slot-scope="scope">
-              <el-button type="text" @click="editDict(scope.row.id)">编辑</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div class="foot-bar" style="text-align: right;">
+      <el-table
+        v-loading="tableLoading"
+        :data="tableData"
+        style="width: 100%"
+        show-overflow-tooltip="true"
+        header-row-class-name="result-table-header"
+        header-cell-class-name="result-table-header-cell"
+        @selection-change="handleDictChange"
+      >
+        <el-empty slot="empty" />
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="dictType" label="字典类型" show-overflow-tooltip />
+        <el-table-column prop="dictValue" label="字典值" show-overflow-tooltip />
+        <el-table-column prop="dictLabel" label="字典标签" show-overflow-tooltip />
+        <el-table-column prop="status" label="字典状态" show-overflow-tooltip />
+        <el-table-column prop="dictSort" label="排序号" show-overflow-tooltip />
+        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
+        <el-table-column fixed="right" label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" @click="editDict(scope.row.id)">编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagi-wrapper">
         <el-pagination
           background
           :current-page="query.pageNum"
@@ -82,130 +85,150 @@
           @current-change="handleChangePageNum"
         />
       </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="新建字典"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="createVisible"
-          @close="resetForm('dictForm')"
-        >
-          <el-form
-            ref="dictForm"
-            label-width="auto"
-            size="medium"
-            label-position="top"
-            :model="dict"
-            :rules="dictRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="字典类型" prop="dictType">
-                  <el-input v-model="dict.dictType" placeholder="输入字典类型" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="字典值" prop="dictValue">
-                  <el-input v-model="dict.dictValue" placeholder="输入字典值" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="字典标签" prop="dictLabel">
-                  <el-input v-model="dict.dictLabel" placeholder="输入字典标签" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="字典状态" prop="status">
-                  <el-input v-model="dict.status" placeholder="输入字典状态" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="排序号" prop="dictSort">
-                  <el-input v-model="dict.dictSort" placeholder="输入排序号" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="dict.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-checkbox
-              v-model="createNext"
-              style="float: left;height: 36px;line-height: 36px;"
-            >继续新建下一条</el-checkbox>
-            <el-button size="medium" plain @click="createVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleCreateDict"
-            >创建字典</el-button>
-          </span>
-        </el-dialog>
+    </div>
+    <div v-show="selectedDict.length > 0" class="bulk-wrapper">
+      <div class="bulk-col-left">
+        <div class="bulk-desc">
+          已选择&nbsp;<a>{{ selectedDict.length }}</a>&nbsp;项
+        </div>
       </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="编辑字典"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="editVisible"
-          @close="resetForm('editDictForm')"
+      <div class="bulk-col-right">
+        <el-button
+          size="small"
+          plain
+          icon="el-icon-delete"
+          class="line-button-danger"
+          :loading="deleteBatchLoading"
+          :disabled="selectedDict.length < 1"
+          @click="confirmDeleteDicts"
         >
-          <el-form
-            ref="editDictForm"
-            label-width="auto"
-            size="medium"
-            label-position="top"
-            :model="dict"
-            :rules="dictRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="字典类型" prop="dictType">
-                  <el-input v-model="dict.dictType" placeholder="输入字典类型" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="字典值" prop="dictValue">
-                  <el-input v-model="dict.dictValue" placeholder="输入字典值" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="字典标签" prop="dictLabel">
-                  <el-input v-model="dict.dictLabel" placeholder="输入字典标签" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="字典状态" prop="status">
-                  <el-input v-model="dict.status" placeholder="输入字典状态" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="排序号" prop="dictSort">
-                  <el-input v-model="dict.dictSort" placeholder="输入排序号" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="dict.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-button size="medium" plain @click="editVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleUpdateDict"
-            >编辑字典</el-button>
-          </span>
-        </el-dialog>
+          批量删除
+        </el-button>
       </div>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="新建字典"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="createVisible"
+        @close="resetForm('dictForm')"
+      >
+        <el-form
+          ref="dictForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="dict"
+          :rules="dictRules"
+        >
+          <el-row :gutter="30">
+            <el-col :span="12">
+              <el-form-item label="字典类型" prop="dictType">
+                <el-input v-model="dict.dictType" placeholder="输入字典类型" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="字典值" prop="dictValue">
+                <el-input v-model="dict.dictValue" placeholder="输入字典值" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="字典标签" prop="dictLabel">
+                <el-input v-model="dict.dictLabel" placeholder="输入字典标签" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="字典状态" prop="status">
+                <el-input v-model="dict.status" placeholder="输入字典状态" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="排序号" prop="dictSort">
+                <el-input v-model="dict.dictSort" placeholder="输入排序号" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="dict.remark" type="textarea" :rows="5" placeholder="输入备注" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-checkbox
+            v-model="createNext"
+            style="float: left;height: 36px;line-height: 36px;"
+          >继续新建下一条</el-checkbox>
+          <el-button size="medium" plain @click="createVisible = false">取消</el-button>
+          <el-button
+            size="medium"
+            type="primary"
+            :loading="createLoading"
+            @click="handleCreateDict"
+          >创建字典</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="编辑字典"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="editVisible"
+        @close="resetForm('editDictForm')"
+      >
+        <el-form
+          ref="editDictForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="dict"
+          :rules="dictRules"
+        >
+          <el-row :gutter="30">
+            <el-col :span="12">
+              <el-form-item label="字典类型" prop="dictType">
+                <el-input v-model="dict.dictType" placeholder="输入字典类型" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="字典值" prop="dictValue">
+                <el-input v-model="dict.dictValue" placeholder="输入字典值" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="字典标签" prop="dictLabel">
+                <el-input v-model="dict.dictLabel" placeholder="输入字典标签" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="字典状态" prop="status">
+                <el-input v-model="dict.status" placeholder="输入字典状态" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="排序号" prop="dictSort">
+                <el-input v-model="dict.dictSort" placeholder="输入排序号" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="dict.remark" type="textarea" :rows="5" placeholder="输入备注" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button size="medium" plain @click="editVisible = false">取消</el-button>
+          <el-button
+            size="medium"
+            type="primary"
+            :loading="createLoading"
+            @click="handleUpdateDict"
+          >编辑字典</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
