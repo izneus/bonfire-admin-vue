@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <div class="content-main">
+    <div class="filter-wrapper">
       <div class="search-bar">
         <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
           <el-row :gutter="24">
@@ -16,47 +16,28 @@
           </el-row>
         </el-form>
       </div>
-      <div class="tool-bar">
-        <el-row :gutter="24">
-          <el-col :span="12">
-            <el-button-group>
-              <el-button
-                size="small"
-                plain
-                icon="el-icon-delete"
-                class="line-button-danger"
-                :loading="deleteBatchLoading"
-                :disabled="selectedLog.length < 1"
-                @click="confirmDeleteLogs"
-              >
-                批量删除
-              </el-button>
-            </el-button-group>
-          </el-col>
-        </el-row>
-      </div>
-      <div class="result-table">
-        <el-table
-          v-loading="tableLoading"
-          :data="tableData"
-          style="width: 100%"
-          show-overflow-tooltip="true"
-          header-row-class-name="result-table-header"
-          header-cell-class-name="result-table-header-cell"
-          @selection-change="handleLogChange"
-        >
-          <el-empty slot="empty" />
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="method" label="方法名称" show-overflow-tooltip />
-          <el-table-column prop="userAgent" label="用户代理" show-overflow-tooltip />
-          <el-table-column prop="clientIp" label="客户端ip" show-overflow-tooltip />
-          <el-table-column prop="description" label="注解描述" show-overflow-tooltip />
-          <el-table-column prop="browser" label="浏览器" show-overflow-tooltip />
-          <el-table-column prop="os" label="系统" show-overflow-tooltip />
-          <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-        </el-table>
-      </div>
-      <div class="foot-bar" style="text-align: right;">
+    </div>
+    <div class="table-wrapper">
+      <el-table
+        v-loading="tableLoading"
+        :data="tableData"
+        style="width: 100%"
+        show-overflow-tooltip="true"
+        header-row-class-name="result-table-header"
+        header-cell-class-name="result-table-header-cell"
+        @selection-change="handleLogChange"
+      >
+        <el-empty slot="empty" />
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="method" label="方法名称" show-overflow-tooltip />
+        <el-table-column prop="userAgent" label="用户代理" show-overflow-tooltip />
+        <el-table-column prop="clientIp" label="客户端ip" show-overflow-tooltip />
+        <el-table-column prop="description" label="注解描述" show-overflow-tooltip />
+        <el-table-column prop="browser" label="浏览器" show-overflow-tooltip />
+        <el-table-column prop="os" label="系统" show-overflow-tooltip />
+        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
+      </el-table>
+      <div class="pagi-wrapper" style="text-align: right;">
         <el-pagination
           background
           :current-page="query.pageNum"
@@ -69,6 +50,48 @@
         />
       </div>
     </div>
+
+    <div v-show="selectedLog.length >0" class="bulk-wrapper">
+      <!--    <div v-show="true" class="bulk-wrapper">-->
+      <div class="bulk-col-left">
+        <div class="bulk-desc">
+          已选择&nbsp;<a>{{ selectedLog.length }}</a>&nbsp;项
+        </div>
+      </div>
+      <div class="bulk-col-right">
+        <el-button
+          size="small"
+          plain
+          icon="el-icon-delete"
+          class="line-button-danger"
+          :loading="deleteBatchLoading"
+          :disabled="selectedLog.length < 1"
+          @click="confirmDeleteLogs"
+        >
+          批量删除
+        </el-button>
+      </div>
+    </div>
+
+    <!--    <div class="table-wrapper">-->
+    <!--      <el-row :gutter="24">-->
+    <!--        <el-col :span="12">-->
+    <!--          <el-button-group>-->
+    <!--            <el-button-->
+    <!--              size="small"-->
+    <!--              plain-->
+    <!--              icon="el-icon-delete"-->
+    <!--              class="line-button-danger"-->
+    <!--              :loading="deleteBatchLoading"-->
+    <!--              :disabled="selectedLog.length < 1"-->
+    <!--              @click="confirmDeleteLogs"-->
+    <!--            >-->
+    <!--              批量删除-->
+    <!--            </el-button>-->
+    <!--          </el-button-group>-->
+    <!--        </el-col>-->
+    <!--      </el-row>-->
+    <!--    </div>-->
   </div>
 </template>
 
