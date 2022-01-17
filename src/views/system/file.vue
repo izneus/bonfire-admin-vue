@@ -1,70 +1,118 @@
 <template>
-  <div class="app-container">
-    <div class="content-main">
-      <div class="search-bar">
-        <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
-          <el-row :gutter="24">
-            <el-col :span="6">
-              <el-form-item label="文件名:" prop="filename">
-                <el-input v-model="query.filename" placeholder="输入文件名称" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
-              <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
-            </el-col>
-          </el-row>
-        </el-form>
-      </div>
-      <div class="tool-bar">
+  <div class="app-container" :class="{'has-bulk':selectedFile.length > 0}">
+    <div class="filter-wrapper">
+      <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
         <el-row :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="文件名:" prop="filename">
+              <el-input v-model="query.filename" placeholder="输入文件名称" />
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
-            <el-button-group>
-              <el-button
-                size="small"
-                plain
-                icon="el-icon-delete"
-                class="line-button-danger"
-                :loading="deleteBatchLoading"
-                :disabled="selectedFile.length < 1"
-                @click="confirmDeleteFiles"
-              >
-                批量删除
-              </el-button>
-            </el-button-group>
+            <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
+            <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
           </el-col>
         </el-row>
+      </el-form>
+    </div>
+    <div class="table-wrapper">
+      <div class="toolbar-wrapper">
+        <el-row :gutter="24" type="flex" justify="end">
+          <el-col :span="12">
+            <div class="tool-title">文件列表</div>
+            <!--            <el-button-group>-->
+            <!--              <el-button-->
+            <!--                size="small"-->
+            <!--                plain-->
+            <!--                icon="el-icon-delete"-->
+            <!--                class="line-button-danger"-->
+            <!--                :loading="deleteBatchLoading"-->
+            <!--                :disabled="selectedFile.length < 1"-->
+            <!--                @click="confirmDeleteFiles"-->
+            <!--              >-->
+            <!--                批量删除-->
+            <!--              </el-button>-->
+            <!--            </el-button-group>-->
+          </el-col>
+          <!--          <el-col :span="12" style="text-align: right;">-->
+          <!--            <el-tooltip class="item" effect="dark" content="导入模板下载" placement="top" popper-class="mini-tip">-->
+          <!--              <el-button-->
+          <!--                icon="el-icon-document"-->
+          <!--                class="tool-button"-->
+          <!--                size="small"-->
+          <!--                plain-->
+          <!--              />-->
+          <!--            </el-tooltip>-->
+
+          <!--            <el-tooltip class="item" effect="dark" content="导入" placement="top" popper-class="mini-tip">-->
+          <!--              <el-upload-->
+          <!--                ref="upload"-->
+          <!--                style="display: inline-block"-->
+          <!--                :action="uploadUrl"-->
+          <!--                :headers="authHeader"-->
+          <!--                :show-file-list="false"-->
+          <!--                :on-success="handleUploadSuccess"-->
+          <!--                :on-error="handleUploadError"-->
+          <!--              >-->
+          <!--                <el-button-->
+          <!--                  class="tool-button"-->
+          <!--                  size="small"-->
+          <!--                  icon="el-icon-upload2"-->
+          <!--                  plain-->
+          <!--                />-->
+          <!--              </el-upload>-->
+          <!--            </el-tooltip>-->
+
+          <!--            <el-tooltip class="item" effect="dark" content="导出" placement="top" popper-class="mini-tip">-->
+          <!--              <el-button-->
+          <!--                icon="el-icon-download"-->
+          <!--                class="tool-button"-->
+          <!--                size="small"-->
+          <!--                plain-->
+          <!--                :loading="exportLoading"-->
+          <!--                @click="handleExportUsers"-->
+          <!--              />-->
+          <!--            </el-tooltip>-->
+
+          <!--            <el-button-->
+          <!--              size="small"-->
+          <!--              type="primary"-->
+          <!--              icon="el-icon-plus"-->
+          <!--              @click="createUser"-->
+          <!--            >-->
+          <!--              新增用户-->
+          <!--            </el-button>-->
+          <!--          </el-col>-->
+        </el-row>
       </div>
-      <div class="result-table">
-        <el-table
-          v-loading="tableLoading"
-          :data="tableData"
-          style="width: 100%"
-          show-overflow-tooltip="true"
-          header-row-class-name="result-table-header"
-          header-cell-class-name="result-table-header-cell"
-          @selection-change="handleFileChange"
-        >
-          <el-empty slot="empty" />
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="filename" label="文件名称" show-overflow-tooltip />
-          <el-table-column prop="uniqueFilename" label="哈希文件名称" show-overflow-tooltip />
-          <el-table-column prop="suffix" label="后缀" show-overflow-tooltip />
-          <el-table-column prop="path" label="文件路径" show-overflow-tooltip />
-          <el-table-column prop="fileSize" label="文件大小" show-overflow-tooltip />
-          <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip />
-          <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />
-          <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip />
-          <el-table-column prop="updateUser" label="更新者" show-overflow-tooltip />
-          <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-          <el-table-column fixed="right" label="操作">
-            <template slot-scope="scope">
-              <el-button type="text" @click="editFile(scope.row.id)">编辑</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div class="foot-bar" style="text-align: right;">
+      <el-table
+        v-loading="tableLoading"
+        :data="tableData"
+        style="width: 100%"
+        show-overflow-tooltip="true"
+        header-row-class-name="result-table-header"
+        header-cell-class-name="result-table-header-cell"
+        @selection-change="handleFileChange"
+      >
+        <el-empty slot="empty" />
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="filename" label="文件名称" show-overflow-tooltip />
+        <el-table-column prop="uniqueFilename" label="哈希文件名称" show-overflow-tooltip />
+        <el-table-column prop="suffix" label="后缀" show-overflow-tooltip />
+        <el-table-column prop="path" label="文件路径" show-overflow-tooltip />
+        <el-table-column prop="fileSize" label="文件大小" show-overflow-tooltip />
+        <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip />
+        <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />
+        <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip />
+        <el-table-column prop="updateUser" label="更新者" show-overflow-tooltip />
+        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
+        <el-table-column fixed="right" label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" @click="editFile(scope.row.id)">编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagi-wrapper">
         <el-pagination
           background
           :current-page="query.pageNum"
@@ -76,86 +124,105 @@
           @current-change="handleChangePageNum"
         />
       </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="编辑文件"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="editVisible"
-          @close="resetForm('editFileForm')"
-        >
-          <el-form
-            ref="editFileForm"
-            label-width="auto"
-            size="medium"
-            label-position="top"
-            :model="file"
-            :rules="fileRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="文件名称" prop="filename">
-                  <el-input v-model="file.filename" placeholder="输入文件名称" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="哈希文件名称" prop="uniqueFilename">
-                  <el-input v-model="file.uniqueFilename" placeholder="输入哈希文件名称" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="后缀" prop="suffix">
-                  <el-input v-model="file.suffix" placeholder="输入后缀" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="文件路径" prop="path">
-                  <el-input v-model="file.path" placeholder="输入文件路径" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="文件大小" prop="fileSize">
-                  <el-input v-model="file.fileSize" placeholder="输入文件大小" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="创建时间" prop="createTime">
-                  <el-input v-model="file.createTime" placeholder="输入创建时间" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="创建者" prop="createUser">
-                  <el-input v-model="file.createUser" placeholder="输入创建者" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="更新时间" prop="updateTime">
-                  <el-input v-model="file.updateTime" placeholder="输入更新时间" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="更新者" prop="updateUser">
-                  <el-input v-model="file.updateUser" placeholder="输入更新者" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="file.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-button size="medium" plain @click="editVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleUpdateFile"
-            >编辑文件</el-button>
-          </span>
-        </el-dialog>
+    </div>
+    <div v-show="selectedFile.length > 0" class="bulk-wrapper">
+      <div class="bulk-col-left">
+        <div class="bulk-desc">
+          已选择&nbsp;<a>{{ selectedFile.length }}</a>&nbsp;项
+        </div>
       </div>
+      <div class="bulk-col-right">
+        <el-button
+          type="danger"
+          plain
+          size="small"
+          icon="el-icon-delete"
+          :loading="deleteBatchLoading"
+          @click="confirmDeleteFiles"
+        >
+          批量删除
+        </el-button>
+      </div>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="编辑文件"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="editVisible"
+        @close="resetForm('editFileForm')"
+      >
+        <el-form
+          ref="editFileForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="file"
+          :rules="fileRules"
+        >
+          <el-row :gutter="30">
+            <el-col :span="12">
+              <el-form-item label="文件名称" prop="filename">
+                <el-input v-model="file.filename" placeholder="输入文件名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="哈希文件名称" prop="uniqueFilename">
+                <el-input v-model="file.uniqueFilename" placeholder="输入哈希文件名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="后缀" prop="suffix">
+                <el-input v-model="file.suffix" placeholder="输入后缀" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="文件路径" prop="path">
+                <el-input v-model="file.path" placeholder="输入文件路径" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="文件大小" prop="fileSize">
+                <el-input v-model="file.fileSize" placeholder="输入文件大小" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="创建时间" prop="createTime">
+                <el-input v-model="file.createTime" placeholder="输入创建时间" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="创建者" prop="createUser">
+                <el-input v-model="file.createUser" placeholder="输入创建者" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="更新时间" prop="updateTime">
+                <el-input v-model="file.updateTime" placeholder="输入更新时间" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="更新者" prop="updateUser">
+                <el-input v-model="file.updateUser" placeholder="输入更新者" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="file.remark" type="textarea" :rows="5" placeholder="输入备注" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button size="medium" plain @click="editVisible = false">取消</el-button>
+          <el-button
+            size="medium"
+            type="primary"
+            :loading="createLoading"
+            @click="handleUpdateFile"
+          >编辑文件</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -164,6 +231,7 @@
 import { createFile, deleteFiles, getFile, listFiles, updateFile } from '@/api/file'
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
+
 export default {
   name: 'File',
   data() {
