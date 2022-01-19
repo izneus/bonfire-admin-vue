@@ -1,37 +1,47 @@
 <template>
-  <div class="app-container">
-    <div class="content-main">
-      <div class="search-bar">
-        <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
-          <el-row :gutter="24">
-            <el-col :span="6">
-              <el-form-item label="任务名称:" prop="jobName">
-                <el-input v-model="query.jobName" placeholder="输入任务名称" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
-              <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
-            </el-col>
-          </el-row>
-        </el-form>
-      </div>
-      <div class="tool-bar">
+  <div class="app-container" :class="{'has-bulk':selectedJob.length > 0}">
+    <div class="filter-wrapper">
+      <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
         <el-row :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="任务名称:" prop="jobName">
+              <el-input v-model="query.jobName" placeholder="输入任务名称" />
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
-            <el-button-group>
-              <el-button
-                size="small"
-                plain
-                icon="el-icon-delete"
-                class="line-button-danger"
-                :loading="deleteBatchLoading"
-                :disabled="selectedJob.length < 1"
-                @click="confirmDeleteJobs"
-              >
-                批量删除
-              </el-button>
-            </el-button-group>
+            <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
+            <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
+            <el-button size="small" type="text" style="padding-left: 0;" @click="handleFoldSearch">
+              展开查询
+              <i v-show="!foldSearch" class="el-icon-arrow-down" />
+              <i v-show="foldSearch" class="el-icon-arrow-up" />
+            </el-button>
+          </el-col>
+        </el-row>
+        <el-row v-show="foldSearch" :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
+    <div class="table-wrapper">
+      <div class="toolbar-wrapper">
+        <el-row :gutter="24" type="flex" justify="end">
+          <el-col :span="12">
+            <div class="tool-title">任务列表</div>
           </el-col>
           <el-col :span="12" style="text-align: right;">
             <el-button
@@ -45,28 +55,26 @@
           </el-col>
         </el-row>
       </div>
-      <div class="result-table">
-        <el-table
-          v-loading="tableLoading"
-          :data="tableData"
-          style="width: 100%"
-          show-overflow-tooltip="true"
-          header-row-class-name="result-table-header"
-          header-cell-class-name="result-table-header-cell"
-          @selection-change="handleJobChange"
-        >
-          <el-empty slot="empty" />
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="jobName" label="任务名称" show-overflow-tooltip />
-          <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-          <el-table-column fixed="right" label="操作">
-            <template slot-scope="scope">
-              <el-button type="text" @click="editJob(scope.row.id)">编辑</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div class="foot-bar" style="text-align: right;">
+      <el-table
+        v-loading="tableLoading"
+        :data="tableData"
+        style="width: 100%"
+        show-overflow-tooltip="true"
+        header-row-class-name="result-table-header"
+        header-cell-class-name="result-table-header-cell"
+        @selection-change="handleJobChange"
+      >
+        <el-empty slot="empty" />
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="jobName" label="任务名称" show-overflow-tooltip />
+        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
+        <el-table-column fixed="right" label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" @click="editJob(scope.row.id)">编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagi-wrapper">
         <el-pagination
           background
           :current-page="query.pageNum"
@@ -78,90 +86,110 @@
           @current-change="handleChangePageNum"
         />
       </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="新建任务"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="createVisible"
-          @close="resetForm('jobForm')"
-        >
-          <el-form
-            ref="jobForm"
-            label-width="auto"
-            size="medium"
-            label-position="top"
-            :model="job"
-            :rules="jobRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="任务名称" prop="jobName">
-                  <el-input v-model="job.jobName" placeholder="输入任务名称" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="job.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-checkbox
-              v-model="createNext"
-              style="float: left;height: 36px;line-height: 36px;"
-            >继续新建下一条</el-checkbox>
-            <el-button size="medium" plain @click="createVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleCreateJob"
-            >创建任务</el-button>
-          </span>
-        </el-dialog>
+    </div>
+    <div v-show="selectedJob.length > 0" class="bulk-wrapper">
+      <div class="bulk-col-left">
+        <div class="bulk-desc">
+          已选择&nbsp;<a>{{ selectedJob.length }}</a>&nbsp;项
+        </div>
       </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="编辑任务"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="editVisible"
-          @close="resetForm('editJobForm')"
+      <div class="bulk-col-right">
+        <el-button
+          size="small"
+          plain
+          icon="el-icon-delete"
+          class="line-button-danger"
+          :loading="deleteBatchLoading"
+          :disabled="selectedJob.length < 1"
+          @click="confirmDeleteJobs"
         >
-          <el-form
-            ref="editJobForm"
-            label-width="auto"
-            size="medium"
-            label-position="top"
-            :model="job"
-            :rules="jobRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="任务名称" prop="jobName">
-                  <el-input v-model="job.jobName" placeholder="输入任务名称" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="job.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-button size="medium" plain @click="editVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleUpdateJob"
-            >编辑任务</el-button>
-          </span>
-        </el-dialog>
+          批量删除
+        </el-button>
       </div>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="新建任务"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="createVisible"
+        @close="resetForm('jobForm')"
+      >
+        <el-form
+          ref="jobForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="job"
+          :rules="jobRules"
+        >
+          <el-row :gutter="30">
+            <el-col :span="12">
+              <el-form-item label="任务名称" prop="jobName">
+                <el-input v-model="job.jobName" placeholder="输入任务名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="job.remark" type="textarea" :rows="5" placeholder="输入备注" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-checkbox
+            v-model="createNext"
+            style="float: left;height: 36px;line-height: 36px;"
+          >继续新建下一条</el-checkbox>
+          <el-button size="medium" plain @click="createVisible = false">取消</el-button>
+          <el-button
+            size="medium"
+            type="primary"
+            :loading="createLoading"
+            @click="handleCreateJob"
+          >创建任务</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="编辑任务"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="editVisible"
+        @close="resetForm('editJobForm')"
+      >
+        <el-form
+          ref="editJobForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="job"
+          :rules="jobRules"
+        >
+          <el-row :gutter="30">
+            <el-col :span="12">
+              <el-form-item label="任务名称" prop="jobName">
+                <el-input v-model="job.jobName" placeholder="输入任务名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="job.remark" type="textarea" :rows="5" placeholder="输入备注" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button size="medium" plain @click="editVisible = false">取消</el-button>
+          <el-button
+            size="medium"
+            type="primary"
+            :loading="createLoading"
+            @click="handleUpdateJob"
+          >编辑任务</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>

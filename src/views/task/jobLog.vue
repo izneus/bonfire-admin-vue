@@ -1,66 +1,74 @@
 <template>
-  <div class="app-container">
-    <div class="content-main">
-      <div class="search-bar">
-        <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
-          <el-row :gutter="24">
-            <el-col :span="6">
-              <el-form-item label="任务id:" prop="jobId">
-                <el-input v-model="query.jobId" placeholder="输入任务id" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
-              <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
-            </el-col>
-          </el-row>
-        </el-form>
-      </div>
-      <div class="tool-bar">
+  <div class="app-container" :class="{'has-bulk':selectedJobLog.length > 0}">
+    <div class="filter-wrapper">
+      <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
         <el-row :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="任务id:" prop="jobId">
+              <el-input v-model="query.jobId" placeholder="输入任务id" />
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
-            <el-button-group>
-              <el-button
-                size="small"
-                plain
-                icon="el-icon-delete"
-                class="line-button-danger"
-                :loading="deleteBatchLoading"
-                :disabled="selectedJobLog.length < 1"
-                @click="confirmDeleteJobLogs"
-              >
-                批量删除
-              </el-button>
-            </el-button-group>
+            <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
+            <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
+            <el-button size="small" type="text" style="padding-left: 0;" @click="handleFoldSearch">
+              展开查询
+              <i v-show="!foldSearch" class="el-icon-arrow-down" />
+              <i v-show="foldSearch" class="el-icon-arrow-up" />
+            </el-button>
+          </el-col>
+        </el-row>
+        <el-row v-show="foldSearch" :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="测试选项:">
+              <el-input placeholder="输入测试选项" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
+    <div class="table-wrapper">
+      <div class="toolbar-wrapper">
+        <el-row :gutter="24" type="flex" justify="end">
+          <el-col :span="12">
+            <div class="tool-title">任务日志列表</div>
           </el-col>
         </el-row>
       </div>
-      <div class="result-table">
-        <el-table
-          v-loading="tableLoading"
-          :data="tableData"
-          style="width: 100%"
-          show-overflow-tooltip="true"
-          header-row-class-name="result-table-header"
-          header-cell-class-name="result-table-header-cell"
-          @selection-change="handleJobLogChange"
-        >
-          <el-empty slot="empty" />
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="jobId" label="任务id" show-overflow-tooltip />
-          <el-table-column prop="jobClass" label="任务类别" show-overflow-tooltip />
-          <el-table-column prop="jobMethod" label="任务方法" show-overflow-tooltip />
-          <el-table-column prop="param" label="参数" show-overflow-tooltip />
-          <el-table-column prop="status" label="状态" show-overflow-tooltip />
-          <el-table-column prop="message" label="信息" show-overflow-tooltip />
-          <el-table-column prop="durationMillis" label="执行消耗时间（单位：毫秒）" show-overflow-tooltip />
-          <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip />
-          <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />
-          <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip />
-          <el-table-column prop="updateUser" label="更新者" show-overflow-tooltip />
-        </el-table>
-      </div>
-      <div class="foot-bar" style="text-align: right;">
+      <el-table
+        v-loading="tableLoading"
+        :data="tableData"
+        style="width: 100%"
+        show-overflow-tooltip="true"
+        header-row-class-name="result-table-header"
+        header-cell-class-name="result-table-header-cell"
+        @selection-change="handleJobLogChange"
+      >
+        <el-empty slot="empty" />
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="jobId" label="任务id" show-overflow-tooltip />
+        <el-table-column prop="jobClass" label="任务类别" show-overflow-tooltip />
+        <el-table-column prop="jobMethod" label="任务方法" show-overflow-tooltip />
+        <el-table-column prop="param" label="参数" show-overflow-tooltip />
+        <el-table-column prop="status" label="状态" show-overflow-tooltip />
+        <el-table-column prop="message" label="信息" show-overflow-tooltip />
+        <el-table-column prop="durationMillis" label="执行消耗时间（单位：毫秒）" show-overflow-tooltip />
+        <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip />
+        <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />
+        <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip />
+        <el-table-column prop="updateUser" label="更新者" show-overflow-tooltip />
+      </el-table>
+      <div class="pagi-wrapper">
         <el-pagination
           background
           :current-page="query.pageNum"
@@ -71,6 +79,26 @@
           @size-change="handleChangePageSize"
           @current-change="handleChangePageNum"
         />
+      </div>
+    </div>
+    <div v-show="selectedJobLog.length > 0" class="bulk-wrapper">
+      <div class="bulk-col-left">
+        <div class="bulk-desc">
+          已选择&nbsp;<a>{{ selectedJobLog.length }}</a>&nbsp;项
+        </div>
+      </div>
+      <div class="bulk-col-right">
+        <el-button
+          size="small"
+          plain
+          icon="el-icon-delete"
+          class="line-button-danger"
+          :loading="deleteBatchLoading"
+          :disabled="selectedJobLog.length < 1"
+          @click="confirmDeleteJobLogs"
+        >
+          批量删除
+        </el-button>
       </div>
     </div>
   </div>
