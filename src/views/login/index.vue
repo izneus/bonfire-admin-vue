@@ -131,7 +131,7 @@ export default {
     }
     const validatePassword = (rule, value, callback) => {
       if (!validPassword(value)) {
-        callback(new Error('密码必须包含小写字母、大写字母和数字，长度为8～16'))
+        callback(new Error('密码必须包含大小写字母和数字，长度为8～16'))
       } else {
         callback()
       }

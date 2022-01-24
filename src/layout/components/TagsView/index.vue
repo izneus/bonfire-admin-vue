@@ -296,7 +296,7 @@ export default {
       &.active {
         z-index: 3;
         background-color: #ffffff;
-        color: #333333;
+        color: rgba(0, 0, 0, 0.85);
         .tabs-background-before,
         .tabs-background-after {
           fill: #ffffff;

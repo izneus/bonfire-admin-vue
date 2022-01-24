@@ -1,37 +1,25 @@
 <template>
-  <div class="app-container">
-    <div class="content-main">
-      <div class="search-bar">
-        <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
-          <el-row :gutter="24">
-            <el-col :span="6">
-              <el-form-item label="角色名称:" prop="roleName">
-                <el-input v-model="query.roleName" placeholder="输入角色名称" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
-              <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
-            </el-col>
-          </el-row>
-        </el-form>
-      </div>
-      <div class="tool-bar">
+  <div class="app-container" :class="{'has-bulk':selectedRole.length > 0}">
+    <div class="filter-wrapper">
+      <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
         <el-row :gutter="24">
+          <el-col :span="6">
+            <el-form-item label="角色名称:" prop="roleName">
+              <el-input v-model="query.roleName" placeholder="输入角色名称" />
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
-            <el-button-group>
-              <el-button
-                size="small"
-                plain
-                icon="el-icon-delete"
-                class="line-button-danger"
-                :loading="deleteBatchLoading"
-                :disabled="selectedRole.length < 1"
-                @click="confirmDeleteRoles"
-              >
-                批量删除
-              </el-button>
-            </el-button-group>
+            <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
+            <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
+    <div class="table-wrapper">
+      <div class="toolbar-wrapper">
+        <el-row :gutter="24" type="flex" justify="end">
+          <el-col :span="12">
+            <div class="tool-title">角色列表</div>
           </el-col>
           <el-col :span="12" style="text-align: right;">
             <el-button
@@ -45,29 +33,27 @@
           </el-col>
         </el-row>
       </div>
-      <div class="result-table">
-        <el-table
-          v-loading="tableLoading"
-          :data="tableData"
-          style="width: 100%"
-          show-overflow-tooltip="true"
-          header-row-class-name="result-table-header"
-          header-cell-class-name="result-table-header-cell"
-          @selection-change="handleRoleChange"
-        >
-          <el-empty slot="empty" />
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="roleName" label="角色名称" show-overflow-tooltip />
-          <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-          <el-table-column fixed="right" label="操作">
-            <template slot-scope="scope">
-              <el-button type="text" @click="editRole(scope.row.id)">编辑</el-button>
-              <el-button type="text" @click="setAuthority(scope.row.id)">设置权限</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div class="foot-bar" style="text-align: right;">
+      <el-table
+        v-loading="tableLoading"
+        :data="tableData"
+        style="width: 100%"
+        show-overflow-tooltip="true"
+        header-row-class-name="result-table-header"
+        header-cell-class-name="result-table-header-cell"
+        @selection-change="handleRoleChange"
+      >
+        <el-empty slot="empty" />
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="roleName" label="角色名称" show-overflow-tooltip />
+        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
+        <el-table-column fixed="right" label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" @click="editRole(scope.row.id)">编辑</el-button>
+            <el-button type="text" @click="setAuthority(scope.row.id)">设置权限</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagi-wrapper">
         <el-pagination
           background
           :current-page="query.pageNum"
@@ -79,139 +65,159 @@
           @current-change="handleChangePageNum"
         />
       </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="新建角色"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="createVisible"
-          @close="resetForm('roleForm')"
-        >
-          <el-form
-            ref="roleForm"
-            label-width="auto"
-            size="medium"
-            label-position="top"
-            :model="role"
-            :rules="roleRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="角色名称" prop="roleName">
-                  <el-input v-model="role.roleName" placeholder="输入角色名称" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="role.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="权限名称" prop="authorityIds">
-                  <el-checkbox-group v-model="role.authorityIds">
-                    <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
-                  </el-checkbox-group>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-checkbox
-              v-model="createNext"
-              style="float: left;height: 36px;line-height: 36px;"
-            >继续新建下一条</el-checkbox>
-            <el-button size="medium" plain @click="createVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleCreateRole"
-            >创建角色</el-button>
-          </span>
-        </el-dialog>
+    </div>
+    <div v-show="selectedRole.length > 0" class="bulk-wrapper">
+      <div class="bulk-col-left">
+        <div class="bulk-desc">
+          已选择&nbsp;<a>{{ selectedRole.length }}</a>&nbsp;项
+        </div>
       </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="编辑角色"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="editVisible"
-          @close="resetForm('editRoleForm')"
+      <div class="bulk-col-right">
+        <el-button
+          size="small"
+          plain
+          icon="el-icon-delete"
+          class="line-button-danger"
+          :loading="deleteBatchLoading"
+          :disabled="selectedRole.length < 1"
+          @click="confirmDeleteRoles"
         >
-          <el-form
-            ref="editRoleForm"
-            label-width="auto"
-            size="medium"
-            label-position="top"
-            :model="role"
-            :rules="roleRules"
-          >
-            <el-row :gutter="30">
-              <el-col :span="12">
-                <el-form-item label="角色名称" prop="roleName">
-                  <el-input v-model="role.roleName" placeholder="输入角色名称" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="备注" prop="remark">
-                  <el-input v-model="role.remark" type="textarea" :rows="5" placeholder="输入备注" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="权限名称" prop="authorityIds">
-                  <el-checkbox-group v-model="role.authorityIds">
-                    <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
-                  </el-checkbox-group>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-button size="medium" plain @click="editVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleUpdateRole"
-            >编辑角色</el-button>
-          </span>
-        </el-dialog>
+          批量删除
+        </el-button>
       </div>
-      <div class="dialog-wrapper">
-        <el-dialog
-          title="设置权限"
-          width="800px"
-          :close-on-click-modal="false"
-          :visible.sync="setVisible"
-          @close="resetForm('setAuthForm')"
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="新建角色"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="createVisible"
+        @close="resetForm('roleForm')"
+      >
+        <el-form
+          ref="roleForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="role"
+          :rules="roleRules"
         >
-          <el-form
-            ref="setAuthForm"
-            label-width="auto"
-            size="medium"
-            label-position="top"
-            :model="roleAuth"
-            :rules="roleAuthRules"
-          >
+          <el-row :gutter="30">
+            <el-col :span="12">
+              <el-form-item label="角色名称" prop="roleName">
+                <el-input v-model="role.roleName" placeholder="输入角色名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="role.remark" type="textarea" :rows="5" placeholder="输入备注" />
+              </el-form-item>
+            </el-col>
             <el-col :span="24">
               <el-form-item label="权限名称" prop="authorityIds">
-                <el-checkbox-group v-model="roleAuth.authorityIds">
+                <el-checkbox-group v-model="role.authorityIds">
                   <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
                 </el-checkbox-group>
               </el-form-item>
             </el-col>
-          </el-form>
-          <span slot="footer" class="dialog-footer">
-            <el-button size="medium" plain @click="setVisible = false">取消</el-button>
-            <el-button
-              size="medium"
-              type="primary"
-              :loading="createLoading"
-              @click="handleSetRoleAuth"
-            >设置权限</el-button>
-          </span>
-        </el-dialog>
-      </div>
+          </el-row>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-checkbox
+            v-model="createNext"
+            style="float: left;height: 36px;line-height: 36px;"
+          >继续新建下一条</el-checkbox>
+          <el-button size="medium" plain @click="createVisible = false">取消</el-button>
+          <el-button
+            size="medium"
+            type="primary"
+            :loading="createLoading"
+            @click="handleCreateRole"
+          >创建角色</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="编辑角色"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="editVisible"
+        @close="resetForm('editRoleForm')"
+      >
+        <el-form
+          ref="editRoleForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="role"
+          :rules="roleRules"
+        >
+          <el-row :gutter="30">
+            <el-col :span="12">
+              <el-form-item label="角色名称" prop="roleName">
+                <el-input v-model="role.roleName" placeholder="输入角色名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="role.remark" type="textarea" :rows="5" placeholder="输入备注" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="权限名称" prop="authorityIds">
+                <el-checkbox-group v-model="role.authorityIds">
+                  <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
+                </el-checkbox-group>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button size="medium" plain @click="editVisible = false">取消</el-button>
+          <el-button
+            size="medium"
+            type="primary"
+            :loading="createLoading"
+            @click="handleUpdateRole"
+          >编辑角色</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="设置权限"
+        width="800px"
+        :close-on-click-modal="false"
+        :visible.sync="setVisible"
+        @close="resetForm('setAuthForm')"
+      >
+        <el-form
+          ref="setAuthForm"
+          label-width="auto"
+          size="medium"
+          label-position="top"
+          :model="roleAuth"
+          :rules="roleAuthRules"
+        >
+          <el-col :span="24">
+            <el-form-item label="权限名称" prop="authorityIds">
+              <el-checkbox-group v-model="roleAuth.authorityIds">
+                <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
+              </el-checkbox-group>
+            </el-form-item>
+          </el-col>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button size="medium" plain @click="setVisible = false">取消</el-button>
+          <el-button
+            size="medium"
+            type="primary"
+            :loading="createLoading"
+            @click="handleSetRoleAuth"
+          >设置权限</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>

@@ -165,7 +165,7 @@ export const asyncRoutes = [
     component: Layout,
     name: 'Auth',
     meta: {
-      title: '权限管理',
+      title: '人员管理',
       icon: 'ri-user-settings-line',
       roles: ['admin']
     },
@@ -181,6 +181,12 @@ export const asyncRoutes = [
         component: () => import('@/views/system/role'),
         name: 'Role',
         meta: { title: '角色管理' }
+      },
+      {
+        path: 'privilege',
+        component: () => import('@/views/system/privilege'),
+        name: 'Privilege',
+        meta: { title: '角色管理2' }
       },
       {
         path: 'auth',
