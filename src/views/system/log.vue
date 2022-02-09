@@ -52,7 +52,6 @@
     </div>
 
     <div v-show="selectedLog.length >0" class="bulk-wrapper">
-      <!--    <div v-show="true" class="bulk-wrapper">-->
       <div class="bulk-col-left">
         <div class="bulk-desc">
           已选择&nbsp;<a>{{ selectedLog.length }}</a>&nbsp;项
@@ -72,26 +71,6 @@
         </el-button>
       </div>
     </div>
-
-    <!--    <div class="table-wrapper">-->
-    <!--      <el-row :gutter="24">-->
-    <!--        <el-col :span="12">-->
-    <!--          <el-button-group>-->
-    <!--            <el-button-->
-    <!--              size="small"-->
-    <!--              plain-->
-    <!--              icon="el-icon-delete"-->
-    <!--              class="line-button-danger"-->
-    <!--              :loading="deleteBatchLoading"-->
-    <!--              :disabled="selectedLog.length < 1"-->
-    <!--              @click="confirmDeleteLogs"-->
-    <!--            >-->
-    <!--              批量删除-->
-    <!--            </el-button>-->
-    <!--          </el-button-group>-->
-    <!--        </el-col>-->
-    <!--      </el-row>-->
-    <!--    </div>-->
   </div>
 </template>
 
