@@ -79,7 +79,7 @@ export const constantRoutes = [
         path: 'dashboard',
         component: () => import('@/views/system/empty'),
         name: 'Dashboard',
-        meta: { title: 'dashboard', icon: 'ri-home-2-line', affix: true }
+        meta: { roles: ['menu:dashboard'], title: 'dashboard', icon: 'ri-home-2-line', affix: true }
       }
     ]
   },
@@ -243,9 +243,9 @@ export const asyncRoutes = [
     },
     children: [
       {
-        path: 'phone',
-        // component: () => import('@/views/system/user'),
-        name: 'Phone',
+        path: 'server',
+        component: () => import('@/views/system/server'),
+        name: 'Server',
         meta: { title: '主机监控' }
       }
     ]

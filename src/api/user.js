@@ -25,7 +25,7 @@ export function logout() {
 export function getInfo() {
   return request({
     url: '/v1/me/info',
-    method: 'get'
+    method: 'post'
   })
 }
 
