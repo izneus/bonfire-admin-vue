@@ -592,9 +592,9 @@ export default {
       if (node.level === 3) {
         classname = 'foo'
       }
-      if (node.level === 2 && node.childNodes.length === 0) {
-        classname = 'foo'
-      }
+      // if (node.level === 2 && node.childNodes.length === 0) {
+      //   classname = 'foo'
+      // }
       return h(
         'p',
         {
