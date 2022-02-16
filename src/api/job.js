@@ -39,3 +39,19 @@ export function deleteJobs(data) {
   })
 }
 
+export function pauseJobs(data) {
+  return request({
+    url: '/v1/job/batchPause',
+    method: 'post',
+    data
+  })
+}
+
+export function resumeJobs(data) {
+  return request({
+    url: '/v1/job/batchResume',
+    method: 'post',
+    data
+  })
+}
+

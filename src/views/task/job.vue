@@ -105,6 +105,28 @@
         >
           批量删除
         </el-button>
+        <el-button
+          size="small"
+          plain
+          icon="el-icon-refresh-left"
+          class="line-button-danger"
+          :loading="batchResumeLoading"
+          :disabled="selectedJob.length < 1"
+          @click="handleResumeJobs"
+        >
+          批量恢复
+        </el-button>
+        <el-button
+          size="small"
+          plain
+          icon="el-icon-video-pause"
+          class="line-button-danger"
+          :loading="batchPauseLoading"
+          :disabled="selectedJob.length < 1"
+          @click="handlePauseJobs"
+        >
+          批量暂停
+        </el-button>
       </div>
     </div>
     <div class="dialog-wrapper">
@@ -127,6 +149,36 @@
             <el-col :span="12">
               <el-form-item label="任务名称" prop="jobName">
                 <el-input v-model="job.jobName" placeholder="输入任务名称" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="调度分组" prop="jobGroup">
+                <el-input v-model="job.jobGroup" placeholder="输入调度分组" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="调度类" prop="jobClass">
+                <el-input v-model="job.jobClass" placeholder="输入调度类" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="调度方法" prop="jobMethod">
+                <el-input v-model="job.jobMethod" placeholder="输入调度方法" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="cron 表达式" prop="cron">
+                <el-input v-model="job.cron" placeholder="输入cron 表达式" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="方法的参数" prop="param">
+                <el-input v-model="job.param" placeholder="输入方法参数" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="任务状态" prop="status">
+                <el-input v-model="job.status" placeholder="输入任务状态" />
               </el-form-item>
             </el-col>
             <el-col :span="24">
@@ -173,6 +225,36 @@
                 <el-input v-model="job.jobName" placeholder="输入任务名称" />
               </el-form-item>
             </el-col>
+            <el-col :span="12">
+              <el-form-item label="调度分组" prop="jobGroup">
+                <el-input v-model="job.jobGroup" placeholder="输入调度分组" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="调度类" prop="jobClass">
+                <el-input v-model="job.jobClass" placeholder="输入调度类" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="调度方法" prop="jobMethod">
+                <el-input v-model="job.jobMethod" placeholder="输入调度方法" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="cron 表达式" prop="cron">
+                <el-input v-model="job.cron" placeholder="输入cron 表达式" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="方法的参数" prop="param">
+                <el-input v-model="job.param" placeholder="输入方法参数" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="任务状态" prop="status">
+                <el-input v-model="job.status" placeholder="输入任务状态" />
+              </el-form-item>
+            </el-col>
             <el-col :span="24">
               <el-form-item label="备注" prop="remark">
                 <el-input v-model="job.remark" type="textarea" :rows="5" placeholder="输入备注" />
@@ -195,7 +277,7 @@
 </template>
 
 <script>
-import { createJob, deleteJobs, getJob, listJobs, updateJob } from '@/api/job'
+import { createJob, deleteJobs, getJob, listJobs, updateJob, pauseJobs, resumeJobs } from '@/api/job'
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
 export default {
@@ -213,12 +295,27 @@ export default {
       job: {
         id: null,
         jobName: null,
-        remark: null
+        remark: null,
+        cron: null,
+        jobClass: null,
+        jobGroup: null,
+        jobMethod: null,
+        param: null,
+        status: null
       },
       // 新建任务校验规则
       jobRules: {
         jobName: [
           { required: true, message: '请输入任务名称', trigger: 'blur' }
+        ],
+        jobGroup: [
+          { required: true, message: '请输入任务分组', trigger: 'blur' }
+        ],
+        jobClass: [
+          { required: true, message: '请输入调度类', trigger: 'blur' }
+        ],
+        jobMethod: [
+          { required: true, message: '请输入调度方法', trigger: 'blur' }
         ]
       },
       // 主表格数据
@@ -232,6 +329,8 @@ export default {
       createLoading: false,
       tableLoading: false,
       deleteBatchLoading: false,
+      batchPauseLoading: false,
+      batchResumeLoading: false,
       resetPassBatchLoading: false,
       foldSearch: false,
       editVisible: false,
@@ -360,6 +459,46 @@ export default {
       }).finally(() => {
         // 关闭按钮loading
         this.deleteBatchLoading = false
+      })
+    },
+    // 处理暂停任务
+    handlePauseJobs() {
+      // 开启按钮loading
+      this.batchPauseLoading = true
+      // 获得表格的选中行
+      const ids = this.selectedJob.map(job => job.id)
+      pauseJobs({ ids }).then(res => {
+        // 成功请求弹出提示
+        this.$message({
+          showClose: true,
+          message: '批量暂停成功',
+          type: 'success'
+        })
+        // 刷新表格数据
+        this.handleQuery()
+      }).finally(() => {
+        // 关闭按钮loading
+        this.batchPauseLoading = false
+      })
+    },
+    // 处理恢复任务
+    handleResumeJobs() {
+      // 开启按钮loading
+      this.batchResumeLoading = true
+      // 获得表格的选中行
+      const ids = this.selectedJob.map(job => job.id)
+      resumeJobs({ ids }).then(res => {
+        // 成功请求弹出提示
+        this.$message({
+          showClose: true,
+          message: '批量恢复成功',
+          type: 'success'
+        })
+        // 刷新表格数据
+        this.handleQuery()
+      }).finally(() => {
+        // 关闭按钮loading
+        this.batchResumeLoading = false
       })
     },
     // 处理任务选中变化
