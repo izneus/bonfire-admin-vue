@@ -1,3 +1,4 @@
+<!--suppress JSUnresolvedVariable -->
 <template>
   <div class="app-container" :class="{'has-bulk':selectedUser.length > 0}">
     <div class="filter-wrapper">
@@ -111,6 +112,7 @@
           </el-col>
         </el-row>
       </div>
+      <!--suppress HtmlUnknownAttribute -->
       <el-table
         v-loading="tableLoading"
         :data="tableData"
@@ -139,7 +141,6 @@
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="editUser(scope.row.id)">编辑</el-button>
-            <el-button type="text" @click="setRole(scope.row.id)">设置角色</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -260,9 +261,6 @@
                     :value="role.id"
                   />
                 </el-select>
-                <!--                <el-checkbox-group v-model="user.roleIds">
-                  <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
-                </el-checkbox-group>-->
               </el-form-item>
             </el-col>
             <el-col :span="24">
@@ -290,7 +288,7 @@
     <div class="dialog-wrapper">
       <el-dialog
         title="编辑用户"
-        width="800px"
+        width="50%"
         :close-on-click-modal="false"
         :visible.sync="editVisible"
         @close="resetForm('editUserForm')"
@@ -350,16 +348,27 @@
                 <el-input v-model="user.email" placeholder="输入电子邮件地址" suffix-icon="el-icon-message" />
               </el-form-item>
             </el-col>
-            <el-col :span="24">
-              <el-form-item label="备注" prop="remark">
-                <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
+            <el-col :span="12">
+              <el-form-item label="角色" prop="roleIds">
+                <el-select
+                  v-model="user.roleIds"
+                  multiple
+                  collapse-tags
+                  placeholder="请选择"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="role in roles"
+                    :key="role.id"
+                    :label="role.roleName"
+                    :value="role.id"
+                  />
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="24">
-              <el-form-item label="角色名称" prop="roleIds">
-                <el-checkbox-group v-model="user.roleIds">
-                  <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
-                </el-checkbox-group>
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -375,49 +384,15 @@
         </span>
       </el-dialog>
     </div>
-    <div class="dialog-wrapper">
-      <el-dialog
-        title="设置角色"
-        width="800px"
-        :close-on-click-modal="false"
-        :visible.sync="setVisible"
-        @close="resetForm('setRoleForm')"
-      >
-        <el-form
-          ref="setRoleForm"
-          label-width="auto"
-          size="medium"
-          label-position="top"
-          :model="userRole"
-          :rules="userRoleRules"
-        >
-          <el-col :span="24">
-            <el-form-item label="角色名称" prop="roleIds">
-              <el-checkbox-group v-model="userRole.roleIds">
-                <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
-              </el-checkbox-group>
-            </el-form-item>
-          </el-col>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button size="medium" plain @click="setVisible = false">取消</el-button>
-          <el-button
-            size="medium"
-            type="primary"
-            :loading="createLoading"
-            @click="handleSetUserRole"
-          >设置角色</el-button>
-        </span>
-      </el-dialog>
-    </div>
   </div>
 </template>
 
 <script>
-import { createUser, deleteUsers, exportUsers, getUser, listUsers, resetPasswordBatch, setUserRole, updateUser } from '@/api/user'
+import { createUser, deleteUsers, exportUsers, getUser, listUsers, resetPasswordBatch, updateUser } from '@/api/user'
 import { listRoles } from '@/api/role'
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
+import { REG_MOBILE, REG_USERNAME } from '@/constant/reg-exp'
 
 export default {
   name: 'User',
@@ -442,32 +417,24 @@ export default {
         mobile: null,
         remark: null,
         status: null,
-        roleIds: []
-      },
-      // 新建用户角色的数据
-      userRole: {
-        userId: null,
-        roleIds: []
+        roleIds: null
       },
       // 新建用户校验规则
       userRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' },
-          { pattern: /^[a-zA-Z0-9]{5,20}$/, message: '用户名必须为5-20位字母或者数字', trigger: 'blur' }
+          { pattern: REG_USERNAME, message: '用户名必须为5-20位字母或者数字', trigger: 'blur' }
         ],
         status: [
           { required: true, message: '请选择用户状态', trigger: 'blur' }
+        ],
+        mobile: [{ pattern: REG_MOBILE, message: '请输入正确的手机号', trigger: 'blur' }
         ],
         email: [
           { type: 'email', message: '请输入正确的电子邮件地址', trigger: 'blur' }
         ],
         roleIds: [
-          { type: 'array', required: true, message: '请至少选择一个角色', trigger: 'change' }
-        ]
-      },
-      userRoleRules: {
-        roleIds: [
-          { type: 'array', required: true, message: '请至少选择一个角色', trigger: 'change' }
+          { type: 'array', required: true, message: '请至少选择一个角色', trigger: 'blur' }
         ]
       },
       // 主表格数据
@@ -537,20 +504,13 @@ export default {
         this.user.roleIds = res.data.roleIds == null ? [] : res.data.roleIds
       })
     },
-    setRole(userId) {
-      // 显示设置角色对话框
-      this.setVisible = true
-      getUser({ id: userId }).then(res => {
-        this.userRole.userId = res.data.id
-        this.userRole.roleIds = res.data.roleIds == null ? [] : res.data.roleIds
-      })
-    },
     /* getDetail(row) {
       getUser({ id: row.id }).then(res => {
       })
     },*/
     // 清空表单内容
     resetForm(formName) {
+      // noinspection JSUnresolvedFunction
       this.$refs[formName].resetFields()
     },
     // 处理创建用户
@@ -560,7 +520,7 @@ export default {
           // 新建按钮loading
           this.createLoading = true
           // 请求api
-          createUser(this.user).then(res => {
+          createUser(this.user).then(() => {
             // 成功请求弹出提示
             this.$message({
               showClose: true,
@@ -592,22 +552,13 @@ export default {
       this.$refs.editUserForm.validate(valid => {
         if (valid) {
           this.createLoading = true
-          updateUser(this.user).then(res => {
+          updateUser(this.user).then(() => {
+            this.$message({
+              showClose: true,
+              message: '更新成功',
+              type: 'success'
+            })
             this.editVisible = false
-            this.handleQuery()
-          }).finally(() => {
-            this.createLoading = false
-          })
-        }
-      })
-    },
-    // 处理设置用户角色
-    handleSetUserRole() {
-      this.$refs.setRoleForm.validate(valid => {
-        if (valid) {
-          this.createLoading = true
-          setUserRole(this.userRole).then(res => {
-            this.setVisible = false
             this.handleQuery()
           }).finally(() => {
             this.createLoading = false
@@ -643,7 +594,7 @@ export default {
       this.deleteBatchLoading = true
       // 获得表格的选中行
       const ids = this.selectedUser.map(user => user.id)
-      deleteUsers({ ids }).then(res => {
+      deleteUsers({ ids }).then(() => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
@@ -675,7 +626,7 @@ export default {
       this.resetPassBatchLoading = true
       // 获得表格的选中行
       const ids = this.selectedUser.map(user => user.id)
-      resetPasswordBatch({ ids }).then(res => {
+      resetPasswordBatch({ ids }).then(() => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,

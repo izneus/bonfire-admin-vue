@@ -116,26 +116,12 @@
 </template>
 
 <script>
-import { validPassword, validUsername } from '@/utils/validate'
 import { getCaptcha } from '@/api/user'
+import { REG_PASSWORD, REG_USERNAME } from '@/constant/reg-exp'
 
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('用户名必须为6-20位，包含字母和数字'))
-      } else {
-        callback()
-      }
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (!validPassword(value)) {
-        callback(new Error('密码必须包含大小写字母和数字，长度为8～16'))
-      } else {
-        callback()
-      }
-    }
     return {
       loginForm: {
         username: 'admin1',
@@ -144,8 +130,14 @@ export default {
         captchaId: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          { pattern: REG_USERNAME, message: '用户名必须为5-20位字母或者数字', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { pattern: REG_PASSWORD, message: '密码必须包含大小写字母和数字，长度为8～16', trigger: 'blur' }
+        ],
         captcha: [{ required: true, trigger: 'blur', message: '验证码不能为空' }]
       },
       passwordType: 'password',
