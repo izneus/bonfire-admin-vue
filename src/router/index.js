@@ -186,13 +186,13 @@ export const asyncRoutes = [
         path: 'privilege',
         component: () => import('@/views/system/privilege'),
         name: 'Privilege',
-        meta: { title: '角色管理2' }
+        meta: { title: '权限管理' }
       },
       {
         path: 'auth',
         component: () => import('@/views/system/auth'),
         name: 'Auth',
-        meta: { title: '权限管理' }
+        meta: { title: '权限管理2' }
       },
       {
         path: 'department',
