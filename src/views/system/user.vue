@@ -159,7 +159,7 @@
     <div v-show="selectedUser.length > 0" class="bulk-wrapper">
       <div class="bulk-col-left">
         <div class="bulk-desc">
-          已选择&nbsp;<a>{{selectedUser.length}}</a>&nbsp;项
+          已选择&nbsp;<a>{{ selectedUser.length }}</a>&nbsp;项
         </div>
       </div>
       <div class="bulk-col-right">
@@ -188,7 +188,7 @@
     <div class="dialog-wrapper">
       <el-dialog
         title="新建用户"
-        width="800px"
+        width="50%"
         :close-on-click-modal="false"
         :visible.sync="createVisible"
         @close="resetForm('userForm')"
@@ -244,19 +244,33 @@
                 <el-input v-model="user.email" placeholder="输入电子邮件地址" suffix-icon="el-icon-message" />
               </el-form-item>
             </el-col>
+            <el-col :span="12">
+              <el-form-item label="角色" prop="roleIds">
+                <el-select
+                  v-model="user.roleIds"
+                  multiple
+                  collapse-tags
+                  placeholder="请选择"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="role in roles"
+                    :key="role.id"
+                    :label="role.roleName"
+                    :value="role.id"
+                  />
+                </el-select>
+                <!--                <el-checkbox-group v-model="user.roleIds">
+                  <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
+                </el-checkbox-group>-->
+              </el-form-item>
+            </el-col>
             <el-col :span="24">
               <el-form-item label="备注" prop="remark">
                 <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
               </el-form-item>
             </el-col>
           </el-row>
-          <el-col :span="24">
-            <el-form-item label="角色名称" prop="roleIds">
-              <el-checkbox-group v-model="user.roleIds">
-                <el-checkbox v-for="data in checkList" :key="data.roleName" :label="data.roleName" name="roleIds" />
-              </el-checkbox-group>
-            </el-form-item>
-          </el-col>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-checkbox
@@ -463,6 +477,8 @@ export default {
       checkList: [],
       // 选中用户表的行
       selectedUser: [],
+      // 所有角色，下拉框用
+      roles: [],
       // 一些涉及是否的状态
       createVisible: false,
       createNext: false,
@@ -492,6 +508,10 @@ export default {
     // console.log(this.dict)
     // 打印简化后的label数据
     // console.log(this.dict.label.user_status)
+    // 初始化所有角色
+    listRoles({ pageNum: 1, pageSize: 100 }).then(res => {
+      this.roles = res.data.rows
+    })
   },
   methods: {
     // 主表格查询
@@ -508,16 +528,9 @@ export default {
     createUser() {
       // 显示创建用户对话框
       this.createVisible = true
-      listRoles({ ...this.query, pageSize: 100 }).then(res => {
-        this.checkList = res.data.rows
-      })
     },
     editUser(userId) {
       // 显示编辑对话框
-      // 加载所有角色的名称
-      listRoles({ ...this.query, pageSize: 100 }).then(res => {
-        this.checkList = res.data.rows
-      })
       this.editVisible = true
       getUser({ id: userId }).then(res => {
         this.user = res.data
@@ -526,10 +539,6 @@ export default {
     },
     setRole(userId) {
       // 显示设置角色对话框
-      // 加载所有角色的名称
-      listRoles({ ...this.query, pageSize: 100 }).then(res => {
-        this.checkList = res.data.rows
-      })
       this.setVisible = true
       getUser({ id: userId }).then(res => {
         this.userRole.userId = res.data.id

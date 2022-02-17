@@ -2,6 +2,8 @@
  * Created by PanJiaChen on 16/11/18.
  */
 
+import { REG_PASSWORD, REG_USERNAME } from '@/constant/reg-exp'
+
 /**
  * @param {string} path
  * @returns {Boolean}
@@ -15,8 +17,7 @@ export function isExternal(path) {
  * @returns {Boolean}
  */
 export function validUsername(str) {
-  const reg = /^[a-zA-Z0-9]{6,20}$/
-  return reg.test(str)
+  return REG_USERNAME.test(str)
 }
 
 /**
@@ -24,8 +25,7 @@ export function validUsername(str) {
  * @returns {Boolean}
  */
 export function validPassword(str) {
-  const reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,16}$/
-  return reg.test(str)
+  return REG_PASSWORD.test(str)
 }
 
 /**

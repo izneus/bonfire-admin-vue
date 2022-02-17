@@ -77,10 +77,10 @@
       </div>
       <div class="bulk-col-right">
         <el-button
-          size="small"
+          type="danger"
           plain
+          size="small"
           icon="el-icon-delete"
-          class="line-button-danger"
           :loading="deleteBatchLoading"
           :disabled="selectedDict.length < 1"
           @click="confirmDeleteDicts"

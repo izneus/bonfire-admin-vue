@@ -59,10 +59,10 @@
       </div>
       <div class="bulk-col-right">
         <el-button
+          type="danger"
           size="small"
           plain
           icon="el-icon-delete"
-          class="line-button-danger"
           :loading="deleteBatchLoading"
           :disabled="selectedLog.length < 1"
           @click="confirmDeleteLogs"
