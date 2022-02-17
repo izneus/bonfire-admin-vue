@@ -45,7 +45,7 @@
               <span style="flex: 9;">个人中心</span>
             </div>
           </el-dropdown-item>
-          <el-dropdown-item>
+          <el-dropdown-item @click.native="dialogFormVisible = true">
             <div style="display: flex">
               <i class="ri-lock-2-line" style="flex: 1;" />
               <span style="flex: 9;">修改密码</span>
@@ -60,6 +60,50 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+    <el-dialog
+      title="修改密码"
+      width="400px"
+      :close-on-click-modal="false"
+      :visible.sync="dialogFormVisible"
+      append-to-body="true"
+      @close="resetForm('pwdForm')"
+    >
+      <el-form
+        ref="pwdForm"
+        label-width="auto"
+        size="medium"
+        label-position="top"
+        :model="pwd"
+        :rules="pwdRules"
+      >
+        <el-row :gutter="30">
+          <el-col :span="24">
+            <el-form-item label="旧密码" prop="currentPassword">
+              <el-input v-model="pwd.currentPassword" placeholder="输入旧密码" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="新密码" prop="newPassword">
+              <el-input v-model="pwd.newPassword" placeholder="输入新密码" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="确认密码" prop="confirmPassword">
+              <el-input v-model="pwd.confirmPassword" placeholder="再次确认密码" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="medium" plain @click="dialogFormVisible = false">取消</el-button>
+        <el-button
+          size="medium"
+          type="primary"
+          :loading="changeLoading"
+          @click="changePassword"
+        >修改密码</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -69,6 +113,8 @@ import { mapGetters } from 'vuex'
 import Hamburger from '@/components/Hamburger'
 // import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
+import { changePassword } from '@/api/me'
+import { validPassword } from '@/utils/validate'
 // import SizeSelect from '@/components/SizeSelect'
 // import LangSelect from '@/components/LangSelect'
 // import Search from '@/components/HeaderSearch'
@@ -91,6 +137,25 @@ export default {
       'name'
     ])
   },
+  data() {
+    const pwd = (rule, value, callback) => {
+      if (!validPassword(value)) {
+        callback(new Error('密码必须包含大小写字母和数字，长度为8～16'))
+      } else {
+        callback()
+      }
+    }
+    return {
+      pwd: {},
+      dialogFormVisible: false,
+      pwdRules: {
+        currentPassword: [{ required: true, trigger: 'blur', validator: pwd }],
+        newPassword: [{ required: true, trigger: 'blur', validator: pwd }],
+        confirmPassword: [{ required: true, trigger: 'blur', validator: pwd }]
+      },
+      changeLoading: false
+    }
+  },
   methods: {
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
@@ -98,6 +163,37 @@ export default {
     async logout() {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    },
+    changePassword() {
+      this.$refs.pwdForm.validate(valid => {
+        if (valid) {
+          if (this.pwd.newPassword === this.pwd.confirmPassword) {
+            this.changeLoading = true
+            changePassword(this.pwd).then(res => {
+              this.dialogFormVisible = false
+            }).finally(() => {
+              this.changeLoading = false
+            })
+          } else {
+            this.$notify({
+              title: '警告',
+              message: '新密码两次不一致',
+              type: 'warning'
+            })
+          }
+        }
+      })
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
+    },
+    // 清空表单内容
+    resetForm(formName) {
+      this.$refs[formName].resetFields()
     }
   }
 }

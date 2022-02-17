@@ -115,9 +115,6 @@
             </el-col>
             <el-col :span="24">
               <el-form-item label="权限名称" prop="authorityIds">
-                <!--                <el-checkbox-group v-model="role.authorityIds">
-                  <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
-                </el-checkbox-group>-->
                 <el-tree
                   ref="organizationDataCreate"
                   :data="organizationData"
@@ -175,9 +172,6 @@
             </el-col>
             <el-col :span="24">
               <el-form-item label="权限名称" prop="authorityIds">
-                <!--                <el-checkbox-group v-model="roleAuthRules.authorityIds">
-                  <el-checkbox v-for="data in checkList" :key="data.authority" :label="data.authority" name="authorityIds" />
-                </el-checkbox-group>-->
                 <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChangeEdit">全选</el-checkbox>
                 <el-tree
                   ref="organizationDataEdit"

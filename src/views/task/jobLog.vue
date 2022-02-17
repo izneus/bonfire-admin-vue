@@ -11,28 +11,6 @@
           <el-col :span="12">
             <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
             <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
-            <el-button size="small" type="text" style="padding-left: 0;" @click="handleFoldSearch">
-              展开查询
-              <i v-show="!foldSearch" class="el-icon-arrow-down" />
-              <i v-show="foldSearch" class="el-icon-arrow-up" />
-            </el-button>
-          </el-col>
-        </el-row>
-        <el-row v-show="foldSearch" :gutter="24">
-          <el-col :span="6">
-            <el-form-item label="测试选项:">
-              <el-input placeholder="输入测试选项" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="测试选项:">
-              <el-input placeholder="输入测试选项" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="测试选项:">
-              <el-input placeholder="输入测试选项" />
-            </el-form-item>
           </el-col>
         </el-row>
       </el-form>

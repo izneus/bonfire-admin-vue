@@ -190,12 +190,6 @@ export const asyncRoutes = [
         meta: { title: '权限管理' }
       },
       {
-        path: 'auth',
-        component: () => import('@/views/system/auth'),
-        name: 'Auth',
-        meta: { title: '权限管理2' }
-      },
-      {
         path: 'department',
         component: () => import('@/views/system/empty'),
         name: 'Department',
