@@ -78,8 +78,8 @@
       >
         <el-row :gutter="30">
           <el-col :span="24">
-            <el-form-item label="旧密码" prop="currentPassword">
-              <el-input v-model="pwd.currentPassword" placeholder="输入旧密码" />
+            <el-form-item label="当前密码" prop="currentPassword">
+              <el-input v-model="pwd.currentPassword" placeholder="输入当前密码" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -88,8 +88,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="确认密码" prop="confirmPassword">
-              <el-input v-model="pwd.confirmPassword" placeholder="再次确认密码" />
+            <el-form-item label="确认新密码" prop="confirmPassword">
+              <el-input v-model="pwd.confirmPassword" placeholder="再次输入新密码" />
             </el-form-item>
           </el-col>
         </el-row>

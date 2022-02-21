@@ -265,7 +265,14 @@
             </el-col>
             <el-col :span="24">
               <el-form-item label="备注" prop="remark">
-                <el-input v-model="user.remark" type="textarea" :rows="5" placeholder="输入备注" />
+                <el-input
+                  v-model="user.remark"
+                  type="textarea"
+                  :rows="5"
+                  maxlength="200"
+                  show-word-limit
+                  placeholder="输入备注"
+                />
               </el-form-item>
             </el-col>
           </el-row>
