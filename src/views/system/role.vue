@@ -49,7 +49,6 @@
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="editRole(scope.row.id)">编辑</el-button>
-            <el-button type="text" @click="setAuthority(scope.row.id)">设置权限</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -89,7 +88,7 @@
     <div class="dialog-wrapper">
       <el-dialog
         title="新建角色"
-        width="800px"
+        width="600px"
         :close-on-click-modal="false"
         :visible.sync="createVisible"
         @close="resetForm('roleForm')"
@@ -103,26 +102,32 @@
           :rules="roleRules"
         >
           <el-row :gutter="30">
-            <el-col :span="12">
+            <el-col :span="24">
               <el-form-item label="角色名称" prop="roleName">
                 <el-input v-model="role.roleName" placeholder="输入角色名称" />
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item label="备注" prop="remark">
-                <el-input v-model="role.remark" type="textarea" :rows="5" placeholder="输入备注" />
+                <el-input
+                  v-model="role.remark"
+                  type="textarea"
+                  :rows="5"
+                  maxlength="200"
+                  show-word-limit
+                  placeholder="输入备注"
+                />
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item label="权限名称" prop="authorityIds">
                 <el-tree
-                  ref="organizationDataCreate"
-                  :data="organizationData"
+                  ref="privilegeTree"
+                  :data="privilegeTreeData"
                   show-checkbox
-                  :render-content="renderContent"
                   :props="defaultProps"
                   node-key="id"
-                  @node-expand="handleExpand"
+                  :default-expanded-keys="['0']"
                 />
               </el-form-item>
             </el-col>
@@ -146,7 +151,7 @@
     <div class="dialog-wrapper">
       <el-dialog
         title="编辑角色"
-        width="800px"
+        width="600px"
         :close-on-click-modal="false"
         :visible.sync="editVisible"
         @close="resetForm('editRoleForm')"
@@ -160,28 +165,33 @@
           :rules="roleRules"
         >
           <el-row :gutter="30">
-            <el-col :span="12">
+            <el-col :span="24">
               <el-form-item label="角色名称" prop="roleName">
                 <el-input v-model="role.roleName" placeholder="输入角色名称" />
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item label="备注" prop="remark">
-                <el-input v-model="role.remark" type="textarea" :rows="5" placeholder="输入备注" />
+                <el-input
+                  v-model="role.remark"
+                  type="textarea"
+                  :rows="5"
+                  maxlength="200"
+                  show-word-limit
+                  placeholder="输入备注"
+                />
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item label="权限名称" prop="authorityIds">
-                <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChangeEdit">全选</el-checkbox>
                 <el-tree
-                  ref="organizationDataEdit"
-                  :data="organizationData"
+                  ref="privilegeTreeEdit"
+                  :data="privilegeTreeData"
                   show-checkbox
-                  :render-content="renderContent"
                   :props="defaultProps"
                   node-key="id"
                   :default-checked-keys="role.privilegeIds"
-                  @node-expand="handleExpand"
+                  :default-expanded-keys="['0']"
                 />
               </el-form-item>
             </el-col>
@@ -198,7 +208,7 @@
         </span>
       </el-dialog>
     </div>
-    <div class="dialog-wrapper">
+<!--    <div class="dialog-wrapper">
       <el-dialog
         title="设置权限"
         width="600px"
@@ -216,9 +226,9 @@
         >
           <el-col :span="24">
             <el-form-item label="权限名称" prop="authorityIds">
-              <!--绑定用户已有权限-->
-              <!-- checkbox -->
-              <!--                            <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChange">全选</el-checkbox>
+              &lt;!&ndash;绑定用户已有权限&ndash;&gt;
+              &lt;!&ndash; checkbox &ndash;&gt;
+              &lt;!&ndash;                            <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChange">全选</el-checkbox>
               <el-checkbox-group v-model="roleAuth.authorityIds">
                 <el-checkbox v-for="data in checkList" :key="data.id" :label="data.privName" name="authorityIds" style="display:block">
                   <p>{{ data.privName }}</p>
@@ -233,18 +243,15 @@
                     </el-checkbox>
                   </el-checkbox-group>
                 </el-checkbox>
-              </el-checkbox-group>-->
-              <!--树形-->
-              <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChange">全选</el-checkbox>
+              </el-checkbox-group>&ndash;&gt;
+              &lt;!&ndash;树形&ndash;&gt;
               <el-tree
                 ref="organizationData"
-                :data="organizationData"
+                :data="privilegeTreeData"
                 show-checkbox
-                :render-content="renderContent"
                 :props="defaultProps"
                 node-key="id"
                 :default-checked-keys="roleAuth.privilegeIds"
-                @node-expand="handleExpand"
               />
             </el-form-item></el-col>
         </el-form>
@@ -258,15 +265,13 @@
           >设置权限</el-button>
         </span>
       </el-dialog>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
 import { createRole, deleteRoles, getRole, listRoles, updateRole } from '@/api/role'
 import { getPrivilegeTree } from '@/api/privilege'
-import { getToken } from '@/utils/auth'
-import { Message } from 'element-ui'
 
 export default {
   name: 'Role',
@@ -321,22 +326,8 @@ export default {
       createLoading: false,
       tableLoading: false,
       deleteBatchLoading: false,
-      resetPassBatchLoading: false,
-      foldSearch: false,
       editVisible: false,
       setVisible: false,
-      getLoading: false,
-      exportLoading: false,
-      level1: false,
-      level2: false,
-      level3: false,
-      // 对话框类型，复用新增和编辑
-      // dialogType: 'add'
-      // upload组件用的几个参数
-      authHeader: {
-        Authorization: 'Bearer ' + getToken()
-      },
-      uploadUrl: process.env.VUE_APP_BASE_API + '/v1/file/upload',
       // 全选
       checkAll: false,
       checkedCities: [],
@@ -344,8 +335,8 @@ export default {
       // 树形
       checkAll2: false,
       // 树形权限数据
-      organizationData: [],
-      // children和label 与接口字段保持一致
+      privilegeTreeData: [],
+      // children和label与接口字段保持一致
       defaultProps: {
         children: 'children',
         label: 'privName'
@@ -353,16 +344,16 @@ export default {
     }
   },
   created() {
-    // 进入页面第一次查询，为了演示无数据状态暂时注释，
-    // 实际业务页面为了用户体验，进页面都要请求一次数据
-    // this.handleQuery()
-    // 得到完整数据
-    // console.log(this.dict)
-    // 打印简化后的label数据
-    // console.log(this.dict.label.user_status)
-  },
-  mounted() {
-    this.changeCss()
+    // 加载所有角色权限
+    getPrivilegeTree().then(res => {
+      this.checkList = res.data.privilegeTree
+      // 给树添加一个所有权限的root节点，方便/反选全选所有权限
+      this.privilegeTreeData = [{
+        id: '0',
+        privName: '所有权限',
+        children: res.data.privilegeTree
+      }]
+    })
   },
   methods: {
     // 主表格查询
@@ -379,44 +370,17 @@ export default {
     createRole() {
       // 显示创建角色对话框
       this.createVisible = true
-      // listAuthorities({ ...this.query, pageSize: 100 }).then(res => {
-      //   this.checkList = res.data.rows
-      // })
-      // 加载所有角色权限
-      getPrivilegeTree().then(res => {
-        this.checkList = res.data.privilegeTree
-        this.organizationData = res.data.privilegeTree
-      })
     },
     editRole(roleId) {
       // 显示编辑对话框
-      // 加载所有角色权限
-      getPrivilegeTree().then(res => {
-        this.checkList = res.data.privilegeTree
-        this.organizationData = res.data.privilegeTree
-      })
       this.editVisible = true
       getRole({ id: roleId }).then(res => {
-        this.role.id = res.data.id
+        this.role = res.data
+        // 暂时注释
+        /* this.role.id = res.data.id
         this.role.remark = res.data.remark
         this.role.roleName = res.data.roleName
-        this.role.privilegeIds = res.data.privilegeIds == null ? [] : res.data.privilegeIds
-      })
-    },
-    setAuthority(authorityId) {
-      // 显示设置权限对话框
-      // 加载所有权限的名称
-      getPrivilegeTree().then(res => {
-        this.checkList = res.data.privilegeTree
-        this.organizationData = res.data.privilegeTree
-        // console.log(this.organizationData)
-      })
-      this.setVisible = true
-      getRole({ id: authorityId }).then(res => {
-        this.roleAuth.id = res.data.id
-        this.roleAuth.remark = res.data.remark
-        this.roleAuth.roleName = res.data.roleName
-        this.roleAuth.privilegeIds = res.data.privilegeIds == null ? [] : res.data.privilegeIds
+        this.role.privilegeIds = res.data.privilegeIds == null ? [] : res.data.privilegeIds*/
       })
     },
     // 清空表单内容
@@ -430,7 +394,7 @@ export default {
           // 新建按钮loading
           this.createLoading = true
           // 请求api
-          const checkedKeys = this.$refs.organizationDataCreate.getCheckedKeys()
+          const checkedKeys = this.$refs.privilegeTree.getCheckedKeys()
           this.role.privilegeIds = checkedKeys
           createRole(this.role).then(res => {
             // 成功请求弹出提示
@@ -464,7 +428,7 @@ export default {
       this.$refs.editRoleForm.validate(valid => {
         if (valid) {
           this.createLoading = true
-          const checkedKeys = this.$refs.organizationDataEdit.getCheckedKeys()
+          const checkedKeys = this.$refs.privilegeTreeEdit.getCheckedKeys()
           this.role.privilegeIds = checkedKeys
           updateRole(this.role).then(res => {
             this.editVisible = false
@@ -524,7 +488,7 @@ export default {
         this.deleteBatchLoading = false
       })
     },
-    // 处理用户选中变化
+    // 处理角色选中变化
     handleRoleChange(val) {
       this.selectedRole = val
     },
@@ -535,78 +499,6 @@ export default {
     handleChangePageSize(val) {
       this.query.pageSize = val
       this.handleQuery()
-    },
-    handleFoldSearch() {
-      this.foldSearch = !this.foldSearch
-    },
-    handleUploadError(err, file) {
-      const e = JSON.parse(err.message)
-      Message({
-        message: '文件「' + file.name + '」上传失败，错误原因：' + e.message,
-        type: 'error',
-        duration: 5 * 1000
-      })
-    },
-    handleUploadSuccess() {
-      Message({
-        message: '文件上传成功',
-        type: 'success',
-        duration: 5 * 1000
-      })
-    },
-    // 树形全选
-    handleCheckAllChange(val) {
-      if (this.checkAll) {
-        this.$refs.organizationData.setCheckedNodes(this.organizationData)
-      } else {
-        this.isIndeterminate = false
-        this.$refs.organizationData.setCheckedKeys([])
-      }
-    },
-    // 树形全选
-    handleCheckAllChangeEdit(val) {
-      if (this.checkAll) {
-        this.$refs.organizationDataEdit.setCheckedNodes(this.organizationData)
-      } else {
-        this.isIndeterminate = false
-        this.$refs.organizationDataEdit.setCheckedKeys([])
-      }
-    },
-    // 节点被展开时触发的事件
-    handleExpand() {
-      // 因为该函数执行在renderContent函数之前，所以得加定时
-      setTimeout(() => {
-        this.changeCss()
-      }, 10)
-    },
-    // 树形末节点横向展示
-    renderContent(h, { node, data, store }) { // 树节点的内容区的渲染 Function
-      let classname = ''
-      // 由于项目中有三级菜单也有四级级菜单，就要在此做出判断
-      if (node.level === 3) {
-        classname = 'foo'
-      }
-      // if (node.level === 2 && node.childNodes.length === 0) {
-      //   classname = 'foo'
-      // }
-      return h(
-        'p',
-        {
-          class: classname
-        },
-        node.label
-      )
-    },
-    changeCss() {
-      const levelName = document.getElementsByClassName('foo') // levelname是上面的最底层节点的名字
-      for (var i = 0; i < levelName.length; i++) {
-        // cssFloat 兼容 ie6-8  styleFloat 兼容ie9及标准浏览器
-        levelName[i].parentNode.style.cssFloat = 'left' // 最底层的节点，包括多选框和名字都让他左浮动
-        levelName[i].parentNode.style.styleFloat = 'left'
-        levelName[i].parentNode.onmouseover = function() {
-          this.style.backgroundColor = '#fff'
-        }
-      }
     }
   }
 }

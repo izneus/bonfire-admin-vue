@@ -6,6 +6,7 @@ export function getPrivilegeTree() {
     method: 'post'
   })
 }
+
 export function getPrivilegeList(data) {
   return request({
     url: '/v1/privilege/getPrivilegeList',
@@ -13,6 +14,7 @@ export function getPrivilegeList(data) {
     data
   })
 }
+
 export function createPriv(data) {
   return request({
     url: '/v1/privilege/create',
@@ -20,6 +22,7 @@ export function createPriv(data) {
     data
   })
 }
+
 export function getPrivilegeById(data) {
   return request({
     url: '/v1/privilege/get',
@@ -27,6 +30,7 @@ export function getPrivilegeById(data) {
     data
   })
 }
+
 export function updatePrivilegeById(data) {
   return request({
     url: '/v1/privilege/update',
@@ -34,13 +38,15 @@ export function updatePrivilegeById(data) {
     data
   })
 }
+
 export function deletePrivilegeById(data) {
   return request({
-    url: '/v1/privilege/deletePrivilegeById',
+    url: '/v1/privilege/delete',
     method: 'post',
     data
   })
 }
+
 export function batchDelete(data) {
   return request({
     url: '/v1/privilege/batchDelete',

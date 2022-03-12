@@ -1,20 +1,5 @@
 <template>
   <div class="app-container" :class="{'has-bulk':selectedAuthority.length > 0}">
-    <div class="filter-wrapper">
-      <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
-        <el-row :gutter="24">
-          <el-col :span="6">
-            <el-form-item label="权限名称:" prop="authority">
-              <el-input v-model="query.privName" placeholder="输入权限名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
-            <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
-          </el-col>
-        </el-row>
-      </el-form>
-    </div>
     <div class="table-wrapper">
       <div class="toolbar-wrapper">
         <el-row :gutter="24" type="flex" justify="end">
@@ -22,11 +7,21 @@
             <div class="tool-title">权限列表</div>
           </el-col>
           <el-col :span="12" style="text-align: right;">
+            <el-tooltip class="item" effect="dark" content="刷新数据" placement="top" popper-class="mini-tip">
+              <el-button
+                icon="el-icon-refresh-right"
+                class="tool-button"
+                size="small"
+                plain
+                @click="handleQuery()"
+              />
+            </el-tooltip>
+
             <el-button
               size="small"
               type="primary"
               icon="el-icon-plus"
-              @click="createVisible = true"
+              @click="createPrivilege(0)"
             >
               新增权限
             </el-button>
@@ -36,98 +31,94 @@
       <el-table
         v-loading="tableLoading"
         :data="tableData"
+        :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
         style="width: 100%"
+        row-key="id"
         show-overflow-tooltip="true"
         header-row-class-name="result-table-header"
         header-cell-class-name="result-table-header-cell"
-        @selection-change="handleAuthorityChange"
       >
         <el-empty slot="empty" />
-        <el-table-column type="selection" width="55" />
         <el-table-column prop="privName" label="权限名称" show-overflow-tooltip />
+        <el-table-column prop="privKey" label="权限字符串" show-overflow-tooltip />
+        <el-table-column prop="privType" label="权限类型" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.privType === '1'" size="small" type="success">
+              {{ dict.label.privilege_type[scope.row.privType] }}
+            </el-tag>
+            <el-tag v-else size="small">{{ dict.label.privilege_type[scope.row.privType] }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="sort" label="排序号" show-overflow-tooltip />
         <el-table-column prop="remark" label="备注" show-overflow-tooltip />
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
-            <el-button type="text" @click="editAuthority(scope.row.id)">编辑</el-button>
+            <el-button type="text" @click="editPrivilege(scope.row)">编辑</el-button>
+            <el-button type="text" @click="createPrivilege(scope.row.id)">添加子权限</el-button>
+            <el-button type="text" @click="confirmDeletePrivilege(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagi-wrapper">
-        <el-pagination
-          background
-          :current-page="query.pageNum"
-          :page-sizes="[10, 20, 30, 50]"
-          :page-size="query.pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="totalSize"
-          @size-change="handleChangePageSize"
-          @current-change="handleChangePageNum"
-        />
-      </div>
-    </div>
-    <div v-show="selectedAuthority.length > 0" class="bulk-wrapper">
-      <div class="bulk-col-left">
-        <div class="bulk-desc">
-          已选择&nbsp;<a>{{ selectedAuthority.length }}</a>&nbsp;项
-        </div>
-      </div>
-      <div class="bulk-col-right">
-        <el-button
-          size="small"
-          plain
-          icon="el-icon-delete"
-          class="line-button-danger"
-          :loading="deleteBatchLoading"
-          :disabled="selectedAuthority.length < 1"
-          @click="confirmDeleteAuthorities"
-        >
-          批量删除
-        </el-button>
-      </div>
     </div>
     <div class="dialog-wrapper">
       <el-dialog
         title="新建权限"
-        width="800px"
+        width="600px"
         :close-on-click-modal="false"
         :visible.sync="createVisible"
-        @close="resetForm('authorityForm')"
+        @close="resetForm('privilegeForm')"
       >
         <el-form
-          ref="authorityForm"
+          ref="privilegeForm"
           label-width="auto"
           size="medium"
           label-position="top"
-          :model="authority"
-          :rules="authorityRules"
+          :model="privilege"
+          :rules="privilegeRules"
         >
-
           <el-row :gutter="30">
             <el-col :span="12">
-              <el-form-item label="权限名称" prop="privName">
-                <el-input v-model="authority.privName" placeholder="输入权限名称" />
+              <el-form-item label="权限名称（中文）" prop="privName">
+                <el-input v-model="privilege.privName" placeholder="输入权限名称" />
               </el-form-item>
             </el-col>
-            <el-col :span="24">
-              <el-form-item label="备注" prop="remark">
-                <el-input v-model="authority.remark" type="textarea" :rows="3" placeholder="输入备注" />
+            <el-col :span="12">
+              <el-form-item label="权限字符串（英文）" prop="privKey">
+                <el-input v-model="privilege.privKey" placeholder="输入权限字符串" />
               </el-form-item>
             </el-col>
-            <el-col :span="24">
+            <el-col :span="12">
               <el-form-item label="权限类型" prop="privType">
-                <el-select v-model="authority.privType" placeholder="请选择">
+                <el-select v-model="privilege.privType" placeholder="请选择" style="width: 100%">
                   <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+                    v-for="item in dict.privilege_type"
+                    :key="item.dictValue"
+                    :label="item.dictLabel"
+                    :value="item.dictValue"
                   />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="父级ID" prop="parentId">
-                <el-input v-model="authority.parentId" placeholder="输入父级id" />
+              <el-form-item label="排序号" prop="sort">
+                <el-input-number
+                  v-model="privilege.sort"
+                  controls-position="right"
+                  style="width: 100%"
+                  placeholder="请输入排序号"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input
+                  v-model="privilege.remark"
+                  type="textarea"
+                  :rows="5"
+                  maxlength="200"
+                  show-word-limit
+                  placeholder="输入备注"
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -150,45 +141,62 @@
     <div class="dialog-wrapper">
       <el-dialog
         title="编辑权限"
-        width="800px"
+        width="600px"
         :close-on-click-modal="false"
         :visible.sync="editVisible"
-        @close="resetForm('editAuthorityForm')"
+        @close="resetForm('editPrivilegeForm')"
       >
         <el-form
-          ref="editAuthorityForm"
+          ref="editPrivilegeForm"
           label-width="auto"
           size="medium"
           label-position="top"
-          :model="authority"
-          :rules="authorityRules"
+          :model="privilege"
+          :rules="privilegeRules"
         >
           <el-row :gutter="30">
             <el-col :span="12">
-              <el-form-item label="权限名称" prop="privName">
-                <el-input v-model="authority.privName" placeholder="输入权限名称" />
+              <el-form-item label="权限名称（中文）" prop="privName">
+                <el-input v-model="privilege.privName" placeholder="输入权限名称" />
               </el-form-item>
             </el-col>
-            <el-col :span="24">
-              <el-form-item label="备注" prop="remark">
-                <el-input v-model="authority.remark" type="textarea" :rows="3" placeholder="输入备注" />
+            <el-col :span="12">
+              <el-form-item label="权限字符串（英文）" prop="privKey">
+                <el-input v-model="privilege.privKey" placeholder="输入权限字符串" />
               </el-form-item>
             </el-col>
-            <el-col :span="24">
+            <el-col :span="12">
               <el-form-item label="权限类型" prop="privType">
-                <el-select v-model="authority.privType" placeholder="请选择">
+                <el-select v-model="privilege.privType" placeholder="请选择" style="width: 100%">
                   <el-option
-                    v-for="item in options"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+                    v-for="item in dict.privilege_type"
+                    :key="item.dictValue"
+                    :label="item.dictLabel"
+                    :value="item.dictValue"
                   />
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="父级ID" prop="parentId">
-                <el-input v-model="authority.parentId" placeholder="输入父级id" />
+              <el-form-item label="排序号" prop="sort">
+                <el-input-number
+                  v-model="privilege.sort"
+                  controls-position="right"
+                  style="width: 100%"
+                  placeholder="请输入排序号"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item label="备注" prop="remark">
+                <el-input
+                  v-model="privilege.remark"
+                  type="textarea"
+                  :rows="5"
+                  maxlength="200"
+                  show-word-limit
+                  placeholder="输入备注"
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -199,7 +207,7 @@
             size="medium"
             type="primary"
             :loading="createLoading"
-            @click="handleUpdateAuthority"
+            @click="handleUpdatePrivilege"
           >编辑权限</el-button>
         </span>
       </el-dialog>
@@ -208,11 +216,14 @@
 </template>
 
 <script>
-import { getPrivilegeList, createPriv, getPrivilegeById, updatePrivilegeById, batchDelete } from '@/api/privilege'
-import { getToken } from '@/utils/auth'
-import { Message } from 'element-ui'
+import {
+  createPriv,
+  updatePrivilegeById,
+  getPrivilegeTree, deletePrivilegeById
+} from '@/api/privilege'
 export default {
   name: 'Privilege',
+  dicts: ['privilege_type'],
   data() {
     return {
       // 查询表单的数据
@@ -223,15 +234,17 @@ export default {
         remark: null
       },
       // 新建权限的数据
-      authority: {
+      privilege: {
         id: null,
         privName: null,
+        privKey: null,
         remark: null,
         privType: null,
-        parentId: null
+        parentId: null,
+        sort: 0
       },
       // 新建权限校验规则
-      authorityRules: {
+      privilegeRules: {
         privName: [
           { required: true, message: '请输入权限名称', trigger: 'blur' }
         ],
@@ -254,51 +267,27 @@ export default {
       foldSearch: false,
       editVisible: false,
       getLoading: false,
-      exportLoading: false,
-      // 对话框类型，复用新增和编辑
-      // dialogType: 'add'
-      // upload组件用的几个参数
-      authHeader: {
-        Authorization: 'Bearer ' + getToken()
-      },
-      uploadUrl: process.env.VUE_APP_BASE_API + '/v1/file/upload',
-      options: [{
-        value: '1',
-        label: '菜单'
-      }, {
-        value: '2',
-        label: '功能'
-      }],
-      value: ''
+      exportLoading: false
     }
   },
   created() {
-    // 进入页面第一次查询，为了演示无数据状态暂时注释，
-    // 实际业务页面为了用户体验，进页面都要请求一次数据
-    // this.handleQuery()
-    // 得到完整数据
-    // console.log(this.dict)
-    // 打印简化后的label数据
-    // console.log(this.dict.label.user_status)
+    this.handleQuery()
   },
   methods: {
     // 主表格查询
     handleQuery() {
       // 开启loading
       this.tableLoading = true
-      getPrivilegeList(this.query).then(res => {
-        this.tableData = res.data.rows
-        this.totalSize = res.data.totalSize
+      getPrivilegeTree().then(res => {
+        this.tableData = res.data.privilegeTree
       }).finally(() => {
         this.tableLoading = false
       })
     },
-    editAuthority(privilegeId) {
+    editPrivilege(row) {
       // 显示编辑对话框
       this.editVisible = true
-      getPrivilegeById({ id: privilegeId }).then(res => {
-        this.authority = res.data
-      })
+      this.privilege = { ...this.privilege, ...row }
     },
     // 清空表单内容
     resetForm(formName) {
@@ -306,12 +295,12 @@ export default {
     },
     // 处理创建权限
     handleCreateAuthority() {
-      this.$refs.authorityForm.validate(valid => {
+      this.$refs.privilegeForm.validate(valid => {
         if (valid) {
           // 新建按钮loading
           this.createLoading = true
           // 请求api
-          createPriv(this.authority).then(res => {
+          createPriv(this.privilege).then(() => {
             // 成功请求弹出提示
             this.$message({
               showClose: true,
@@ -321,7 +310,7 @@ export default {
             // 判断是否需要继续新建下一条
             if (this.createNext) {
               // 是，重置form
-              this.$refs.authorityForm.resetFields()
+              this.$refs.privilegeForm.resetFields()
             } else {
               // 否，关闭对话框
               this.createVisible = false
@@ -339,12 +328,12 @@ export default {
       })
     },
     // 处理更新权限
-    handleUpdateAuthority() {
-      this.$refs.editAuthorityForm.validate(valid => {
+    handleUpdatePrivilege() {
+      this.$refs.editPrivilegeForm.validate(valid => {
         if (valid) {
           this.createLoading = true
-          console.log(this.authority.id)
-          updatePrivilegeById(this.authority).then(res => {
+          console.log(this.privilege.id)
+          updatePrivilegeById(this.privilege).then(() => {
             this.editVisible = false
             this.handleQuery()
           }).finally(() => {
@@ -353,8 +342,14 @@ export default {
         }
       })
     },
+    createPrivilege(parentId) {
+      // 显示创建用户对话框
+      this.createVisible = true
+      // 设置新增节点的父节点id
+      this.privilege.parentId = parentId
+    },
     // 确认删除权限
-    confirmDeleteAuthorities() {
+    confirmDeletePrivilege(id) {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
         confirmButtonClass: 'msg-danger',
@@ -362,20 +357,20 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.handleDeleteAuthorities()
+        this.handleDeletePrivilege(id)
       })
     },
     // 处理删除权限
-    handleDeleteAuthorities() {
+    handleDeletePrivilege(id) {
       // 开启按钮loading
       this.deleteBatchLoading = true
       // 获得表格的选中行
-      const ids = this.selectedAuthority.map(authority => authority.id)
-      batchDelete({ ids }).then(res => {
+      // const ids = this.selectedAuthority.map(authority => authority.id)
+      deletePrivilegeById({ id }).then(() => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
-          message: '批量删除成功',
+          message: '删除成功',
           type: 'success'
         })
         // 刷新表格数据
@@ -384,41 +379,13 @@ export default {
         // 关闭按钮loading
         this.deleteBatchLoading = false
       })
-    },
-    // 处理用户选中变化
-    handleAuthorityChange(val) {
-      this.selectedAuthority = val
-    },
-    handleChangePageNum(val) {
-      this.query.pageNum = val
-      this.handleQuery()
-    },
-    handleChangePageSize(val) {
-      this.query.pageSize = val
-      this.handleQuery()
-    },
-    handleFoldSearch() {
-      this.foldSearch = !this.foldSearch
-    },
-    handleUploadError(err, file) {
-      const e = JSON.parse(err.message)
-      Message({
-        message: '文件「' + file.name + '」上传失败，错误原因：' + e.message,
-        type: 'error',
-        duration: 5 * 1000
-      })
-    },
-    handleUploadSuccess() {
-      Message({
-        message: '文件上传成功',
-        type: 'success',
-        duration: 5 * 1000
-      })
     }
   }
 }
 </script>
 
 <style scoped>
-
+>>> .is-controls-right .el-input__inner {
+  text-align: left;
+}
 </style>

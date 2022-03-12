@@ -225,6 +225,23 @@
                 </el-select>
               </el-form-item>
             </el-col>
+            <el-col :span="24">
+              <el-form-item label="角色" prop="roleIds">
+                <el-select
+                  v-model="user.roleIds"
+                  multiple
+                  placeholder="请选择"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="role in roles"
+                    :key="role.id"
+                    :label="role.roleName"
+                    :value="role.id"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
             <el-col :span="12">
               <el-form-item label="昵称" prop="nickname">
                 <el-input v-model="user.nickname" placeholder="输入昵称" />
@@ -243,24 +260,6 @@
             <el-col :span="12">
               <el-form-item label="电子邮件" prop="email">
                 <el-input v-model="user.email" placeholder="输入电子邮件地址" suffix-icon="el-icon-message" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="角色" prop="roleIds">
-                <el-select
-                  v-model="user.roleIds"
-                  multiple
-                  collapse-tags
-                  placeholder="请选择"
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="role in roles"
-                    :key="role.id"
-                    :label="role.roleName"
-                    :value="role.id"
-                  />
-                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="24">
@@ -335,6 +334,23 @@
                 </el-select>
               </el-form-item>
             </el-col>
+            <el-col :span="24">
+              <el-form-item label="角色" prop="roleIds">
+                <el-select
+                  v-model="user.roleIds"
+                  multiple
+                  placeholder="请选择"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="role in roles"
+                    :key="role.id"
+                    :label="role.roleName"
+                    :value="role.id"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
             <el-col :span="12">
               <el-form-item label="昵称" prop="nickname">
                 <el-input v-model="user.nickname" placeholder="输入昵称" />
@@ -353,24 +369,6 @@
             <el-col :span="12">
               <el-form-item label="电子邮件" prop="email">
                 <el-input v-model="user.email" placeholder="输入电子邮件地址" suffix-icon="el-icon-message" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="角色" prop="roleIds">
-                <el-select
-                  v-model="user.roleIds"
-                  multiple
-                  collapse-tags
-                  placeholder="请选择"
-                  style="width: 100%"
-                >
-                  <el-option
-                    v-for="role in roles"
-                    :key="role.id"
-                    :label="role.roleName"
-                    :value="role.id"
-                  />
-                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="24">

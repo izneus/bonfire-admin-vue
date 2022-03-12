@@ -65,7 +65,7 @@
       width="400px"
       :close-on-click-modal="false"
       :visible.sync="dialogFormVisible"
-      append-to-body="true"
+      append-to-body
       @close="resetForm('pwdForm')"
     >
       <el-form
