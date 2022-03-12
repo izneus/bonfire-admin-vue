@@ -1,3 +1,4 @@
+<!--suppress HtmlUnknownAttribute -->
 <template>
   <div class="app-container" :class="{'has-bulk':selectedRole.length > 0}">
     <div class="filter-wrapper">
@@ -208,64 +209,6 @@
         </span>
       </el-dialog>
     </div>
-<!--    <div class="dialog-wrapper">
-      <el-dialog
-        title="设置权限"
-        width="600px"
-        :close-on-click-modal="false"
-        :visible.sync="setVisible"
-        @close="resetForm('setAuthForm')"
-      >
-        <el-form
-          ref="setAuthForm"
-          label-width="auto"
-          size="medium"
-          label-position="top"
-          :model="roleAuth"
-          :rules="roleAuthRules"
-        >
-          <el-col :span="24">
-            <el-form-item label="权限名称" prop="authorityIds">
-              &lt;!&ndash;绑定用户已有权限&ndash;&gt;
-              &lt;!&ndash; checkbox &ndash;&gt;
-              &lt;!&ndash;                            <el-checkbox v-model="checkAll" :indeterminate="isIndeterminate" @change="handleCheckAllChange">全选</el-checkbox>
-              <el-checkbox-group v-model="roleAuth.authorityIds">
-                <el-checkbox v-for="data in checkList" :key="data.id" :label="data.privName" name="authorityIds" style="display:block">
-                  <p>{{ data.privName }}</p>
-                  <el-checkbox-group v-model="roleAuth.authorityIds" style="float: left">
-                    <el-checkbox v-for="data in data.children" :key="data.id" :label="data.privName" name="authorityIds" style="display:block;">
-                      <p>{{ data.privName }}</p>
-                      <el-checkbox-group v-model="roleAuth.authorityIds" style="float:left;">
-                        <el-checkbox v-for="data in data.children" :key="data.id" :label="data.privName" name="authorityIds">
-                          {{ data.privName }}
-                        </el-checkbox>
-                      </el-checkbox-group>
-                    </el-checkbox>
-                  </el-checkbox-group>
-                </el-checkbox>
-              </el-checkbox-group>&ndash;&gt;
-              &lt;!&ndash;树形&ndash;&gt;
-              <el-tree
-                ref="organizationData"
-                :data="privilegeTreeData"
-                show-checkbox
-                :props="defaultProps"
-                node-key="id"
-                :default-checked-keys="roleAuth.privilegeIds"
-              />
-            </el-form-item></el-col>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button size="medium" plain @click="setVisible = false">取消</el-button>
-          <el-button
-            size="medium"
-            type="primary"
-            :loading="createLoading"
-            @click="handleSetRoleAuth"
-          >设置权限</el-button>
-        </span>
-      </el-dialog>
-    </div>-->
   </div>
 </template>
 
@@ -394,9 +337,8 @@ export default {
           // 新建按钮loading
           this.createLoading = true
           // 请求api
-          const checkedKeys = this.$refs.privilegeTree.getCheckedKeys()
-          this.role.privilegeIds = checkedKeys
-          createRole(this.role).then(res => {
+          this.role.privilegeIds = this.$refs.privilegeTree.getCheckedKeys()
+          createRole(this.role).then(() => {
             // 成功请求弹出提示
             this.$message({
               showClose: true,
@@ -428,9 +370,8 @@ export default {
       this.$refs.editRoleForm.validate(valid => {
         if (valid) {
           this.createLoading = true
-          const checkedKeys = this.$refs.privilegeTreeEdit.getCheckedKeys()
-          this.role.privilegeIds = checkedKeys
-          updateRole(this.role).then(res => {
+          this.role.privilegeIds = this.$refs.privilegeTreeEdit.getCheckedKeys()
+          updateRole(this.role).then(() => {
             this.editVisible = false
             this.handleQuery()
           }).finally(() => {
@@ -444,10 +385,9 @@ export default {
       this.$refs.setAuthForm.validate(valid => {
         if (valid) {
           this.createLoading = true
-          const checkedKeys = this.$refs.organizationData.getCheckedKeys()
-          this.roleAuth.privilegeIds = checkedKeys
+          this.roleAuth.privilegeIds = this.$refs.organizationData.getCheckedKeys()
           // console.log(checkedKeys)
-          updateRole(this.roleAuth).then(res => {
+          updateRole(this.roleAuth).then(() => {
             this.setVisible = false
             this.handleQuery()
           }).finally(() => {
@@ -474,7 +414,7 @@ export default {
       this.deleteBatchLoading = true
       // 获得表格的选中行
       const ids = this.selectedRole.map(role => role.id)
-      deleteRoles({ ids }).then(res => {
+      deleteRoles({ ids }).then(() => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
