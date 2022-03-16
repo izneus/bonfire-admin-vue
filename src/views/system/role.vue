@@ -52,6 +52,7 @@
         show-overflow-tooltip="true"
         header-row-class-name="result-table-header"
         header-cell-class-name="result-table-header-cell"
+        cell-class-name="result-table-cell"
         @selection-change="handleRoleChange"
       >
         <el-empty slot="empty" />

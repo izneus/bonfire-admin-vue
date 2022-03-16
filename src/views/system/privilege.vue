@@ -38,6 +38,7 @@
         show-overflow-tooltip="true"
         header-row-class-name="result-table-header"
         header-cell-class-name="result-table-header-cell"
+        cell-class-name="result-table-cell"
       >
         <el-empty slot="empty" />
         <el-table-column prop="privName" label="权限名称" show-overflow-tooltip />

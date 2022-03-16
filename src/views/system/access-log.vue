@@ -32,16 +32,23 @@
         show-overflow-tooltip="true"
         header-row-class-name="result-table-header"
         header-cell-class-name="result-table-header-cell"
+        cell-class-name="result-table-cell"
         @selection-change="handleLogChange"
       >
         <el-empty slot="empty" />
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="method" label="方法名称" show-overflow-tooltip />
-        <el-table-column prop="userAgent" label="用户代理" show-overflow-tooltip />
+        <el-table-column prop="description" label="接口" show-overflow-tooltip />
+        <el-table-column prop="username" label="调用者" show-overflow-tooltip />
+        <el-table-column prop="createTime" label="调用时间" show-overflow-tooltip />
         <el-table-column prop="clientIp" label="客户端ip" show-overflow-tooltip />
-        <el-table-column prop="description" label="注解描述" show-overflow-tooltip />
         <el-table-column prop="browser" label="浏览器" show-overflow-tooltip />
-        <el-table-column prop="os" label="系统" show-overflow-tooltip />
+        <el-table-column prop="elapsedTime" label="耗时（毫秒）" show-overflow-tooltip align="right" />
+        <el-table-column fixed="right" label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" @click="showLog(scope.row)">详情</el-button>
+            <el-button type="text" @click="confirmDeleteLogs([scope.row.id])">删除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <div class="pagi-wrapper" style="text-align: right;">
         <el-pagination
@@ -56,7 +63,6 @@
         />
       </div>
     </div>
-
     <div v-show="selectedLog.length >0" class="bulk-wrapper">
       <div class="bulk-col-left">
         <div class="bulk-desc">
@@ -71,11 +77,36 @@
           icon="el-icon-delete"
           :loading="deleteBatchLoading"
           :disabled="selectedLog.length < 1"
-          @click="confirmDeleteLogs"
+          @click="confirmDeleteLogs(selectedLog.map(log => log.id))"
         >
           批量删除
         </el-button>
       </div>
+    </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="访问日志详情"
+        width="61.8%"
+        :close-on-click-modal="false"
+        :visible.sync="logVisible"
+      >
+        <el-descriptions title="访问日志信息">
+          <el-descriptions-item label="用户名">kooriookami</el-descriptions-item>
+          <el-descriptions-item label="手机号">18100000000</el-descriptions-item>
+          <el-descriptions-item label="居住地">苏州市</el-descriptions-item>
+          <el-descriptions-item label="备注">
+            <el-tag size="small">学校</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="联系地址">江苏省苏州市吴中区吴中大道 1188 号</el-descriptions-item>
+        </el-descriptions>
+        <span slot="footer" class="dialog-footer">
+          <el-button
+            size="medium"
+            type="primary"
+            @click="logVisible = false"
+          >确 定</el-button>
+        </span>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -126,23 +157,13 @@ export default {
       // 选中日志表的行
       selectedLog: [],
       // 一些涉及是否的状态
-      createVisible: false,
+      logVisible: false,
       createNext: false,
       createLoading: false,
       tableLoading: false,
       deleteBatchLoading: false,
-      resetPassBatchLoading: false,
-      foldSearch: false,
       editVisible: false,
-      getLoading: false,
-      exportLoading: false,
-      // 对话框类型，复用新增和编辑
-      // dialogType: 'add'
-      // upload组件用的几个参数
-      authHeader: {
-        Authorization: 'Bearer ' + getToken()
-      },
-      uploadUrl: process.env.VUE_APP_BASE_API + '/v1/file/upload'
+      getLoading: false
     }
   },
   created() {
@@ -160,23 +181,17 @@ export default {
         this.tableLoading = false
       })
     },
-    editLog(logId) {
+    showLog(data) {
       // 显示编辑对话框
-      this.editVisible = true
-      getLog({ id: logId }).then(res => {
-        this.log = res.data
-      })
+      this.logVisible = true
+      this.log = data
     },
-    /* getDetail(row) {
-      getUser({ id: row.id }).then(res => {
-      })
-    },*/
     // 清空表单内容
     resetForm(formName) {
       this.$refs[formName].resetFields()
     },
     // 确认删除日志
-    confirmDeleteLogs() {
+    confirmDeleteLogs(ids) {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
         confirmButtonClass: 'msg-danger',
@@ -184,20 +199,19 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.handleDeleteLogs()
+        this.handleDeleteLogs(ids)
       })
     },
     // 处理删除日志
-    handleDeleteLogs() {
+    handleDeleteLogs(ids) {
       // 开启按钮loading
       this.deleteBatchLoading = true
       // 获得表格的选中行
-      const ids = this.selectedLog.map(log => log.id)
       deleteLogs({ ids }).then(res => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
-          message: '批量删除成功',
+          message: '删除成功',
           type: 'success'
         })
         // 刷新表格数据
@@ -218,24 +232,6 @@ export default {
     handleChangePageSize(val) {
       this.query.pageSize = val
       this.handleQuery()
-    },
-    handleFoldSearch() {
-      this.foldSearch = !this.foldSearch
-    },
-    handleUploadError(err, file) {
-      const e = JSON.parse(err.message)
-      Message({
-        message: '文件「' + file.name + '」上传失败，错误原因：' + e.message,
-        type: 'error',
-        duration: 5 * 1000
-      })
-    },
-    handleUploadSuccess() {
-      Message({
-        message: '文件上传成功',
-        type: 'success',
-        duration: 5 * 1000
-      })
     }
   }
 }

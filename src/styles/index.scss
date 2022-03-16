@@ -225,10 +225,18 @@ aside {
       margin-right: -16px;
     }*/
 
+    .el-table tbody tr:hover > td {
+      background-color: #fafafa !important
+    }
+
     .result-table-header-cell {
       color: rgba(0, 0, 0, .85);
       font-weight: 500;
       background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .result-table-cell {
       border-bottom: 1px solid #f0f0f0;
     }
 

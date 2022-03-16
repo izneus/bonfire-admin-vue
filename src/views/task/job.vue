@@ -40,15 +40,21 @@
         show-overflow-tooltip="true"
         header-row-class-name="result-table-header"
         header-cell-class-name="result-table-header-cell"
+        cell-class-name="result-table-cell"
         @selection-change="handleJobChange"
       >
         <el-empty slot="empty" />
         <el-table-column type="selection" width="55" />
         <el-table-column prop="jobName" label="任务名称" show-overflow-tooltip />
-        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
+        <el-table-column prop="jobName" label="cron表达式" show-overflow-tooltip />
+        <el-table-column prop="jobName" label="最后运行时间" show-overflow-tooltip />
+        <el-table-column prop="jobName" label="最后运行时长" show-overflow-tooltip />
+        <el-table-column prop="jobName" label="下次运行时间" show-overflow-tooltip />
+        <el-table-column prop="jobName" label="状态" show-overflow-tooltip />
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="editJob(scope.row.id)">编辑</el-button>
+            <el-button type="text" @click=";">启动</el-button>
           </template>
         </el-table-column>
       </el-table>
