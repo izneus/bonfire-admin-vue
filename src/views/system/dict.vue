@@ -5,7 +5,7 @@
         <el-row :gutter="24">
           <el-col :span="6">
             <el-form-item label="字典类型:" prop="dictType">
-              <el-input v-model="query.dictType" placeholder="输入字典类型" />
+              <el-input v-model="query.dictType" placeholder="输入字典类型" @keyup.enter.native="handleQuery" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -22,10 +22,20 @@
             <div class="tool-title">字典列表</div>
           </el-col>
           <el-col :span="12" style="text-align: right;">
+            <el-tooltip class="item" effect="dark" content="刷新数据" placement="top" popper-class="mini-tip">
+              <el-button
+                icon="el-icon-refresh-right"
+                class="tool-button"
+                size="small"
+                plain
+                @click="handleQuery()"
+              />
+            </el-tooltip>
             <el-button
               size="small"
               type="primary"
               icon="el-icon-plus"
+              style="margin-left: 10px"
               @click="createVisible = true"
             >
               新增字典
@@ -47,12 +57,20 @@
         <el-table-column prop="dictType" label="字典类型" show-overflow-tooltip />
         <el-table-column prop="dictValue" label="字典值" show-overflow-tooltip />
         <el-table-column prop="dictLabel" label="字典标签" show-overflow-tooltip />
-        <el-table-column prop="status" label="字典状态" show-overflow-tooltip />
+        <el-table-column prop="status" label="字典状态" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.status === '0'" size="small">
+              {{ dict.label.dict_status[scope.row.status] }}
+            </el-tag>
+            <el-tag v-else size="small" type="danger">{{ dict.label.dict_status[scope.row.status] }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="dictSort" label="排序号" show-overflow-tooltip />
         <el-table-column prop="remark" label="备注" show-overflow-tooltip />
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="editDict(scope.row.id)">编辑</el-button>
+            <el-button type="text" @click="confirmDeleteDicts([scope.row.id])">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -83,7 +101,7 @@
           icon="el-icon-delete"
           :loading="deleteBatchLoading"
           :disabled="selectedDict.length < 1"
-          @click="confirmDeleteDicts"
+          @click="confirmDeleteDicts(selectedDict.map(d => d.id))"
         >
           批量删除
         </el-button>
@@ -92,7 +110,7 @@
     <div class="dialog-wrapper">
       <el-dialog
         title="新建字典"
-        width="800px"
+        width="600px"
         :close-on-click-modal="false"
         :visible.sync="createVisible"
         @close="resetForm('dictForm')"
@@ -102,38 +120,55 @@
           label-width="auto"
           size="medium"
           label-position="top"
-          :model="dict"
+          :model="dictEntity"
           :rules="dictRules"
         >
           <el-row :gutter="30">
+            <el-col v-show="false" :span="24">
+              <el-form-item label="id" prop="id">
+                <el-input v-model="dictEntity.id" readonly />
+              </el-form-item>
+            </el-col>
             <el-col :span="12">
               <el-form-item label="字典类型" prop="dictType">
-                <el-input v-model="dict.dictType" placeholder="输入字典类型" />
+                <el-input v-model="dictEntity.dictType" placeholder="输入字典类型" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="字典值" prop="dictValue">
-                <el-input v-model="dict.dictValue" placeholder="输入字典值" />
+                <el-input v-model="dictEntity.dictValue" placeholder="输入字典值" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="字典标签" prop="dictLabel">
-                <el-input v-model="dict.dictLabel" placeholder="输入字典标签" />
+                <el-input v-model="dictEntity.dictLabel" placeholder="输入字典标签" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="字典状态" prop="status">
-                <el-input v-model="dict.status" placeholder="输入字典状态" />
+                <el-select
+                  v-model="dictEntity.status"
+                  clearable
+                  placeholder="选择字典状态"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in dict.dict_status"
+                    :key="item.dictValue"
+                    :label="item.dictLabel"
+                    :value="item.dictValue"
+                  />
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="排序号" prop="dictSort">
-                <el-input v-model="dict.dictSort" placeholder="输入排序号" />
+                <el-input v-model="dictEntity.dictSort" placeholder="输入排序号" />
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item label="备注" prop="remark">
-                <el-input v-model="dict.remark" type="textarea" :rows="5" placeholder="输入备注" />
+                <el-input v-model="dictEntity.remark" type="textarea" :rows="5" placeholder="输入备注" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -156,7 +191,7 @@
     <div class="dialog-wrapper">
       <el-dialog
         title="编辑字典"
-        width="800px"
+        width="600px"
         :close-on-click-modal="false"
         :visible.sync="editVisible"
         @close="resetForm('editDictForm')"
@@ -166,38 +201,55 @@
           label-width="auto"
           size="medium"
           label-position="top"
-          :model="dict"
+          :model="dictEntity"
           :rules="dictRules"
         >
           <el-row :gutter="30">
+            <el-col v-show="false" :span="24">
+              <el-form-item label="id" prop="id">
+                <el-input v-model="dictEntity.id" readonly />
+              </el-form-item>
+            </el-col>
             <el-col :span="12">
               <el-form-item label="字典类型" prop="dictType">
-                <el-input v-model="dict.dictType" placeholder="输入字典类型" />
+                <el-input v-model="dictEntity.dictType" placeholder="输入字典类型" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="字典值" prop="dictValue">
-                <el-input v-model="dict.dictValue" placeholder="输入字典值" />
+                <el-input v-model="dictEntity.dictValue" placeholder="输入字典值" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="字典标签" prop="dictLabel">
-                <el-input v-model="dict.dictLabel" placeholder="输入字典标签" />
+                <el-input v-model="dictEntity.dictLabel" placeholder="输入字典标签" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="字典状态" prop="status">
-                <el-input v-model="dict.status" placeholder="输入字典状态" />
+                <el-select
+                  v-model="dictEntity.status"
+                  clearable
+                  placeholder="选择字典状态"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in dict.dict_status"
+                    :key="item.dictValue"
+                    :label="item.dictLabel"
+                    :value="item.dictValue"
+                  />
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="12">
               <el-form-item label="排序号" prop="dictSort">
-                <el-input v-model="dict.dictSort" placeholder="输入排序号" />
+                <el-input v-model="dictEntity.dictSort" placeholder="输入排序号" />
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item label="备注" prop="remark">
-                <el-input v-model="dict.remark" type="textarea" :rows="5" placeholder="输入备注" />
+                <el-input v-model="dictEntity.remark" type="textarea" :rows="5" placeholder="输入备注" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -218,10 +270,9 @@
 
 <script>
 import { createDict, deleteDicts, getDict, listDicts, updateDict } from '@/api/dict'
-import { getToken } from '@/utils/auth'
-import { Message } from 'element-ui'
 export default {
   name: 'Dict',
+  dicts: ['dict_status'],
   data() {
     return {
       // 查询表单的数据
@@ -236,7 +287,8 @@ export default {
         remark: null
       },
       // 新建字典的数据
-      dict: {
+      dictEntity: {
+        id: null,
         dictType: null,
         dictValue: null,
         dictLabel: null,
@@ -268,27 +320,12 @@ export default {
       tableLoading: false,
       deleteBatchLoading: false,
       resetPassBatchLoading: false,
-      foldSearch: false,
       editVisible: false,
-      getLoading: false,
-      exportLoading: false,
-      // 对话框类型，复用新增和编辑
-      // dialogType: 'add'
-      // upload组件用的几个参数
-      authHeader: {
-        Authorization: 'Bearer ' + getToken()
-      },
-      uploadUrl: process.env.VUE_APP_BASE_API + '/v1/file/upload'
+      getLoading: false
     }
   },
   created() {
-    // 进入页面第一次查询，为了演示无数据状态暂时注释，
-    // 实际业务页面为了用户体验，进页面都要请求一次数据
-    // this.handleQuery()
-    // 得到完整数据
-    // console.log(this.dict)
-    // 打印简化后的label数据
-    // console.log(this.dict.label.user_status)
+    this.handleQuery()
   },
   methods: {
     // 主表格查询
@@ -306,7 +343,7 @@ export default {
       // 显示编辑对话框
       this.editVisible = true
       getDict({ id: dictId }).then(res => {
-        this.dict = res.data
+        this.dictEntity = res.data
       })
     },
     /* getDetail(row) {
@@ -324,7 +361,8 @@ export default {
           // 新建按钮loading
           this.createLoading = true
           // 请求api
-          createDict(this.dict).then(res => {
+          console.log(this.dictEntity)
+          createDict(this.dictEntity).then(res => {
             // 成功请求弹出提示
             this.$message({
               showClose: true,
@@ -356,7 +394,7 @@ export default {
       this.$refs.editDictForm.validate(valid => {
         if (valid) {
           this.createLoading = true
-          updateDict(this.dict).then(res => {
+          updateDict(this.dictEntity).then(res => {
             this.editVisible = false
             this.handleQuery()
           }).finally(() => {
@@ -366,7 +404,7 @@ export default {
       })
     },
     // 确认删除字典
-    confirmDeleteDicts() {
+    confirmDeleteDicts(ids) {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
         confirmButtonClass: 'msg-danger',
@@ -374,20 +412,19 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.handleDeleteDicts()
+        this.handleDeleteDicts(ids)
       })
     },
     // 处理删除字典
-    handleDeleteDicts() {
+    handleDeleteDicts(ids) {
       // 开启按钮loading
       this.deleteBatchLoading = true
       // 获得表格的选中行
-      const ids = this.selectedDict.map(dict => dict.id)
       deleteDicts({ ids }).then(res => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
-          message: '批量删除成功',
+          message: '删除成功',
           type: 'success'
         })
         // 刷新表格数据
@@ -397,7 +434,7 @@ export default {
         this.deleteBatchLoading = false
       })
     },
-    // 处理用户选中变化
+    // 处理选中变化
     handleDictChange(val) {
       this.selectedDict = val
     },
@@ -408,24 +445,6 @@ export default {
     handleChangePageSize(val) {
       this.query.pageSize = val
       this.handleQuery()
-    },
-    handleFoldSearch() {
-      this.foldSearch = !this.foldSearch
-    },
-    handleUploadError(err, file) {
-      const e = JSON.parse(err.message)
-      Message({
-        message: '文件「' + file.name + '」上传失败，错误原因：' + e.message,
-        type: 'error',
-        duration: 5 * 1000
-      })
-    },
-    handleUploadSuccess() {
-      Message({
-        message: '文件上传成功',
-        type: 'success',
-        duration: 5 * 1000
-      })
     }
   }
 }

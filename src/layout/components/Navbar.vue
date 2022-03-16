@@ -206,8 +206,8 @@ export default {
   position: relative;
   background: #fff;
   //box-shadow: 0 1px 4px rgba(0,21,41,.08);
-  box-shadow: 0 10px 10px -10px #ccc;
-  //border-bottom: 1px solid #DCDFE6;
+  //box-shadow: 0 10px 10px -10px #ccc;
+  border-bottom: 1px solid #f0f2f5;
 
   .hamburger-container {
     line-height: 40px;

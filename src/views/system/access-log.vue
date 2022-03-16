@@ -79,7 +79,7 @@ import { deleteLogs, getLog, listLogs } from '@/api/log'
 import { getToken } from '@/utils/auth'
 import { Message } from 'element-ui'
 export default {
-  name: 'Log',
+  name: 'AccessLog',
   data() {
     return {
       // 查询表单的数据

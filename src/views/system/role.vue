@@ -6,7 +6,7 @@
         <el-row :gutter="24">
           <el-col :span="6">
             <el-form-item label="角色名称:" prop="roleName">
-              <el-input v-model="query.roleName" placeholder="输入角色名称" />
+              <el-input v-model="query.query" placeholder="输入角色名称" @keyup.enter.native="handleQuery" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -23,10 +23,21 @@
             <div class="tool-title">角色列表</div>
           </el-col>
           <el-col :span="12" style="text-align: right;">
+            <el-tooltip class="item" effect="dark" content="刷新数据" placement="top" popper-class="mini-tip">
+              <el-button
+                icon="el-icon-refresh-right"
+                class="tool-button"
+                size="small"
+                plain
+                @click="handleQuery()"
+              />
+            </el-tooltip>
+
             <el-button
               size="small"
               type="primary"
               icon="el-icon-plus"
+              style="margin-left: 10px"
               @click="createRole"
             >
               新增角色
@@ -50,6 +61,7 @@
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="editRole(scope.row.id)">编辑</el-button>
+            <el-button type="text" @click="confirmDeleteRoles([scope.row.id])">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -74,13 +86,13 @@
       </div>
       <div class="bulk-col-right">
         <el-button
+          type="danger"
           size="small"
           plain
           icon="el-icon-delete"
-          class="line-button-danger"
           :loading="deleteBatchLoading"
           :disabled="selectedRole.length < 1"
-          @click="confirmDeleteRoles"
+          @click="confirmDeleteRoles(selectedRole.map(role => role.id))"
         >
           批量删除
         </el-button>
@@ -224,8 +236,7 @@ export default {
       query: {
         pageNum: 1,
         pageSize: 10,
-        roleName: null,
-        remark: null
+        query: null
       },
       // 新建角色的数据
       role: {
@@ -234,24 +245,11 @@ export default {
         remark: null,
         authorityIds: []
       },
-      // 设置角色的数据
-      roleAuth: {
-        id: null,
-        roleName: null,
-        remark: null,
-        privilegeIds: []
-      },
       // 新建角色校验规则
       roleRules: {
         roleName: [
           { required: true, message: '请输入角色名称', trigger: 'blur' }
         ],
-        privilegeIds: [
-          { type: 'array', required: true, message: '请至少选择一个权限', trigger: 'change' }
-        ]
-      },
-      // 设置角色权限校验规则
-      roleAuthRules: {
         privilegeIds: [
           { type: 'array', required: true, message: '请至少选择一个权限', trigger: 'change' }
         ]
@@ -297,6 +295,8 @@ export default {
         children: res.data.privilegeTree
       }]
     })
+    // 请求主表格数据
+    this.handleQuery()
   },
   methods: {
     // 主表格查询
@@ -372,6 +372,12 @@ export default {
           this.createLoading = true
           this.role.privilegeIds = this.$refs.privilegeTreeEdit.getCheckedKeys()
           updateRole(this.role).then(() => {
+            // 成功请求弹出提示
+            this.$message({
+              showClose: true,
+              message: '更新成功',
+              type: 'success'
+            })
             this.editVisible = false
             this.handleQuery()
           }).finally(() => {
@@ -380,24 +386,8 @@ export default {
         }
       })
     },
-    // 处理设置角色权限
-    handleSetRoleAuth() {
-      this.$refs.setAuthForm.validate(valid => {
-        if (valid) {
-          this.createLoading = true
-          this.roleAuth.privilegeIds = this.$refs.organizationData.getCheckedKeys()
-          // console.log(checkedKeys)
-          updateRole(this.roleAuth).then(() => {
-            this.setVisible = false
-            this.handleQuery()
-          }).finally(() => {
-            this.createLoading = false
-          })
-        }
-      })
-    },
     // 确认删除角色
-    confirmDeleteRoles() {
+    confirmDeleteRoles(ids) {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
         confirmButtonClass: 'msg-danger',
@@ -405,20 +395,20 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.handleDeleteRoles()
+        this.handleDeleteRoles(ids)
       })
     },
     // 处理删除角色
-    handleDeleteRoles() {
+    handleDeleteRoles(ids) {
       // 开启按钮loading
       this.deleteBatchLoading = true
       // 获得表格的选中行
-      const ids = this.selectedRole.map(role => role.id)
+      // const ids = this.selectedRole.map(role => role.id)
       deleteRoles({ ids }).then(() => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
-          message: '批量删除成功',
+          message: '角色删除成功',
           type: 'success'
         })
         // 刷新表格数据

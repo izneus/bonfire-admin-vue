@@ -136,60 +136,66 @@ export const asyncRoutes = [
     component: Layout,
     name: 'System',
     meta: {
-      title: '系统',
+      title: '系统管理',
       icon: 'ri-settings-6-line',
-      roles: ['admin']
+      roles: ['menu:system']
     },
     children: [
       {
         path: 'dict',
         component: () => import('@/views/system/dict'),
         name: 'Dict',
-        meta: { title: '字典管理' }
+        meta: {
+          title: '字典管理',
+          roles: ['menu:dict']
+        }
       },
       {
         path: 'log',
-        component: () => import('@/views/system/log'),
-        name: 'Log',
-        meta: { title: '日志管理' }
+        component: () => import('@/views/system/access-log'),
+        name: 'AccessLog',
+        meta: {
+          title: '访问日志管理',
+          roles: ['menu:accessLog']
+        }
       },
       {
         path: 'file',
         component: () => import('@/views/system/file'),
         name: 'File',
-        meta: { title: '文件管理' }
+        meta: { title: '文件管理', roles: ['menu:file'] }
       }
     ]
   },
   {
-    path: '/auth',
+    path: '/staff',
     component: Layout,
-    name: 'Auth',
+    name: 'Staff',
     meta: {
       title: '人员管理',
       icon: 'ri-user-settings-line',
-      roles: ['admin']
+      roles: ['menu:staff']
     },
     children: [
       {
         path: 'user',
         component: () => import('@/views/system/user'),
         name: 'User',
-        meta: { title: '用户管理' }
+        meta: { title: '用户管理', roles: ['menu:user'] }
       },
       {
         path: 'role',
         component: () => import('@/views/system/role'),
         name: 'Role',
-        meta: { title: '角色管理' }
+        meta: { title: '角色管理', roles: ['menu:role'] }
       },
       {
         path: 'privilege',
         component: () => import('@/views/system/privilege'),
         name: 'Privilege',
-        meta: { title: '权限管理' }
-      },
-      {
+        meta: { title: '权限管理', roles: ['menu:privilege'] }
+      }
+      /* {
         path: 'department',
         component: () => import('@/views/system/empty'),
         name: 'Department',
@@ -200,7 +206,7 @@ export const asyncRoutes = [
         component: () => import('@/views/system/empty'),
         name: 'Menu',
         meta: { title: '菜单管理' }
-      }
+      }*/
     ]
   },
   {
@@ -210,20 +216,20 @@ export const asyncRoutes = [
     meta: {
       title: '任务调度',
       icon: 'ri-task-line',
-      roles: ['admin']
+      roles: ['menu:task']
     },
     children: [
       {
         path: 'job',
         component: () => import('@/views/task/job'),
         name: 'Job',
-        meta: { title: '任务管理' }
+        meta: { title: '任务管理', roles: ['menu:job'] }
       },
       {
         path: 'joblog',
         component: () => import('@/views/task/jobLog'),
         name: 'Joblog',
-        meta: { title: '任务日志' }
+        meta: { title: '任务日志', roles: ['menu:jobLog'] }
       }
     ]
   },
@@ -234,14 +240,14 @@ export const asyncRoutes = [
     meta: {
       title: '监控',
       icon: 'ri-server-line',
-      roles: ['admin']
+      roles: ['menu:monitor']
     },
     children: [
       {
         path: 'server',
         component: () => import('@/views/system/server'),
         name: 'Server',
-        meta: { title: '主机监控' }
+        meta: { title: '主机监控', roles: ['menu:server'] }
       }
     ]
   },
@@ -252,14 +258,14 @@ export const asyncRoutes = [
     meta: {
       title: '公告',
       icon: 'ri-mail-send-line',
-      roles: ['admin']
+      roles: ['menu:inform']
     },
     children: [
       {
         path: 'notice',
         component: () => import('@/views/system/empty'),
         name: 'Notice',
-        meta: { title: '通知公告' }
+        meta: { title: '通知公告', roles: ['menu:notice'] }
       }
     ]
   },
@@ -270,14 +276,14 @@ export const asyncRoutes = [
     meta: {
       title: '工单管理',
       icon: 'ri-todo-line',
-      roles: ['admin']
+      roles: ['menu:order']
     },
     children: [
       {
         path: 'work',
         component: () => import('@/views/system/empty'),
         name: 'Work',
-        meta: { title: '工单' }
+        meta: { title: '工单', roles: ['menu:work'] }
       }
     ]
   },

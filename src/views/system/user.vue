@@ -101,10 +101,21 @@
               />
             </el-tooltip>
 
+            <el-tooltip class="item" effect="dark" content="刷新数据" placement="top" popper-class="mini-tip">
+              <el-button
+                icon="el-icon-refresh-right"
+                class="tool-button"
+                size="small"
+                plain
+                @click="handleQuery()"
+              />
+            </el-tooltip>
+
             <el-button
               size="small"
               type="primary"
               icon="el-icon-plus"
+              style="margin-left: 10px"
               @click="createUser"
             >
               新增用户
@@ -132,7 +143,7 @@
         <el-table-column prop="remark" label="备注" show-overflow-tooltip />
         <el-table-column prop="status" label="状态" show-overflow-tooltip>
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.status === '0'" size="small" type="success">
+            <el-tag v-if="scope.row.status === '0'" size="small">
               {{ dict.label.user_status[scope.row.status] }}
             </el-tag>
             <el-tag v-else size="small" type="danger">{{ dict.label.user_status[scope.row.status] }}</el-tag>
@@ -141,6 +152,7 @@
         <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="editUser(scope.row.id)">编辑</el-button>
+            <el-button type="text" @click="confirmDeleteUsers([scope.row.id])">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -170,7 +182,7 @@
           size="small"
           icon="el-icon-delete"
           :loading="deleteBatchLoading"
-          @click="confirmDeleteUsers"
+          @click="confirmDeleteUsers(selectedUser.map(user => user.id))"
         >
           批量删除
         </el-button>
@@ -203,6 +215,11 @@
           :rules="userRules"
         >
           <el-row :gutter="30">
+            <el-col v-show="false" :span="24">
+              <el-form-item label="用户id" prop="id">
+                <el-input v-model="user.id" readonly />
+              </el-form-item>
+            </el-col>
             <el-col :span="12">
               <el-form-item label="用户名" prop="username">
                 <el-input v-model="user.username" placeholder="输入用户名" suffix-icon="el-icon-user" />
@@ -308,6 +325,11 @@
           :rules="userRules"
         >
           <el-row :gutter="30">
+            <el-col v-show="false" :span="24">
+              <el-form-item label="用户id" prop="id">
+                <el-input v-model="user.id" readonly />
+              </el-form-item>
+            </el-col>
             <el-col :span="12">
               <el-form-item label="用户名" prop="username">
                 <el-input
@@ -582,7 +604,7 @@ export default {
       })
     },
     // 确认删除用户
-    confirmDeleteUsers() {
+    confirmDeleteUsers(ids) {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
         confirmButtonClass: 'msg-danger',
@@ -590,20 +612,20 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.handleDeleteUsers()
+        this.handleDeleteUsers(ids)
       })
     },
     // 处理删除用户
-    handleDeleteUsers() {
+    handleDeleteUsers(ids) {
       // 开启按钮loading
       this.deleteBatchLoading = true
       // 获得表格的选中行
-      const ids = this.selectedUser.map(user => user.id)
+      // const ids = this.selectedUser.map(user => user.id)
       deleteUsers({ ids }).then(() => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
-          message: '批量删除成功',
+          message: '删除成功',
           type: 'success'
         })
         // 刷新表格数据

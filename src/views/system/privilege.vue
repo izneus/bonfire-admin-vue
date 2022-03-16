@@ -21,6 +21,7 @@
               size="small"
               type="primary"
               icon="el-icon-plus"
+              style="margin-left: 10px"
               @click="createPrivilege(0)"
             >
               新增权限
@@ -248,6 +249,12 @@ export default {
         privName: [
           { required: true, message: '请输入权限名称', trigger: 'blur' }
         ],
+        privKey: [
+          { required: true, message: '请输入权限字符串', trigger: 'blur' }
+        ],
+        privType: [
+          { required: true, message: '请输入权限类型', trigger: 'blur' }
+        ],
         parentId: [
           { required: true, message: '请输入父级ID', trigger: 'blur' }
         ]
@@ -287,7 +294,10 @@ export default {
     editPrivilege(row) {
       // 显示编辑对话框
       this.editVisible = true
-      this.privilege = { ...this.privilege, ...row }
+      // 预防修改默认值，造成新增等对话框form初始值不为空
+      this.$nextTick(() => {
+        this.privilege = { ...this.privilege, ...row }
+      })
     },
     // 清空表单内容
     resetForm(formName) {
@@ -332,7 +342,6 @@ export default {
       this.$refs.editPrivilegeForm.validate(valid => {
         if (valid) {
           this.createLoading = true
-          console.log(this.privilege.id)
           updatePrivilegeById(this.privilege).then(() => {
             this.editVisible = false
             this.handleQuery()

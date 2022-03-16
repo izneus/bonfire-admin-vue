@@ -124,7 +124,7 @@ export default {
   data() {
     return {
       loginForm: {
-        username: 'admin1',
+        username: 'admin',
         password: 'Admin123',
         captcha: '',
         captchaId: ''

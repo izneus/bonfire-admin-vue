@@ -1,3 +1,4 @@
+<!--suppress JSUnresolvedVariable -->
 <template>
   <div class="app-container">
     <div class="filter-wrapper">
@@ -10,44 +11,44 @@
             variant="h3"
             style="width: 80px"
           />
-          <div style="padding: 15px 4px 0px;">
+          <div style="padding: 15px 4px 0;">
             <el-skeleton-item variant="h3" style="width: 20%;" />
             <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
             <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
           </div>
-          <div style="padding: 15px 4px 0px;">
+          <div style="padding: 15px 4px 0;">
             <el-skeleton-item variant="h3" style="width: 20%;" />
             <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
-          </div>
-          <el-divider />
-          <el-skeleton-item
-            variant="h3"
-            style="width: 80px"
-          />
-          <div style="padding: 15px 4px 0px;">
-            <el-skeleton-item variant="h3" style="width: 20%;" />
-            <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
-            <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
-          </div>
-          <div style="padding: 15px 4px 0px;">
-            <el-skeleton-item variant="h3" style="width: 20%;" />
-            <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
-            <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
-          </div>
-          <div style="padding: 15px 4px 0px;">
-            <el-skeleton-item variant="h3" style="width: 20%;" />
           </div>
           <el-divider />
           <el-skeleton-item
             variant="h3"
             style="width: 80px"
           />
-          <div style="padding: 15px 4px 0px;">
+          <div style="padding: 15px 4px 0;">
             <el-skeleton-item variant="h3" style="width: 20%;" />
             <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
             <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
           </div>
-          <div style="padding: 15px 4px 0px;">
+          <div style="padding: 15px 4px 0;">
+            <el-skeleton-item variant="h3" style="width: 20%;" />
+            <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
+            <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
+          </div>
+          <div style="padding: 15px 4px 0;">
+            <el-skeleton-item variant="h3" style="width: 20%;" />
+          </div>
+          <el-divider />
+          <el-skeleton-item
+            variant="h3"
+            style="width: 80px"
+          />
+          <div style="padding: 15px 4px 0;">
+            <el-skeleton-item variant="h3" style="width: 20%;" />
+            <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
+            <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
+          </div>
+          <div style="padding: 15px 4px 0;">
             <el-skeleton-item variant="h3" style="width: 20%;" />
             <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
             <el-skeleton-item variant="h3" style="width: 20%;margin-left: 192px" />
@@ -79,7 +80,7 @@
           </el-descriptions>
           <el-divider />
 
-          <el-descriptions title="工程信息" class="bottom">
+          <el-descriptions title="Jvm信息" class="bottom">
             <el-descriptions-item label="jre名称">{{ monitorData.jreName }}</el-descriptions-item>
             <el-descriptions-item label="jre版本">{{ monitorData.jreVersion }}</el-descriptions-item>
             <el-descriptions-item label="总物理内存">{{ monitorData.totalMemory }}</el-descriptions-item>

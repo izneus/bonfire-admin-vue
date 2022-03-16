@@ -6,7 +6,8 @@ const toolboxRouter = {
   name: 'Toolbox',
   meta: {
     title: '开发工具箱',
-    icon: 'ri-code-s-slash-line'
+    icon: 'ri-code-s-slash-line',
+    roles: ['menu:dev']
   },
   children: [
     {
