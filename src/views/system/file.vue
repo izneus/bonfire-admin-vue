@@ -18,71 +18,9 @@
     <div class="table-wrapper">
       <div class="toolbar-wrapper">
         <el-row :gutter="24" type="flex" justify="end">
-          <el-col :span="12">
+          <el-col :span="24">
             <div class="tool-title">文件列表</div>
-            <!--            <el-button-group>-->
-            <!--              <el-button-->
-            <!--                size="small"-->
-            <!--                plain-->
-            <!--                icon="el-icon-delete"-->
-            <!--                class="line-button-danger"-->
-            <!--                :loading="deleteBatchLoading"-->
-            <!--                :disabled="selectedFile.length < 1"-->
-            <!--                @click="confirmDeleteFiles"-->
-            <!--              >-->
-            <!--                批量删除-->
-            <!--              </el-button>-->
-            <!--            </el-button-group>-->
           </el-col>
-          <!--          <el-col :span="12" style="text-align: right;">-->
-          <!--            <el-tooltip class="item" effect="dark" content="导入模板下载" placement="top" popper-class="mini-tip">-->
-          <!--              <el-button-->
-          <!--                icon="el-icon-document"-->
-          <!--                class="tool-button"-->
-          <!--                size="small"-->
-          <!--                plain-->
-          <!--              />-->
-          <!--            </el-tooltip>-->
-
-          <!--            <el-tooltip class="item" effect="dark" content="导入" placement="top" popper-class="mini-tip">-->
-          <!--              <el-upload-->
-          <!--                ref="upload"-->
-          <!--                style="display: inline-block"-->
-          <!--                :action="uploadUrl"-->
-          <!--                :headers="authHeader"-->
-          <!--                :show-file-list="false"-->
-          <!--                :on-success="handleUploadSuccess"-->
-          <!--                :on-error="handleUploadError"-->
-          <!--              >-->
-          <!--                <el-button-->
-          <!--                  class="tool-button"-->
-          <!--                  size="small"-->
-          <!--                  icon="el-icon-upload2"-->
-          <!--                  plain-->
-          <!--                />-->
-          <!--              </el-upload>-->
-          <!--            </el-tooltip>-->
-
-          <!--            <el-tooltip class="item" effect="dark" content="导出" placement="top" popper-class="mini-tip">-->
-          <!--              <el-button-->
-          <!--                icon="el-icon-download"-->
-          <!--                class="tool-button"-->
-          <!--                size="small"-->
-          <!--                plain-->
-          <!--                :loading="exportLoading"-->
-          <!--                @click="handleExportUsers"-->
-          <!--              />-->
-          <!--            </el-tooltip>-->
-
-          <!--            <el-button-->
-          <!--              size="small"-->
-          <!--              type="primary"-->
-          <!--              icon="el-icon-plus"-->
-          <!--              @click="createUser"-->
-          <!--            >-->
-          <!--              新增用户-->
-          <!--            </el-button>-->
-          <!--          </el-col>-->
         </el-row>
       </div>
       <el-table
@@ -103,14 +41,11 @@
         <el-table-column prop="fileSize" label="文件大小" show-overflow-tooltip />
         <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip />
         <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />
-        <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip />
-        <el-table-column prop="updateUser" label="更新者" show-overflow-tooltip />
-        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
-        <el-table-column fixed="right" label="操作">
+<!--        <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="editFile(scope.row.id)">编辑</el-button>
           </template>
-        </el-table-column>
+        </el-table-column>-->
       </el-table>
       <div class="pagi-wrapper">
         <el-pagination
@@ -281,28 +216,13 @@ export default {
       createLoading: false,
       tableLoading: false,
       deleteBatchLoading: false,
-      resetPassBatchLoading: false,
       foldSearch: false,
       editVisible: false,
-      getLoading: false,
-      exportLoading: false,
-      // 对话框类型，复用新增和编辑
-      // dialogType: 'add'
-      // upload组件用的几个参数
-      authHeader: {
-        Authorization: 'Bearer ' + getToken()
-      },
-      uploadUrl: process.env.VUE_APP_BASE_API + '/v1/file/upload'
+      getLoading: false
     }
   },
   created() {
-    // 进入页面第一次查询，为了演示无数据状态暂时注释，
-    // 实际业务页面为了用户体验，进页面都要请求一次数据
-    // this.handleQuery()
-    // 得到完整数据
-    // console.log(this.dict)
-    // 打印简化后的label数据
-    // console.log(this.dict.label.user_status)
+    this.handleQuery()
   },
   methods: {
     // 主表格查询
@@ -422,24 +342,6 @@ export default {
     handleChangePageSize(val) {
       this.query.pageSize = val
       this.handleQuery()
-    },
-    handleFoldSearch() {
-      this.foldSearch = !this.foldSearch
-    },
-    handleUploadError(err, file) {
-      const e = JSON.parse(err.message)
-      Message({
-        message: '文件「' + file.name + '」上传失败，错误原因：' + e.message,
-        type: 'error',
-        duration: 5 * 1000
-      })
-    },
-    handleUploadSuccess() {
-      Message({
-        message: '文件上传成功',
-        type: 'success',
-        duration: 5 * 1000
-      })
     }
   }
 }

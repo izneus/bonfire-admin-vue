@@ -6,7 +6,7 @@
           <el-row :gutter="24">
             <el-col :span="6">
               <el-form-item label="方法名称:" prop="method">
-                <el-input v-model="query.method" placeholder="输入方法名称" />
+                <el-input v-model="query.method" placeholder="输入方法名称" @keyup.enter.native="handleQuery" />
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -18,6 +18,13 @@
       </div>
     </div>
     <div class="table-wrapper">
+      <div class="toolbar-wrapper">
+        <el-row :gutter="24" type="flex" justify="end">
+          <el-col :span="24">
+            <div class="tool-title">访问日志</div>
+          </el-col>
+        </el-row>
+      </div>
       <el-table
         v-loading="tableLoading"
         :data="tableData"
@@ -35,7 +42,6 @@
         <el-table-column prop="description" label="注解描述" show-overflow-tooltip />
         <el-table-column prop="browser" label="浏览器" show-overflow-tooltip />
         <el-table-column prop="os" label="系统" show-overflow-tooltip />
-        <el-table-column prop="remark" label="备注" show-overflow-tooltip />
       </el-table>
       <div class="pagi-wrapper" style="text-align: right;">
         <el-pagination
@@ -140,13 +146,7 @@ export default {
     }
   },
   created() {
-    // 进入页面第一次查询，为了演示无数据状态暂时注释，
-    // 实际业务页面为了用户体验，进页面都要请求一次数据
-    // this.handleQuery()
-    // 得到完整数据
-    // console.log(this.dict)
-    // 打印简化后的label数据
-    // console.log(this.dict.label.user_status)
+    this.handleQuery()
   },
   methods: {
     // 主表格查询
