@@ -4,11 +4,24 @@
       <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
         <el-row :gutter="24">
           <el-col :span="6">
-            <el-form-item label="文件名:" prop="filename">
-              <el-input v-model="query.filename" placeholder="输入文件名称" />
+            <el-form-item label="文件名:" prop="query">
+              <el-input v-model="query.query" placeholder="输入文件名称" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="10">
+            <el-form-item label="创建时间:" prop="filename">
+              <el-date-picker
+                v-model="query.createTime"
+                type="datetimerange"
+                :picker-options="pickerOptions"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
             <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
             <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
           </el-col>
@@ -36,17 +49,15 @@
         <el-empty slot="empty" />
         <el-table-column type="selection" width="55" />
         <el-table-column prop="filename" label="文件名称" show-overflow-tooltip />
-        <el-table-column prop="uniqueFilename" label="哈希文件名称" show-overflow-tooltip />
         <el-table-column prop="suffix" label="后缀" show-overflow-tooltip />
-        <el-table-column prop="path" label="文件路径" show-overflow-tooltip />
         <el-table-column prop="fileSize" label="文件大小" show-overflow-tooltip />
         <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip />
-        <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />
-<!--        <el-table-column fixed="right" label="操作">
+        <el-table-column prop="createUser" label="创建人id" show-overflow-tooltip />
+        <el-table-column fixed="right" label="操作">
           <template slot-scope="scope">
-            <el-button type="text" @click="editFile(scope.row.id)">编辑</el-button>
+            <el-button type="text" @click="confirmDeleteFiles([scope.row.id])">删除</el-button>
           </template>
-        </el-table-column>-->
+        </el-table-column>
       </el-table>
       <div class="pagi-wrapper">
         <el-pagination
@@ -74,99 +85,17 @@
           size="small"
           icon="el-icon-delete"
           :loading="deleteBatchLoading"
-          @click="confirmDeleteFiles"
+          @click="confirmDeleteFiles(selectedFile.map(file => file.id))"
         >
           批量删除
         </el-button>
       </div>
-    </div>
-    <div class="dialog-wrapper">
-      <el-dialog
-        title="编辑文件"
-        width="800px"
-        :close-on-click-modal="false"
-        :visible.sync="editVisible"
-        @close="resetForm('editFileForm')"
-      >
-        <el-form
-          ref="editFileForm"
-          label-width="auto"
-          size="medium"
-          label-position="top"
-          :model="file"
-          :rules="fileRules"
-        >
-          <el-row :gutter="30">
-            <el-col :span="12">
-              <el-form-item label="文件名称" prop="filename">
-                <el-input v-model="file.filename" placeholder="输入文件名称" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="哈希文件名称" prop="uniqueFilename">
-                <el-input v-model="file.uniqueFilename" placeholder="输入哈希文件名称" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="后缀" prop="suffix">
-                <el-input v-model="file.suffix" placeholder="输入后缀" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="文件路径" prop="path">
-                <el-input v-model="file.path" placeholder="输入文件路径" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="文件大小" prop="fileSize">
-                <el-input v-model="file.fileSize" placeholder="输入文件大小" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="创建时间" prop="createTime">
-                <el-input v-model="file.createTime" placeholder="输入创建时间" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="创建者" prop="createUser">
-                <el-input v-model="file.createUser" placeholder="输入创建者" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="更新时间" prop="updateTime">
-                <el-input v-model="file.updateTime" placeholder="输入更新时间" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="更新者" prop="updateUser">
-                <el-input v-model="file.updateUser" placeholder="输入更新者" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="24">
-              <el-form-item label="备注" prop="remark">
-                <el-input v-model="file.remark" type="textarea" :rows="5" placeholder="输入备注" />
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button size="medium" plain @click="editVisible = false">取消</el-button>
-          <el-button
-            size="medium"
-            type="primary"
-            :loading="createLoading"
-            @click="handleUpdateFile"
-          >编辑文件</el-button>
-        </span>
-      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
 import { createFile, deleteFiles, getFile, listFiles, updateFile } from '@/api/file'
-import { getToken } from '@/utils/auth'
-import { Message } from 'element-ui'
 
 export default {
   name: 'File',
@@ -176,16 +105,35 @@ export default {
       query: {
         pageNum: 1,
         pageSize: 10,
-        filename: null,
-        uniqueFilename: null,
-        suffix: null,
-        path: null,
-        fileSize: null,
-        createTime: null,
-        createUser: null,
-        updateTime: null,
-        updateUser: null,
-        remark: null
+        query: null,
+        createTime: null
+      },
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+            picker.$emit('pick', [start, end])
+          }
+        }]
       },
       // 新建文件的数据
       file: {
@@ -301,7 +249,7 @@ export default {
       })
     },
     // 确认删除文件
-    confirmDeleteFiles() {
+    confirmDeleteFiles(ids) {
       this.$confirm('此操作将永久删除选中项, 是否继续?', '确认删除', {
         confirmButtonText: '确认删除',
         confirmButtonClass: 'msg-danger',
@@ -309,20 +257,18 @@ export default {
         cancelButtonClass: 'msg-cancel',
         type: 'warning'
       }).then(() => {
-        this.handleDeleteFiles()
+        this.handleDeleteFiles(ids)
       })
     },
     // 处理删除文件
-    handleDeleteFiles() {
+    handleDeleteFiles(ids) {
       // 开启按钮loading
       this.deleteBatchLoading = true
-      // 获得表格的选中行
-      const ids = this.selectedFile.map(file => file.id)
       deleteFiles({ ids }).then(res => {
         // 成功请求弹出提示
         this.$message({
           showClose: true,
-          message: '批量删除成功',
+          message: '删除成功',
           type: 'success'
         })
         // 刷新表格数据
