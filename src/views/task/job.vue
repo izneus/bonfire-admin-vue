@@ -46,15 +46,16 @@
         <el-empty slot="empty" />
         <el-table-column type="selection" width="55" />
         <el-table-column prop="jobName" label="任务名称" show-overflow-tooltip />
-        <el-table-column prop="jobName" label="cron表达式" show-overflow-tooltip />
+        <el-table-column prop="cron" label="cron表达式" show-overflow-tooltip />
         <el-table-column prop="jobName" label="最后运行时间" show-overflow-tooltip />
         <el-table-column prop="jobName" label="最后运行时长" show-overflow-tooltip />
-        <el-table-column prop="jobName" label="下次运行时间" show-overflow-tooltip />
+        <el-table-column prop="nextRunTime" label="下次运行时间" show-overflow-tooltip />
         <el-table-column prop="jobName" label="状态" show-overflow-tooltip />
-        <el-table-column fixed="right" label="操作">
+        <el-table-column fixed="right" label="操作" width="250px">
           <template slot-scope="scope">
             <el-button type="text" @click="editJob(scope.row.id)">编辑</el-button>
-            <el-button type="text" @click=";">启动</el-button>
+            <el-button type="text" @click=";">立即执行一次</el-button>
+            <el-button type="text" @click=";">最新日志</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -162,12 +163,32 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="任务状态" prop="status">
-                <el-input v-model="job.status" placeholder="输入任务状态" />
+                <!--                <el-input v-model="job.status" placeholder="输入任务状态" />-->
+                <el-select
+                  v-model="job.status"
+                  clearable
+                  placeholder="选择任务状态"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in dict.job_status"
+                    :key="item.dictValue"
+                    :label="item.dictLabel"
+                    :value="item.dictValue"
+                  />
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item label="备注" prop="remark">
-                <el-input v-model="job.remark" type="textarea" :rows="5" placeholder="输入备注" />
+                <el-input
+                  v-model="job.remark"
+                  type="textarea"
+                  :rows="5"
+                  maxlength="200"
+                  show-word-limit
+                  placeholder="输入备注"
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -236,12 +257,31 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="任务状态" prop="status">
-                <el-input v-model="job.status" placeholder="输入任务状态" />
+                <el-select
+                  v-model="job.status"
+                  clearable
+                  placeholder="选择任务状态"
+                  style="width: 100%"
+                >
+                  <el-option
+                    v-for="item in dict.job_status"
+                    :key="item.dictValue"
+                    :label="item.dictLabel"
+                    :value="item.dictValue"
+                  />
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="24">
               <el-form-item label="备注" prop="remark">
-                <el-input v-model="job.remark" type="textarea" :rows="5" placeholder="输入备注" />
+                <el-input
+                  v-model="job.remark"
+                  type="textarea"
+                  :rows="5"
+                  maxlength="200"
+                  show-word-limit
+                  placeholder="输入备注"
+                />
               </el-form-item>
             </el-col>
           </el-row>
@@ -262,10 +302,9 @@
 
 <script>
 import { createJob, deleteJobs, getJob, listJobs, updateJob, pauseJobs, resumeJobs } from '@/api/job'
-import { getToken } from '@/utils/auth'
-import { Message } from 'element-ui'
 export default {
   name: 'Job',
+  dicts: ['job_status'],
   data() {
     return {
       // 查询表单的数据
@@ -300,6 +339,9 @@ export default {
         ],
         jobMethod: [
           { required: true, message: '请输入调度方法', trigger: 'blur' }
+        ],
+        cron: [
+          { required: true, message: '请输入cron表达式', trigger: 'blur' }
         ]
       },
       // 主表格数据
@@ -318,25 +360,11 @@ export default {
       resetPassBatchLoading: false,
       foldSearch: false,
       editVisible: false,
-      getLoading: false,
-      exportLoading: false,
-      // 对话框类型，复用新增和编辑
-      // dialogType: 'add'
-      // upload组件用的几个参数
-      authHeader: {
-        Authorization: 'Bearer ' + getToken()
-      },
-      uploadUrl: process.env.VUE_APP_BASE_API + '/v1/file/upload'
+      getLoading: false
     }
   },
   created() {
-    // 进入页面第一次查询，为了演示无数据状态暂时注释，
-    // 实际业务页面为了用户体验，进页面都要请求一次数据
-    // this.handleQuery()
-    // 得到完整数据
-    // console.log(this.dict)
-    // 打印简化后的label数据
-    // console.log(this.dict.label.user_status)
+    this.handleQuery()
   },
   methods: {
     // 主表格查询
@@ -496,24 +524,6 @@ export default {
     handleChangePageSize(val) {
       this.query.pageSize = val
       this.handleQuery()
-    },
-    handleFoldSearch() {
-      this.foldSearch = !this.foldSearch
-    },
-    handleUploadError(err, file) {
-      const e = JSON.parse(err.message)
-      Message({
-        message: '文件「' + file.name + '」上传失败，错误原因：' + e.message,
-        type: 'error',
-        duration: 5 * 1000
-      })
-    },
-    handleUploadSuccess() {
-      Message({
-        message: '文件上传成功',
-        type: 'success',
-        duration: 5 * 1000
-      })
     }
   }
 }

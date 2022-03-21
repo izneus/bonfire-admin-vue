@@ -35,7 +35,6 @@
       >
         <el-empty slot="empty" />
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="jobId" label="任务id" show-overflow-tooltip />
         <el-table-column prop="jobClass" label="任务类别" show-overflow-tooltip />
         <el-table-column prop="jobMethod" label="任务方法" show-overflow-tooltip />
         <el-table-column prop="param" label="参数" show-overflow-tooltip />
