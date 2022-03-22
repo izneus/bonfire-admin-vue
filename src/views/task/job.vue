@@ -47,15 +47,22 @@
         <el-table-column type="selection" width="55" />
         <el-table-column prop="jobName" label="任务名称" show-overflow-tooltip />
         <el-table-column prop="cron" label="cron表达式" show-overflow-tooltip />
-        <el-table-column prop="jobName" label="最后运行时间" show-overflow-tooltip />
-        <el-table-column prop="jobName" label="最后运行时长" show-overflow-tooltip />
+        <el-table-column prop="prevRunTime" label="上次运行时间" show-overflow-tooltip />
+        <el-table-column prop="durationMillis" label="运行时长(毫秒)" align="right" show-overflow-tooltip />
         <el-table-column prop="nextRunTime" label="下次运行时间" show-overflow-tooltip />
-        <el-table-column prop="jobName" label="状态" show-overflow-tooltip />
+        <el-table-column prop="status" label="状态" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.status === '0'" size="small">
+              {{ dict.label.job_status[scope.row.status] }}
+            </el-tag>
+            <el-tag v-else size="small" type="danger">{{ dict.label.job_status[scope.row.status] }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column fixed="right" label="操作" width="250px">
           <template slot-scope="scope">
             <el-button type="text" @click="editJob(scope.row.id)">编辑</el-button>
-            <el-button type="text" @click=";">立即执行一次</el-button>
-            <el-button type="text" @click=";">最新日志</el-button>
+            <el-button type="text" @click="runJobOnce(scope.row.id)">立即执行一次</el-button>
+            <el-button type="text" @click="showLatestJobLogDialog(scope.row.id)">最新日志</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -297,14 +304,55 @@
         </span>
       </el-dialog>
     </div>
+    <div class="dialog-wrapper">
+      <el-dialog
+        title="最后运行日志"
+        width="600px"
+        :close-on-click-modal="false"
+        :visible.sync="logVisible"
+      >
+        <el-descriptions :column="2">
+          <el-descriptions-item label="执行时间">{{ jobLog.createTime }}</el-descriptions-item>
+          <el-descriptions-item label="运行结果">
+            <el-tag v-if="jobLog.status === '0'" size="small">
+              {{ dict.label.job_log_status[jobLog.status] }}
+            </el-tag>
+            <el-tag v-else size="small" type="danger">{{ dict.label.job_log_status[jobLog.status] }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="调度类">{{ jobLog.jobClass }}</el-descriptions-item>
+          <el-descriptions-item label="调服方法">{{ jobLog.jobMethod }}</el-descriptions-item>
+          <el-descriptions-item label="参数">{{ jobLog.param }}</el-descriptions-item>
+
+          <el-descriptions-item label="执行耗时">{{ jobLog.durationMillis }}</el-descriptions-item>
+          <el-descriptions-item label="消息">{{ jobLog.message }}</el-descriptions-item>
+        </el-descriptions>
+        <span slot="footer" class="dialog-footer">
+          <el-button
+            size="medium"
+            type="primary"
+            @click="logVisible = false"
+          >关 闭</el-button>
+        </span>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
 <script>
-import { createJob, deleteJobs, getJob, listJobs, updateJob, pauseJobs, resumeJobs } from '@/api/job'
+import {
+  createJob,
+  deleteJobs,
+  getJob,
+  listJobs,
+  updateJob,
+  pauseJobs,
+  resumeJobs,
+  runOnce,
+  getLatestJobLog
+} from '@/api/job'
 export default {
   name: 'Job',
-  dicts: ['job_status'],
+  dicts: ['job_status', 'job_log_status'],
   data() {
     return {
       // 查询表单的数据
@@ -326,6 +374,17 @@ export default {
         param: null,
         status: null
       },
+      jobLog: {
+        id: null,
+        jobId: null,
+        jobClass: null,
+        jobMethod: null,
+        param: null,
+        status: null,
+        message: null,
+        durationMillis: null,
+        createTime: null
+      },
       // 新建任务校验规则
       jobRules: {
         jobName: [
@@ -342,6 +401,9 @@ export default {
         ],
         cron: [
           { required: true, message: '请输入cron表达式', trigger: 'blur' }
+        ],
+        status: [
+          { required: true, message: '请选择任务初始状态', trigger: 'blur' }
         ]
       },
       // 主表格数据
@@ -350,6 +412,7 @@ export default {
       // 选中任务表的行
       selectedJob: [],
       // 一些涉及是否的状态
+      logVisible: false,
       createVisible: false,
       createNext: false,
       createLoading: false,
@@ -383,6 +446,10 @@ export default {
       this.editVisible = true
       getJob({ id: jobId }).then(res => {
         this.job = res.data
+      })
+    },
+    runJobOnce(jobId) {
+      runOnce({ id: jobId }).then(res => {
       })
     },
     /* getDetail(row) {
@@ -524,6 +591,12 @@ export default {
     handleChangePageSize(val) {
       this.query.pageSize = val
       this.handleQuery()
+    },
+    showLatestJobLogDialog(jobId) {
+      this.logVisible = true
+      getLatestJobLog({ id: jobId }).then(res => {
+        this.jobLog = res.data
+      })
     }
   }
 }

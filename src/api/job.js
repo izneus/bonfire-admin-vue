@@ -55,3 +55,19 @@ export function resumeJobs(data) {
   })
 }
 
+export function runOnce(data) {
+  return request({
+    url: '/v1/job/runOnce',
+    method: 'post',
+    data
+  })
+}
+
+export function getLatestJobLog(data) {
+  return request({
+    url: '/v1/job/getLatestJobLog',
+    method: 'post',
+    data
+  })
+}
+
