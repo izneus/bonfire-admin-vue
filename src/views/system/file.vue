@@ -5,11 +5,11 @@
         <el-row :gutter="24">
           <el-col :span="6">
             <el-form-item label="文件名:" prop="query">
-              <el-input v-model="query.query" placeholder="输入文件名称" />
+              <el-input v-model="query.query" placeholder="输入文件名称" @keyup.enter.native="handleQuery" />
             </el-form-item>
           </el-col>
           <el-col :span="10">
-            <el-form-item label="创建时间:" prop="filename">
+            <el-form-item label="创建时间:" prop="createTime">
               <el-date-picker
                 v-model="query.createTime"
                 type="datetimerange"

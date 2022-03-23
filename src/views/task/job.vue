@@ -87,10 +87,10 @@
       </div>
       <div class="bulk-col-right">
         <el-button
+          type="danger"
           size="small"
           plain
           icon="el-icon-delete"
-          class="line-button-danger"
           :loading="deleteBatchLoading"
           :disabled="selectedJob.length < 1"
           @click="confirmDeleteJobs"
@@ -98,10 +98,10 @@
           批量删除
         </el-button>
         <el-button
+          type="success"
           size="small"
           plain
           icon="el-icon-refresh-left"
-          class="line-button-danger"
           :loading="batchResumeLoading"
           :disabled="selectedJob.length < 1"
           @click="handleResumeJobs"
@@ -109,10 +109,10 @@
           批量恢复
         </el-button>
         <el-button
+          type="warning"
           size="small"
           plain
           icon="el-icon-video-pause"
-          class="line-button-danger"
           :loading="batchPauseLoading"
           :disabled="selectedJob.length < 1"
           @click="handlePauseJobs"

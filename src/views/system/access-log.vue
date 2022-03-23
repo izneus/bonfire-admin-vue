@@ -5,11 +5,24 @@
         <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
           <el-row :gutter="24">
             <el-col :span="6">
-              <el-form-item label="方法名称:" prop="method">
-                <el-input v-model="query.method" placeholder="输入方法名称" @keyup.enter.native="handleQuery" />
+              <el-form-item label="接口名称:" prop="query">
+                <el-input v-model="query.query" placeholder="输入接口名称" @keyup.enter.native="handleQuery" />
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="10">
+              <el-form-item label="创建时间:" prop="createTime">
+                <el-date-picker
+                  v-model="query.createTime"
+                  type="datetimerange"
+                  :picker-options="pickerOptions"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
               <el-button size="small" type="primary" @click="handleQuery">查 询</el-button>
               <el-button size="small" @click="resetForm('queryForm')">重 置</el-button>
             </el-col>
@@ -90,30 +103,35 @@
         :close-on-click-modal="false"
         :visible.sync="logVisible"
       >
-        <el-descriptions title="接口信息">
-          <el-descriptions-item label="方法名称">{{ log.method }}</el-descriptions-item>
-          <el-descriptions-item label="手机号">18100000000</el-descriptions-item>
-          <el-descriptions-item label="居住地">苏州市</el-descriptions-item>
-          <el-descriptions-item label="备注">
-            <el-tag size="small">学校</el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="联系地址">江苏省苏州市吴中区吴中大道 1188 号</el-descriptions-item>
+
+        <el-descriptions title="接口信息" column="3">
+          <el-descriptions-item label="接口名称">{{ log.description }}</el-descriptions-item>
         </el-descriptions>
-        <el-descriptions title="调用信息">
-          <el-descriptions-item label="用户名">kooriookami</el-descriptions-item>
-          <el-descriptions-item label="手机号">18100000000</el-descriptions-item>
-          <el-descriptions-item label="居住地">苏州市</el-descriptions-item>
-          <el-descriptions-item label="备注">
-            <el-tag size="small">学校</el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="联系地址">江苏省苏州市吴中区吴中大道 1188 号</el-descriptions-item>
+        <el-descriptions column="1">
+          <el-descriptions-item label="方法">{{ log.method }}</el-descriptions-item>
+        </el-descriptions>
+        <el-descriptions title="调用信息" style="margin-top: 10px">
+          <el-descriptions-item label="调用者">{{ log.username }}</el-descriptions-item>
+          <el-descriptions-item label="调用时间">{{ log.createTime }}</el-descriptions-item>
+          <el-descriptions-item label="耗时">{{ log.elapsedTime }}</el-descriptions-item>
+        </el-descriptions>
+        <el-descriptions column="1">
+          <el-descriptions-item label="调用参数">{{ log.param }}</el-descriptions-item>
+        </el-descriptions>
+        <el-descriptions title="用户信息" style="margin-top: 10px">
+          <el-descriptions-item label="客户端IP">{{ log.clientIp }}</el-descriptions-item>
+          <el-descriptions-item label="浏览器">{{ log.browser }}</el-descriptions-item>
+          <el-descriptions-item label="用户系统">{{ log.os }}</el-descriptions-item>
+        </el-descriptions>
+        <el-descriptions column="1">
+          <el-descriptions-item label="用户代理">{{ log.userAgent }}</el-descriptions-item>
         </el-descriptions>
         <span slot="footer" class="dialog-footer">
           <el-button
             size="medium"
             type="primary"
             @click="logVisible = false"
-          >确 定</el-button>
+          >关 闭</el-button>
         </span>
       </el-dialog>
     </div>
@@ -121,9 +139,7 @@
 </template>
 
 <script>
-import { deleteLogs, getLog, listLogs } from '@/api/log'
-import { getToken } from '@/utils/auth'
-import { Message } from 'element-ui'
+import { deleteLogs, listLogs } from '@/api/log'
 export default {
   name: 'AccessLog',
   data() {
@@ -132,13 +148,35 @@ export default {
       query: {
         pageNum: 1,
         pageSize: 10,
-        method: null,
-        userAgent: null,
-        clientIp: null,
-        description: null,
-        browser: null,
-        os: null,
-        remark: null
+        query: null,
+        createTime: null
+      },
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+            picker.$emit('pick', [start, end])
+          }
+        }]
       },
       // 新建日志的数据
       log: {
