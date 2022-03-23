@@ -3,9 +3,18 @@
     <div class="filter-wrapper">
       <el-form ref="queryForm" label-width="80px" label-position="left" size="small" :model="query">
         <el-row :gutter="24">
-          <el-col :span="6">
-            <el-form-item label="任务id:" prop="jobId">
-              <el-input v-model="query.jobId" placeholder="输入任务id" />
+          <el-col :span="12">
+            <el-form-item label="创建时间:" prop="createTime">
+              <el-date-picker
+                v-model="query.createTime"
+                type="datetimerange"
+                :picker-options="pickerOptions"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                style="width: 100%"
+                :default-time="['00:00:00', '23:59:59']"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -35,16 +44,24 @@
       >
         <el-empty slot="empty" />
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="jobClass" label="任务类别" show-overflow-tooltip />
+        <el-table-column prop="jobClass" label="任务类" show-overflow-tooltip />
         <el-table-column prop="jobMethod" label="任务方法" show-overflow-tooltip />
         <el-table-column prop="param" label="参数" show-overflow-tooltip />
-        <el-table-column prop="status" label="状态" show-overflow-tooltip />
+        <el-table-column prop="createTime" label="运行时间" show-overflow-tooltip />
+        <el-table-column prop="status" label="状态" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.status === '0'" size="small">
+              {{ dict.label.job_log_status[scope.row.status] }}
+            </el-tag>
+            <el-tag v-else size="small" type="danger">{{ dict.label.job_log_status[scope.row.status] }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="durationMillis" label="耗时(毫秒)" show-overflow-tooltip />
         <el-table-column prop="message" label="信息" show-overflow-tooltip />
-        <el-table-column prop="durationMillis" label="执行消耗时间（单位：毫秒）" show-overflow-tooltip />
-        <el-table-column prop="createTime" label="创建时间" show-overflow-tooltip />
-        <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />
-        <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip />
-        <el-table-column prop="updateUser" label="更新者" show-overflow-tooltip />
+
+        <!--        <el-table-column prop="createUser" label="创建者" show-overflow-tooltip />-->
+<!--        <el-table-column prop="updateTime" label="更新时间" show-overflow-tooltip />-->
+<!--        <el-table-column prop="updateUser" label="更新者" show-overflow-tooltip />-->
       </el-table>
       <div class="pagi-wrapper">
         <el-pagination
@@ -84,42 +101,43 @@
 
 <script>
 import { deleteJobLogs, getJobLog, listJobLogs } from '@/api/jobLog'
-import { getToken } from '@/utils/auth'
-import { Message } from 'element-ui'
 export default {
   name: 'JobLog',
+  dicts: ['job_log_status'],
   data() {
     return {
       // 查询表单的数据
       query: {
         pageNum: 1,
         pageSize: 10,
-        jobId: null,
-        jobClass: null,
-        jobMethod: null,
-        param: null,
-        status: null,
-        message: null,
-        durationMillis: null,
-        createTime: null,
-        createUser: null,
-        updateTime: null,
-        updateUser: null
+        createTime: ['', '']
       },
-      // 新建任务日志的数据
-      jobLog: {
-        id: null,
-        jobId: null,
-        jobClass: null,
-        jobMethod: null,
-        param: null,
-        status: null,
-        message: null,
-        durationMillis: null,
-        createTime: null,
-        createUser: null,
-        updateTime: null,
-        updateUser: null
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+            picker.$emit('pick', [start, end])
+          }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date()
+            const start = new Date()
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+            picker.$emit('pick', [start, end])
+          }
+        }]
       },
       // 主表格数据
       tableData: null,
@@ -135,25 +153,11 @@ export default {
       resetPassBatchLoading: false,
       foldSearch: false,
       editVisible: false,
-      getLoading: false,
-      exportLoading: false,
-      // 对话框类型，复用新增和编辑
-      // dialogType: 'add'
-      // upload组件用的几个参数
-      authHeader: {
-        Authorization: 'Bearer ' + getToken()
-      },
-      uploadUrl: process.env.VUE_APP_BASE_API + '/v1/file/upload'
+      getLoading: false
     }
   },
   created() {
-    // 进入页面第一次查询，为了演示无数据状态暂时注释，
-    // 实际业务页面为了用户体验，进页面都要请求一次数据
-    // this.handleQuery()
-    // 得到完整数据
-    // console.log(this.dict)
-    // 打印简化后的label数据
-    // console.log(this.dict.label.user_status)
+    this.handleQuery()
   },
   methods: {
     // 主表格查询
@@ -225,24 +229,6 @@ export default {
     handleChangePageSize(val) {
       this.query.pageSize = val
       this.handleQuery()
-    },
-    handleFoldSearch() {
-      this.foldSearch = !this.foldSearch
-    },
-    handleUploadError(err, file) {
-      const e = JSON.parse(err.message)
-      Message({
-        message: '文件「' + file.name + '」上传失败，错误原因：' + e.message,
-        type: 'error',
-        duration: 5 * 1000
-      })
-    },
-    handleUploadSuccess() {
-      Message({
-        message: '文件上传成功',
-        type: 'success',
-        duration: 5 * 1000
-      })
     }
   }
 }

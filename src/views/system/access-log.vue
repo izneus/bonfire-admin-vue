@@ -19,6 +19,7 @@
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
                   style="width: 100%"
+                  :default-time="['00:00:00', '23:59:59']"
                 />
               </el-form-item>
             </el-col>
@@ -149,7 +150,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         query: null,
-        createTime: null
+        createTime: ['', '']
       },
       pickerOptions: {
         shortcuts: [{

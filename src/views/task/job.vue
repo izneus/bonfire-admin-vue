@@ -5,7 +5,7 @@
         <el-row :gutter="24">
           <el-col :span="6">
             <el-form-item label="任务名称:" prop="jobName">
-              <el-input v-model="query.jobName" placeholder="输入任务名称" />
+              <el-input v-model="query.jobName" placeholder="输入任务名称" @keyup.enter.native="handleQuery"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
