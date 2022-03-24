@@ -22,10 +22,20 @@
             <div class="tool-title">任务列表</div>
           </el-col>
           <el-col :span="12" style="text-align: right;">
+            <el-tooltip class="item" effect="dark" content="刷新数据" placement="top" popper-class="mini-tip">
+              <el-button
+                icon="el-icon-refresh-right"
+                class="tool-button"
+                size="small"
+                plain
+                @click="handleQuery()"
+              />
+            </el-tooltip>
             <el-button
               size="small"
               type="primary"
               icon="el-icon-plus"
+              style="margin-left: 10px"
               @click="createVisible = true"
             >
               新增任务
@@ -449,7 +459,12 @@ export default {
       })
     },
     runJobOnce(jobId) {
-      runOnce({ id: jobId }).then(res => {
+      runOnce({ id: jobId }).then(() => {
+        this.$message({
+          showClose: true,
+          message: '请求成功，请稍后查看运行日志',
+          type: 'success'
+        })
       })
     },
     /* getDetail(row) {
@@ -502,6 +517,11 @@ export default {
           updateJob(this.job).then(res => {
             this.editVisible = false
             this.handleQuery()
+            this.$message({
+              showClose: true,
+              message: '更新任务成功',
+              type: 'success'
+            })
           }).finally(() => {
             this.createLoading = false
           })

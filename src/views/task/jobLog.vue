@@ -30,6 +30,17 @@
           <el-col :span="12">
             <div class="tool-title">任务日志列表</div>
           </el-col>
+          <el-col :span="12" style="text-align: right;">
+            <el-tooltip class="item" effect="dark" content="刷新数据" placement="top" popper-class="mini-tip">
+              <el-button
+                icon="el-icon-refresh-right"
+                class="tool-button"
+                size="small"
+                plain
+                @click="handleQuery()"
+              />
+            </el-tooltip>
+          </el-col>
         </el-row>
       </div>
       <el-table

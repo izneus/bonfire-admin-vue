@@ -32,8 +32,19 @@
     <div class="table-wrapper">
       <div class="toolbar-wrapper">
         <el-row :gutter="24" type="flex" justify="end">
-          <el-col :span="24">
+          <el-col :span="12">
             <div class="tool-title">文件列表</div>
+          </el-col>
+          <el-col :span="12" style="text-align: right;">
+            <el-tooltip class="item" effect="dark" content="刷新数据" placement="top" popper-class="mini-tip">
+              <el-button
+                icon="el-icon-refresh-right"
+                class="tool-button"
+                size="small"
+                plain
+                @click="handleQuery()"
+              />
+            </el-tooltip>
           </el-col>
         </el-row>
       </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container" :class="{'has-bulk':selectedAuthority.length > 0}">
+  <div class="app-container" :class="{'has-bulk':selectedPrivilege.length > 0}">
     <div class="table-wrapper">
       <div class="toolbar-wrapper">
         <el-row :gutter="24" type="flex" justify="end">
@@ -135,7 +135,7 @@
             size="medium"
             type="primary"
             :loading="createLoading"
-            @click="handleCreateAuthority"
+            @click="handleCreatePrivilege"
           >创建权限</el-button>
         </span>
       </el-dialog>
@@ -264,7 +264,7 @@ export default {
       tableData: null,
       totalSize: 0,
       // 选中用户表的行
-      selectedAuthority: [],
+      selectedPrivilege: [],
       // 一些涉及是否的状态
       createVisible: false,
       createNext: false,
@@ -305,7 +305,7 @@ export default {
       this.$refs[formName].resetFields()
     },
     // 处理创建权限
-    handleCreateAuthority() {
+    handleCreatePrivilege() {
       this.$refs.privilegeForm.validate(valid => {
         if (valid) {
           // 新建按钮loading
@@ -375,7 +375,6 @@ export default {
       // 开启按钮loading
       this.deleteBatchLoading = true
       // 获得表格的选中行
-      // const ids = this.selectedAuthority.map(authority => authority.id)
       deletePrivilegeById({ id }).then(() => {
         // 成功请求弹出提示
         this.$message({

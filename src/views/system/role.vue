@@ -134,7 +134,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="24">
-              <el-form-item label="权限名称" prop="authorityIds">
+              <el-form-item label="权限名称" prop="privilegeIds">
                 <el-tree
                   ref="privilegeTree"
                   :data="privilegeTreeData"
@@ -197,14 +197,13 @@
               </el-form-item>
             </el-col>
             <el-col :span="24">
-              <el-form-item label="权限名称" prop="authorityIds">
+              <el-form-item label="权限名称" prop="privilegeIds">
                 <el-tree
                   ref="privilegeTreeEdit"
                   :data="privilegeTreeData"
                   show-checkbox
                   :props="defaultProps"
                   node-key="id"
-                  :default-checked-keys="role.privilegeIds"
                   :default-expanded-keys="['0']"
                 />
               </el-form-item>
@@ -244,16 +243,16 @@ export default {
         id: null,
         roleName: null,
         remark: null,
-        authorityIds: []
+        privilegeIds: []
       },
       // 新建角色校验规则
       roleRules: {
         roleName: [
           { required: true, message: '请输入角色名称', trigger: 'blur' }
-        ],
-        privilegeIds: [
-          { type: 'array', required: true, message: '请至少选择一个权限', trigger: 'change' }
         ]
+        /* privilegeIds: [
+          { type: 'array', required: true, message: '请至少选择一个权限', trigger: 'change' }
+        ]*/
       },
       // 主表格数据
       tableData: null,
@@ -270,12 +269,6 @@ export default {
       deleteBatchLoading: false,
       editVisible: false,
       setVisible: false,
-      // 全选
-      checkAll: false,
-      checkedCities: [],
-      isIndeterminate: false,
-      // 树形
-      checkAll2: false,
       // 树形权限数据
       privilegeTreeData: [],
       // children和label与接口字段保持一致
@@ -314,17 +307,24 @@ export default {
     createRole() {
       // 显示创建角色对话框
       this.createVisible = true
+      // 先清空选中状态
+      this.$refs.privilegeTreeEdit.setCheckedKeys([])
     },
     editRole(roleId) {
       // 显示编辑对话框
       this.editVisible = true
       getRole({ id: roleId }).then(res => {
         this.role = res.data
-        // 暂时注释
-        /* this.role.id = res.data.id
-        this.role.remark = res.data.remark
-        this.role.roleName = res.data.roleName
-        this.role.privilegeIds = res.data.privilegeIds == null ? [] : res.data.privilegeIds*/
+        // 先清空选中状态
+        this.$refs.privilegeTreeEdit.setCheckedKeys([])
+        this.role.privilegeIds.forEach(i => {
+          // 获得树节点
+          const node = this.$refs.privilegeTreeEdit.getNode(i)
+          if (node.isLeaf) {
+            // 叶节点设置勾选
+            this.$refs.privilegeTreeEdit.setChecked(node, true)
+          }
+        })
       })
     },
     // 清空表单内容
@@ -337,8 +337,12 @@ export default {
         if (valid) {
           // 新建按钮loading
           this.createLoading = true
+          const checkedKeys = this.$refs.privilegeTree.getCheckedKeys()
+          const halfCheckedKeys = this.$refs.privilegeTree.getHalfCheckedKeys()
+          // 删除根节点，即所有权限节点
+          const removeRootNodeKeys = halfCheckedKeys.filter(key => key !== '0')
+          this.role.privilegeIds = checkedKeys.concat(removeRootNodeKeys)
           // 请求api
-          this.role.privilegeIds = this.$refs.privilegeTree.getCheckedKeys()
           createRole(this.role).then(() => {
             // 成功请求弹出提示
             this.$message({
@@ -371,7 +375,11 @@ export default {
       this.$refs.editRoleForm.validate(valid => {
         if (valid) {
           this.createLoading = true
-          this.role.privilegeIds = this.$refs.privilegeTreeEdit.getCheckedKeys()
+          const checkedKeys = this.$refs.privilegeTreeEdit.getCheckedKeys()
+          const halfCheckedKeys = this.$refs.privilegeTreeEdit.getHalfCheckedKeys()
+          // 删除根节点，即所有权限节点
+          const removeRootNodeKeys = halfCheckedKeys.filter(key => key !== '0')
+          this.role.privilegeIds = checkedKeys.concat(removeRootNodeKeys)
           updateRole(this.role).then(() => {
             // 成功请求弹出提示
             this.$message({
