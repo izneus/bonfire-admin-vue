@@ -57,7 +57,8 @@ Bonfire是一个基于SpringBoot、Vue的前后端分离快速开发框架，主
 TODO
 
 ## 反馈交流
-技术交流QQ群：xxxxxxx
+技术交流QQ群：1017877875   
+微信群：TODO
 
 ## 产品路线图
 未来计划会添加的功能：
