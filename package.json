@@ -1,8 +1,8 @@
 {
-  "name": "vue-element-admin",
-  "version": "4.3.1",
-  "description": "A magical vue admin. An out-of-box UI solution for enterprise applications. Newest development stack of vue. Lots of awesome features",
-  "author": "Pan <panfree23@gmail.com>",
+  "name": "bonfire-admin-vue",
+  "version": "1.0.27",
+  "description": "该项目是基于vue-element-admin、重新设计ui的开发框架，配合bonfire-mysql后端的vue实现",
+  "author": "Izneus",
   "scripts": {
     "dev": "vue-cli-service serve",
     "lint": "eslint --ext .js,.vue src",
