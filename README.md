@@ -20,6 +20,11 @@ Bonfire是一个基于SpringBoot、Vue的前后端分离快速开发框架，主
 
 - 在线体验：TODO
 
+## 演示图
+| ![登录页](/images/login.png) | ![用户管理](/images/user.png) |
+| --- | --- |
+| ![新增用户](/images/user3.png) | ![调度任务](/images/job.png) |
+
 ## 项目目标
 - **初学者**   
   快速入门基于Spring的主流Java-Web开发流程、代码规范，熟悉开发相关的工具软件的使用，配合文档以及代码内自带的注释、范例代码，开发新人可暂时忽略令人费解的众多技术术语和@注解，专注于Ctrl+C&Ctrl+V出生产级代码。
