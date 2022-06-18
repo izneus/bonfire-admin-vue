@@ -249,6 +249,9 @@ aside {
 
       .tool-title {
         line-height: 32px;
+        font-size: 16px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.85);
       }
 
       .tool-button {
@@ -418,4 +421,61 @@ aside {
 
 th.el-table-column--selection.is-leaf.result-table-header-cell {
   padding-left: 4px;
+}
+
+.badge-status-dot {
+  position: relative;
+  top: -1px;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  vertical-align: middle;
+  border-radius: 50%;
+}
+
+.badge-status-success {
+  background-color: #52c41a;
+}
+
+.badge-status-error {
+  background-color: #ff4d4f;
+}
+
+.badge-status-processing {
+  background-color: #1890ff;
+}
+
+.badge-status-processing:after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #1890ff;
+  border-radius: 50%;
+  -webkit-animation: statusProcessing 1.2s infinite ease-in-out;
+  animation: statusProcessing 1.2s infinite ease-in-out;
+  content: "";
+}
+
+@-webkit-keyframes statusProcessing {
+  0% {
+    transform: scale(.8);
+    opacity: .5
+  }
+  to {
+    transform: scale(2.4);
+    opacity: 0
+  }
+}
+
+@keyframes statusProcessing {
+  0% {
+    transform: scale(.8);
+    opacity: .5
+  }
+  to {
+    transform: scale(2.4);
+    opacity: 0
+  }
 }

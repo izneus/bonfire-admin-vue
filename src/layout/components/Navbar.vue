@@ -210,6 +210,7 @@ export default {
   border-bottom: 1px solid #f0f2f5;
 
   .hamburger-container {
+    font-size: 18px;
     line-height: 40px;
     height: 100%;
     float: left;
