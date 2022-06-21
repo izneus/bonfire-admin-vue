@@ -21,6 +21,12 @@ const toolboxRouter = {
       component: () => import('@/views/system/empty'),
       name: 'ECharts',
       meta: { title: 'ECharts' }
+    },
+    {
+      path: '/formDesigner',
+      component: () => import('@/views/toolbox/form-designer'),
+      name: 'FormDesigner',
+      meta: { title: '表单设计器' }
     }
   ]
 }

@@ -62,6 +62,12 @@ Vue.use(Element, {
   i18n: (key, value) => i18n.t(key, value)
 })
 
+// 集成 https://github.com/xaboy/form-create
+import formCreate from '@form-create/element-ui'
+import FcDesigner from '@form-create/designer'
+Vue.use(formCreate)
+Vue.use(FcDesigner)
+
 // register global utility filters
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

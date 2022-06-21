@@ -163,7 +163,8 @@ const systemRouters = [
     name: 'Bpm',
     meta: {
       title: '流程中心',
-      icon: 'flow-chart'
+      icon: 'flow-chart',
+      roles: ['menu:bpm']
     },
     children: [
       {
@@ -171,7 +172,8 @@ const systemRouters = [
         component: () => import('@/views/bpm/designer'),
         name: 'Designer',
         meta: {
-          title: '流程设计器'
+          title: '流程设计器',
+          roles: ['menu:bpm:designer']
         }
       },
       {
@@ -179,7 +181,8 @@ const systemRouters = [
         component: () => import('@/views/bpm/model'),
         name: 'Model',
         meta: {
-          title: '模型管理'
+          title: '模型管理',
+          roles: ['menu:bpm:model']
         }
       },
       {
@@ -187,7 +190,8 @@ const systemRouters = [
         component: () => import('@/views/bpm/process-instance'),
         name: 'ProcessInstance',
         meta: {
-          title: '流程实例'
+          title: '流程实例',
+          roles: ['menu:bpm:processInstance']
         }
       },
       {
@@ -195,7 +199,8 @@ const systemRouters = [
         component: () => import('@/views/bpm/todo'),
         name: 'Todo',
         meta: {
-          title: '我的待办'
+          title: '我的待办',
+          roles: ['menu:bpm:todo']
         }
       }
     ]

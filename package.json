@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",
+    "@form-create/designer": "^1.0.7",
+    "@form-create/element-ui": "^2.5.23",
     "axios": "0.18.1",
     "bpmn-js": "^8.8.3",
     "bpmn-js-task-resize": "^1.2.0",
