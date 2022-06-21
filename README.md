@@ -26,6 +26,7 @@ Bonfire是一个基于SpringBoot、Vue的前后端分离快速开发框架，主
 | ![登录页](/images/login.png) | ![用户管理](/images/user.png) |
 | --- | --- |
 | ![新增用户](/images/user3.png) | ![调度任务](/images/job.png) |
+| ![流程进度](/images/process-instance.png) | ![表单编辑](/images/form-designer.png) |
 
 ## 项目目标
 - **初学者**   
@@ -51,6 +52,7 @@ Bonfire是一个基于SpringBoot、Vue的前后端分离快速开发框架，主
 - 工单管理：系统工单的创建、回复、关闭和其他管理功能。
 - 代码生成：自动生成crud相关各层代码
 - 文件管理：统一的上传、下载以及文件管理
+- 工作流引擎：基于flowable的流程编辑器以及流程引擎。
 - 其他内置功能请查看后端手册
 
 ## 谁在使用
@@ -62,7 +64,6 @@ TODO
 
 ## 产品路线图
 未来计划会添加的功能：
-- 工作流
 - 云存储
 - WebSocket
 - ElasticSearch
