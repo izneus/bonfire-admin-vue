@@ -1,7 +1,6 @@
 <template>
   <div class="app-container" style="height: calc(100vh - 80px)">
-    <fc-designer ref="formDesigner">
-    </fc-designer>
+    <fc-designer ref="formDesigner" />
   </div>
 </template>
 
