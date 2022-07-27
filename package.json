@@ -1,6 +1,6 @@
 {
   "name": "bonfire-admin-vue",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "该项目是基于vue-element-admin、重新设计ui的开发框架，配合bonfire-mysql后端的vue实现",
   "author": "Izneus",
   "scripts": {
