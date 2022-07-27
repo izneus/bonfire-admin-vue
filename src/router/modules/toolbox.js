@@ -27,6 +27,12 @@ const toolboxRouter = {
       component: () => import('@/views/toolbox/form-designer'),
       name: 'FormDesigner',
       meta: { title: '表单设计器' }
+    },
+    {
+      path: '/fileUpload',
+      component: () => import('@/views/toolbox/file-upload'),
+      name: 'FileUpload',
+      meta: { title: '大文件上传' }
     }
   ]
 }

@@ -68,6 +68,10 @@ import FcDesigner from '@form-create/designer'
 Vue.use(formCreate)
 Vue.use(FcDesigner)
 
+// 集成vue-simple-uploader
+import uploader from 'vue-simple-uploader'
+Vue.use(uploader)
+
 // register global utility filters
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

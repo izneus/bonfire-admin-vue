@@ -39,3 +39,18 @@ export function deleteFiles(data) {
   })
 }
 
+export function getUploadUrl(data) {
+  return request({
+    url: '/v1/file/getUploadUrl',
+    method: 'post',
+    data
+  })
+}
+
+export function mergeChunks(data) {
+  return request({
+    url: '/v1/file/mergeChunks',
+    method: 'post',
+    data
+  })
+}
