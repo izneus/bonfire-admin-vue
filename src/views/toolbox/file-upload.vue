@@ -10,7 +10,7 @@
     >
       <uploader-unsupport />
       <uploader-drop>
-        <p>Drop files here to upload or</p>
+        <p>拖放文件上传或</p>
         <uploader-btn>选择文件</uploader-btn>
         <uploader-btn :attrs="attrs">选择图片</uploader-btn>
         <uploader-btn :directory="true">选择文件夹</uploader-btn>
