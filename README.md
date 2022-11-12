@@ -20,6 +20,10 @@ Bonfire是一个基于SpringBoot、Vue的前后端分离快速开发框架，主
   Gitee：[https://gitee.com/izneus/bonfire-admin-vue.git](https://gitee.com/izneus/bonfire-admin-vue.git)   
   Github：[https://github.com/izneus/bonfire-admin-vue.git](https://github.com/izneus/bonfire-admin-vue.git)
 
+- 移动端项目：   
+  Gitee：[https://gitee.com/izneus/myerp-uniapp.git](https://gitee.com/izneus/myerp-uniapp.git)   
+  Github：[https://github.com/izneus/bonfire-uniapp.git](https://github.com/izneus/bonfire-uniapp.git)
+
 - 在线体验：TODO
 
 ## 演示图
