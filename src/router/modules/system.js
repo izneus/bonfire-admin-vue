@@ -21,6 +21,15 @@ const systemRouters = [
         }
       },
       {
+        path: 'config',
+        component: () => import('@/views/system/config'),
+        name: 'Config',
+        meta: {
+          title: '系统设置',
+          roles: ['menu:config']
+        }
+      },
+      {
         path: 'log',
         component: () => import('@/views/system/access-log'),
         name: 'AccessLog',

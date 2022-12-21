@@ -396,6 +396,11 @@ export default {
         if (valid) {
           this.createLoading = true
           updateDict(this.dictEntity).then(res => {
+            this.$message({
+              showClose: true,
+              message: '更新成功',
+              type: 'success'
+            })
             this.editVisible = false
             this.handleQuery()
           }).finally(() => {

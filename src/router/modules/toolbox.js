@@ -11,6 +11,12 @@ const toolboxRouter = {
   },
   children: [
     {
+      path: '/search-table-template',
+      component: () => import('@/views/toolbox/search-table-template'),
+      name: 'SearchTableTemplate',
+      meta: { title: '表格查询模板页' }
+    },
+    {
       path: '/amap',
       component: () => import('@/views/toolbox/amap'),
       name: 'AMap',
