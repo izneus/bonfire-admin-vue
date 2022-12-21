@@ -72,6 +72,37 @@ Vue.use(FcDesigner)
 import uploader from 'vue-simple-uploader'
 Vue.use(uploader)
 
+import ECharts from 'vue-echarts'
+// import 'echarts'
+import { use } from 'echarts/core'
+// 手动引入 ECharts 各模块来减小打包体积
+import {
+  CanvasRenderer
+} from 'echarts/renderers'
+import {
+  LineChart,
+  PieChart
+} from 'echarts/charts'
+import {
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+  LegendComponent
+} from 'echarts/components'
+
+use([
+  CanvasRenderer,
+  LineChart,
+  PieChart,
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+  LegendComponent
+])
+
+// 全局注册组件（也可以使用局部注册）
+Vue.component('v-chart', ECharts)
+
 // register global utility filters
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

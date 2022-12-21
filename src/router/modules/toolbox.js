@@ -18,15 +18,15 @@ const toolboxRouter = {
     },
     {
       path: '/amap',
-      component: () => import('@/views/toolbox/amap'),
+      component: () => import('@/views/toolbox/amap-demo'),
       name: 'AMap',
       meta: { title: '高德地图' }
     },
     {
       path: '/echarts',
-      component: () => import('@/views/system/empty'),
+      component: () => import('@/views/toolbox/echarts-demo'),
       name: 'ECharts',
-      meta: { title: 'ECharts' }
+      meta: { title: 'ECharts Demo' }
     },
     {
       path: '/formDesigner',
